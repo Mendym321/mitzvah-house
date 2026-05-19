@@ -706,9 +706,10 @@ select.inp{cursor:pointer;}
       <div id="dw-ev-summary" style="display:flex;gap:8px;margin-bottom:4px;"></div>
     </div>
     <div class="dw-body" id="dw-ev-body"></div>
-    <div class="dw-foot">
-      <button class="btn btn-o" onclick="openImportForEvent()" data-t="importRSVPs"></button>
-      <button class="btn btn-r" onclick="addPersonToEvent()" data-t="addPerson"></button>
+    <div class="dw-foot" style="flex-wrap:wrap;gap:6px">
+      <button class="btn btn-o btn-sm" onclick="deleteEvent()" style="color:var(--r);border-color:var(--rm)">Delete event</button>
+      <button class="btn btn-o btn-sm" onclick="openImportForEvent()">Import RSVPs</button>
+      <button class="btn btn-r btn-sm" style="flex:1" onclick="addPersonToEvent()">+ Add person</button>
     </div>
   </div>
 </div>
@@ -1485,6 +1486,15 @@ function renderAnalytics() {
 }
 
 
+// ── DELETE EVENT ──────────────────────────────────────────────────────
+async function deleteEvent() {
+  const ev = EV.find(e => String(e.id) === String(activeEvId)); if (!ev) return;
+  if (!confirm(`Delete "${ev.nm}"? This cannot be undone.`)) return;
+  EV = EV.filter(e => String(e.id) !== String(activeEvId));
+  save(); fbDeleteEvent(String(activeEvId));
+  closeDrawer('ev-ov'); toast('Event deleted'); renderCurrent();
+}
+
 // ── DRAWERS & MODALS ───────────────────────────────────────────────────
 function openDrawer(id) { document.getElementById(id)?.classList.add('on'); }
 function closeDrawer(id) { document.getElementById(id)?.classList.remove('on'); }
@@ -1701,7 +1711,7 @@ Object.assign(window, {
   mDwTab, evDwTab, mfilt, filterByTag,
   addMember, addEvent, addMemberToEvent, addPersonToEvent,
   editMember, saveMemberEdit, deleteMember,
-  toggleMergeMode, toggleMergeSelect, doMerge,
+  toggleMergeMode, toggleMergeSelect, doMerge, deleteEvent,
   renderEvBody,
   handleTagKey, addTagToField, renderAmTags, renderEmTags,
   toggleAttendance, toggleSelectAll, cycleRSVP,
