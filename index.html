@@ -1,927 +1,1261 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Mitzvah House Hub</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --terra:#C9705A;--terra-d:#b05c47;--terra-l:#FAF0EC;--terra-m:#E8C4B8;
-  --navy:#2D4B73;--navy-l:#EEF2F7;--navy-m:#B8CCE0;
-  --bg:#FAF7F2;--bg2:#F5F0E8;--bg3:#EDE5D8;
-  --line:#E8E0D5;--line2:#F0E8E0;
-  --ink:#1A1410;--ink2:#4A3F36;--ink3:#8C7B6E;--ink4:#B8A898;
-  --white:#fff;--green:#2d7a4f;--green-l:#EDF7F1;
-  --serif:'Fraunces',Georgia,serif;--sans:'DM Sans',-apple-system,sans-serif;
-  --r:12px;--r2:18px;
-  --sh:0 1px 3px rgba(26,20,16,.06),0 1px 2px rgba(26,20,16,.04);
-  --sh2:0 8px 32px rgba(26,20,16,.1),0 2px 8px rgba(26,20,16,.06);
+  --r:#C9705A;--rd:#A85A45;--rl:#FBF0EC;--rm:#F0C4B4;
+  --w:#FFFFFF;--f:#F7F3EE;--f2:#EFE9E1;--f3:#E4DCD2;--f4:#D0C6BA;
+  --k:#1C1410;--k2:#3E342A;--k3:#7A6A5C;--k4:#B0A090;
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'DM Sans',-apple-system,sans-serif;
 }
-html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden;}
-#app{display:flex;height:100vh;}
+html,body{height:100%;font-family:var(--sans);color:var(--k);background:var(--f);-webkit-font-smoothing:antialiased;}
+body{overflow-x:hidden;}
 
-/* ── LOADER ── */
-#loader{position:fixed;inset:0;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .7s ease;}
-#loader.out{opacity:0;pointer-events:none;}
-.lf{animation:lfa 2s ease-in-out infinite;}
-@keyframes lfa{0%,100%{transform:scale(1) rotate(-1deg)}40%{transform:scale(1.06) rotate(1.5deg)}70%{transform:scale(.97) rotate(-.5deg)}}
-.ln{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--bg);margin-top:18px;letter-spacing:.01em;}
-.ln em{color:var(--terra-m);font-style:italic;}
-.ls{font-size:10px;color:rgba(255,255,255,.25);margin-top:5px;text-transform:uppercase;letter-spacing:.14em;}
-.lb{width:100px;height:1.5px;background:rgba(255,255,255,.08);border-radius:1px;margin-top:24px;overflow:hidden;}
-.lp{height:100%;background:var(--terra-m);animation:lpr 1.5s ease forwards;}
-@keyframes lpr{from{width:0}to{width:100%}}
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;background:var(--k);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;transition:opacity .8s ease,visibility .8s;}
+#splash.gone{opacity:0;visibility:hidden;}
+.sp-flame{margin-bottom:20px;animation:breathe 3s ease-in-out infinite;}
+@keyframes breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.06)}}
+.sp-title{font-family:var(--serif);font-size:24px;font-weight:400;color:var(--w);letter-spacing:.02em;margin-bottom:6px;}
+.sp-title em{font-style:italic;color:var(--rm);}
+.sp-sub{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.14em;text-transform:uppercase;}
+.sp-line{width:48px;height:1px;background:rgba(255,255,255,.15);margin:28px auto 0;position:relative;overflow:hidden;}
+.sp-line::after{content:'';position:absolute;inset:0;background:var(--rm);transform:translateX(-100%);animation:slide 1.6s ease forwards .3s;}
+@keyframes slide{to{transform:translateX(0)}}
 
-/* ── SIDEBAR ── */
-#sb{width:220px;min-width:220px;background:var(--bg);border-right:1px solid var(--line);display:flex;flex-direction:column;height:100vh;}
-.sb-top{padding:22px 20px 16px;border-bottom:1px solid var(--line);}
-.sb-name{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--ink);line-height:1.15;margin-bottom:2px;}
-.sb-name em{color:var(--terra);font-style:italic;}
-.sb-sub{font-size:10px;color:var(--ink4);text-transform:uppercase;letter-spacing:.1em;}
-.sb-nav{flex:1;padding:10px 10px;overflow-y:auto;}
-.sni{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--ink3);transition:all .13s;margin-bottom:1px;user-select:none;}
-.sni:hover{background:var(--line2);color:var(--ink2);}
-.sni.on{background:var(--terra-l);color:var(--terra);font-weight:600;}
-.sni svg{width:15px;height:15px;flex-shrink:0;opacity:.7;}
-.sni.on svg{opacity:1;}
-.sni .cnt{margin-left:auto;font-size:11px;color:var(--ink4);}
-.sb-foot{padding:14px 18px;border-top:1px solid var(--line);}
-.lang-toggle{display:flex;gap:3px;background:var(--bg3);border-radius:20px;padding:3px;margin-bottom:10px;}
-.lt{flex:1;padding:4px 0;border-radius:16px;border:none;background:none;font-family:var(--sans);font-size:11px;font-weight:600;color:var(--ink3);cursor:pointer;transition:all .13s;text-align:center;}
-.lt.on{background:var(--terra);color:#fff;}
+/* ── TOP NAV ── */
+#nav{background:var(--w);border-bottom:1px solid var(--f3);position:sticky;top:0;z-index:100;}
+.nav-inner{max-width:1080px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:56px;gap:0;}
+.nav-brand{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--k);letter-spacing:.01em;margin-right:36px;flex-shrink:0;white-space:nowrap;}
+.nav-brand em{font-style:italic;color:var(--r);}
+.nav-tabs{display:flex;gap:2px;flex:1;}
+.nt{padding:7px 14px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--k3);cursor:pointer;transition:all .12s;border:none;background:none;font-family:var(--sans);white-space:nowrap;}
+.nt:hover{background:var(--f);color:var(--k2);}
+.nt.on{background:var(--rl);color:var(--r);font-weight:600;}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;}
+.lang-sw{display:flex;background:var(--f2);border-radius:20px;padding:2px;gap:2px;}
+.ls{padding:4px 10px;border-radius:16px;border:none;background:none;font-family:var(--sans);font-size:11.5px;font-weight:600;color:var(--k3);cursor:pointer;transition:all .12s;}
+.ls.on{background:var(--r);color:var(--w);}
 
-/* ── MAIN ── */
-#main{flex:1;display:flex;flex-direction:column;min-width:0;}
-#topbar{height:52px;background:var(--white);border-bottom:1px solid var(--line);padding:0 22px;display:flex;align-items:center;gap:8px;flex-shrink:0;}
-.tb-title{font-family:var(--serif);font-size:17px;font-weight:500;flex:1;color:var(--ink);}
-.tb-ham{display:none;width:32px;height:32px;border:none;background:none;cursor:pointer;align-items:center;justify-content:center;color:var(--ink3);border-radius:8px;}
-#ct{flex:1;overflow-y:auto;overflow-x:hidden;}
-#ct::-webkit-scrollbar{width:4px;}
-#ct::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px;}
-.panel{display:none;}.panel.on{display:block;animation:pu .22s ease;}
-@keyframes pu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── COMMON ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border-radius:30px;border:none;cursor:pointer;font-family:var(--sans);font-size:13.5px;font-weight:600;transition:all .13s;white-space:nowrap;letter-spacing:.01em;}
-.btn-terra{background:var(--terra);color:#fff;}.btn-terra:hover{background:var(--terra-d);}
-.btn-ink{background:var(--ink);color:var(--bg);}.btn-ink:hover{background:var(--ink2);}
-.btn-ghost{background:transparent;color:var(--ink3);border:1.5px solid var(--line);}.btn-ghost:hover{background:var(--bg2);border-color:var(--bg3);}
-.btn-green{background:var(--green);color:#fff;}.btn-green:hover{filter:brightness(1.05);}
+/* ── LAYOUT ── */
+#wrap{max-width:1080px;margin:0 auto;padding:32px 24px;}
+.page{display:none;}.page.on{display:block;animation:up .2s ease;}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;cursor:pointer;font-family:var(--sans);font-weight:600;transition:all .13s;white-space:nowrap;}
 .btn:active{transform:scale(.97);}
-.btn svg{width:13px;height:13px;}
-.fi{width:100%;padding:10px 13px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--sans);font-size:14px;color:var(--ink);outline:none;background:var(--white);transition:border .13s;}
-.fi:focus{border-color:var(--terra);}
-select.fi{cursor:pointer;}textarea.fi{resize:none;line-height:1.65;}
-.fi::placeholder{color:var(--ink4);}
-.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:13px;}
-.fl{font-size:12px;font-weight:600;color:var(--ink3);}
-.fr2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:13px;}
-.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block;}
-@keyframes sp{to{transform:rotate(360deg)}}
+.btn svg{width:14px;height:14px;}
+.btn-r{background:var(--r);color:var(--w);padding:10px 20px;border-radius:100px;font-size:13.5px;}.btn-r:hover{background:var(--rd);}
+.btn-k{background:var(--k);color:var(--w);padding:10px 20px;border-radius:100px;font-size:13.5px;}.btn-k:hover{background:var(--k2);}
+.btn-o{background:transparent;color:var(--k3);padding:10px 18px;border-radius:100px;font-size:13.5px;border:1.5px solid var(--f3);}.btn-o:hover{background:var(--f2);border-color:var(--f4);}
+.btn-sm{padding:7px 14px;font-size:12.5px;border-radius:100px;}
+
+/* ── FORMS ── */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.label{font-size:12px;font-weight:600;color:var(--k3);letter-spacing:.02em;}
+.inp{width:100%;padding:11px 14px;border:1.5px solid var(--f3);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--k);background:var(--w);outline:none;transition:border .12s;}
+.inp:focus{border-color:var(--r);}
+.inp::placeholder{color:var(--k4);}
+textarea.inp{resize:none;line-height:1.65;}
+select.inp{cursor:pointer;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 
 /* ── TAGS ── */
-.tpill{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
-.tags-field{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:8px 10px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--white);cursor:text;min-height:42px;transition:border .13s;}
-.tags-field:focus-within{border-color:var(--terra);}
-.tag-input{border:none;outline:none;font-family:var(--sans);font-size:13px;color:var(--ink);background:none;min-width:80px;flex:1;}
-.tag-sug{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
-.tsi{font-size:12px;padding:4px 11px;border-radius:20px;border:1px dashed var(--line);color:var(--ink4);cursor:pointer;transition:all .12s;font-family:var(--sans);}
-.tsi:hover{border-color:var(--terra);color:var(--terra);background:var(--terra-l);}
+.tagfield{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:8px 10px;border:1.5px solid var(--f3);border-radius:10px;background:var(--w);cursor:text;min-height:44px;transition:border .12s;}
+.tagfield:focus-within{border-color:var(--r);}
+.taginput{border:none;outline:none;font-family:var(--sans);font-size:13px;color:var(--k);background:none;min-width:80px;flex:1;}
+.taginput::placeholder{color:var(--k4);}
+.tagpill{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.tagpill.rm{cursor:pointer;}
+.tagsug{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.tsug{padding:4px 12px;border-radius:20px;border:1px dashed var(--f4);font-size:12px;color:var(--k4);cursor:pointer;transition:all .11s;font-family:var(--sans);}
+.tsug:hover{border-color:var(--r);color:var(--r);background:var(--rl);}
 
 /* ── HOME ── */
-.home-hero{padding:30px 24px 22px;position:relative;overflow:hidden;}
-.home-hero::after{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,var(--terra-l) 0%,transparent 70%);pointer-events:none;}
-.h-date{font-size:11px;color:var(--ink4);font-weight:500;letter-spacing:.04em;margin-bottom:8px;}
-.h-heading{font-family:var(--serif);font-size:38px;font-weight:700;color:var(--ink);line-height:1.1;margin-bottom:8px;}
-.h-heading em{color:var(--terra);font-style:italic;}
-.h-sub{font-size:14px;color:var(--ink3);line-height:1.65;}
-.h-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:0 24px 20px;}
-.hstat{padding:16px 0;border-right:1px solid var(--line2);}
-.hstat:last-child{border-right:none;}
-.hstat-n{font-family:var(--serif);font-size:42px;font-weight:700;color:var(--terra);line-height:1;}
-.hstat-l{font-size:11px;color:var(--ink4);font-weight:500;margin-top:3px;}
-.divider{height:1px;background:var(--line2);margin:0 24px 20px;}
-.sec-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;padding:0 24px;}
-.sec-title{font-family:var(--serif);font-size:17px;font-weight:500;color:var(--ink);}
-.sec-link{font-size:12.5px;color:var(--terra);font-weight:600;cursor:pointer;}
-.sec-link:hover{text-decoration:underline;}
+.home-head{margin-bottom:36px;padding:44px 0 38px;border-bottom:1px solid var(--f3);position:relative;overflow:hidden;}
+.home-flame{position:absolute;right:0;top:50%;transform:translateY(-50%);opacity:.06;pointer-events:none;}
+.home-eyebrow{font-size:11px;font-weight:500;color:var(--k4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px;}
+.home-greeting{font-family:var(--serif);font-size:48px;font-weight:400;line-height:1;color:var(--k);margin-bottom:10px;}
+.home-greeting em{font-style:italic;color:var(--r);}
+.home-tagline{font-size:16px;color:var(--k3);line-height:1.7;max-width:400px;font-weight:300;}
+.home-sub{font-size:13px;color:var(--k4);line-height:1.7;max-width:420px;margin-top:8px;}
 
-/* IMPORT LAUNCHPAD */
-.launch-wrap{padding:0 24px 20px;}
-.launch-title{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--ink);margin-bottom:5px;}
-.launch-sub{font-size:13.5px;color:var(--ink3);line-height:1.65;margin-bottom:18px;}
-.launch-primary{display:flex;align-items:center;gap:14px;background:var(--ink);border-radius:16px;padding:18px 20px;cursor:pointer;margin-bottom:10px;transition:all .15s;}
-.launch-primary:hover{background:var(--ink2);}
-.launch-primary-icon{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.launch-primary-title{font-family:var(--serif);font-size:16px;font-weight:500;color:var(--bg);}
-.launch-primary-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px;}
-.launch-primary-arr{margin-left:auto;color:rgba(255,255,255,.3);font-size:20px;}
-.launch-secondary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
-.launch-sec-opt{background:var(--white);border:1.5px solid var(--line);border-radius:13px;padding:14px 16px;cursor:pointer;transition:all .15s;}
-.launch-sec-opt:hover{border-color:var(--terra-m);background:var(--terra-l);}
-.launch-sec-icon{font-size:20px;margin-bottom:7px;display:block;}
-.launch-sec-title{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:2px;}
-.launch-sec-sub{font-size:12px;color:var(--ink4);line-height:1.5;}
-.launch-manual{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--bg2);border-radius:10px;cursor:pointer;border:1px solid var(--line2);}
-.launch-manual:hover{background:var(--bg3);}
-.launch-manual-text{font-size:13px;color:var(--ink3);flex:1;}
+/* IMPORT CARDS */
+.import-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+.icard{background:var(--w);border:1.5px solid var(--f3);border-radius:16px;padding:22px;cursor:pointer;transition:all .16s;position:relative;}
+.icard:hover{border-color:var(--rm);transform:translateY(-2px);box-shadow:0 8px 28px rgba(28,20,16,.08);}
+.icard.primary{background:var(--rl);border-color:var(--rm);}
+.icard.primary:hover{border-color:var(--rm);}
+.ic-icon{font-size:26px;margin-bottom:12px;display:block;}
+.ic-title{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--k);margin-bottom:5px;line-height:1.2;}
+.icard.primary .ic-title{color:var(--k);}
+.ic-sub{font-size:13px;color:var(--k3);line-height:1.6;}
+.icard.primary .ic-sub{color:var(--k3);}
+.ic-best{position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;background:var(--r);color:var(--w);padding:2px 8px;border-radius:20px;letter-spacing:.03em;}
+.home-or{text-align:center;font-size:13px;color:var(--k4);padding:4px 0 10px;}
+.home-manual{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--w);border:1px solid var(--f3);border-radius:12px;cursor:pointer;transition:background .12s;}
+.home-manual:hover{background:var(--f2);}
+.home-manual-text{font-size:14px;color:var(--k3);flex:1;}
+.home-manual svg{color:var(--k4);}
 
-/* EV SCROLL */
-.ev-scroll{display:flex;gap:12px;padding:0 24px 22px;overflow-x:auto;}
-.ev-scroll::-webkit-scrollbar{height:0;}
-.ev-card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:186px;cursor:pointer;transition:all .15s;flex-shrink:0;}
-.ev-card:hover{transform:translateY(-2px);box-shadow:var(--sh2);border-color:var(--terra-m);}
-.ev-card-dt{font-size:10.5px;font-weight:600;color:var(--ink4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
-.ev-card-nm{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--ink);margin-bottom:8px;line-height:1.3;}
-.ev-card-cnt{font-size:12.5px;font-weight:600;color:var(--terra);}
-.ev-card-bar{height:2px;background:var(--terra);border-radius:1px;margin-bottom:12px;opacity:.35;}
+/* STATS (when data exists) */
+.stat-bar{display:flex;gap:32px;margin-bottom:36px;padding-bottom:28px;border-bottom:1px solid var(--f3);}
+.sbar-item{}
+.sbar-n{font-family:var(--serif);font-size:48px;font-weight:400;color:var(--r);line-height:1;}
+.sbar-l{font-size:12px;color:var(--k4);font-weight:500;margin-top:4px;letter-spacing:.03em;}
+
+/* UPCOMING */
+.section{margin-bottom:40px;}
+.section-label{font-size:11px;font-weight:700;color:var(--k4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;}
+.ev-cards{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;}
+.ev-cards::-webkit-scrollbar{height:0;}
+.evc{background:var(--w);border:1px solid var(--f3);border-radius:14px;padding:18px;min-width:200px;flex-shrink:0;cursor:pointer;transition:all .14s;}
+.evc:hover{border-color:var(--rm);box-shadow:0 4px 18px rgba(28,20,16,.07);}
+.evc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.evc-date{font-family:var(--serif);font-size:32px;font-weight:400;color:var(--k);line-height:1;}
+.evc-mo{font-size:11px;font-weight:600;color:var(--k4);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
+.evc-dot{width:8px;height:8px;border-radius:50%;background:var(--r);}
+.evc-name{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--k);margin-bottom:6px;line-height:1.3;}
+.evc-cnt{font-size:12.5px;color:var(--k3);}
 
 /* ACTIVITY */
-.act-row{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--line2);}
-.act-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
-.act-text{flex:1;font-size:13.5px;color:var(--ink2);line-height:1.5;}
-.act-time{font-size:11.5px;color:var(--ink4);}
+.activity-list{display:flex;flex-direction:column;gap:0;}
+.act-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--f2);}
+.act-item:last-child{border-bottom:none;}
+.act-dot{width:8px;height:8px;border-radius:50%;background:var(--r);flex-shrink:0;}
+.act-text{flex:1;font-size:14px;color:var(--k2);line-height:1.5;}
+.act-time{font-size:12px;color:var(--k4);}
 
-/* TIP */
-.tip-strip{margin:0 24px 18px;background:var(--navy-l);border:1px solid var(--navy-m);border-radius:13px;padding:13px 16px;display:flex;gap:11px;align-items:flex-start;}
-.tip-dismiss{font-size:12px;color:var(--navy);font-weight:600;cursor:pointer;opacity:.7;margin-top:6px;display:inline-block;}
-.tip-dismiss:hover{opacity:1;}
+/* ── EVENTS PAGE ── */
+.page-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px;}
+.page-title{font-family:var(--serif);font-size:38px;font-weight:400;color:var(--k);}
+.page-title em{font-style:italic;color:var(--r);}
+.evlist{display:flex;flex-direction:column;gap:0;}
+.evrow{display:flex;align-items:center;gap:18px;padding:18px 0;border-bottom:1px solid var(--f2);cursor:pointer;transition:background .1s;}
+.evrow:hover .evrow-name{color:var(--r);}
+.evrow-dt{width:56px;flex-shrink:0;text-align:center;}
+.evrow-day{font-family:var(--serif);font-size:28px;font-weight:400;color:var(--k);line-height:1;}
+.evrow-mo{font-size:10px;font-weight:700;color:var(--k4);text-transform:uppercase;letter-spacing:.06em;}
+.evrow-info{flex:1;min-width:0;}
+.evrow-name{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--k);transition:color .12s;margin-bottom:3px;}
+.evrow-meta{font-size:13px;color:var(--k3);}
+.evrow-right{text-align:right;flex-shrink:0;}
+.evrow-cnt{font-family:var(--serif);font-size:28px;font-weight:400;color:var(--r);line-height:1;}
+.evrow-clabel{font-size:11px;color:var(--k4);}
+.ev-section-title{font-size:11px;font-weight:700;color:var(--k4);letter-spacing:.1em;text-transform:uppercase;padding:20px 0 10px;}
 
-/* EVENTS */
-.ev-list-hd{padding:10px 24px 6px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);}
-.ev-row{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--white);border-bottom:1px solid var(--line2);cursor:pointer;transition:background .1s;position:relative;}
-.ev-row:hover{background:var(--terra-l);}
-.ev-row::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:2.5px;background:var(--terra);border-radius:0 2px 2px 0;opacity:0;transition:opacity .13s;}
-.ev-row:hover::before{opacity:1;}
-.ev-datebox{width:42px;height:42px;border:1.5px solid var(--line);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;background:var(--bg);}
-.ev-mo{font-size:8px;text-transform:uppercase;color:var(--ink4);font-weight:700;letter-spacing:.04em;}
-.ev-d{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--ink);line-height:1;}
-.ev-info{flex:1;min-width:0;}
-.ev-nm{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--ink);}
-.ev-meta{font-size:12px;color:var(--ink3);margin-top:2px;}
-.ev-cnt{text-align:right;flex-shrink:0;}
-.ev-cnt-n{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--terra);}
-.ev-cnt-l{font-size:10px;color:var(--ink4);}
+/* ── MEMBERS PAGE ── */
+.members-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;max-width:280px;}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--k4);}
+.searchinp{width:100%;padding:9px 12px 9px 34px;border:1.5px solid var(--f3);border-radius:100px;font-family:var(--sans);font-size:13.5px;color:var(--k);background:var(--w);outline:none;transition:border .12s;}
+.searchinp:focus{border-color:var(--r);}
+.searchinp::placeholder{color:var(--k4);}
+.filtchip{padding:7px 14px;border-radius:100px;border:1.5px solid var(--f3);background:var(--w);font-family:var(--sans);font-size:13px;font-weight:500;color:var(--k3);cursor:pointer;transition:all .12s;}
+.filtchip.on{background:var(--r);color:var(--w);border-color:var(--r);}
+.m-count{margin-left:auto;font-size:13px;color:var(--k4);}
 
-/* MEMBERS */
-.filter-bar{padding:10px 16px;background:var(--white);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:5;}
-.fb{padding:5px 13px;border-radius:20px;border:1.5px solid var(--line);background:var(--white);font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--ink3);cursor:pointer;transition:all .12s;}
-.fb.on{background:var(--terra);color:#fff;border-color:var(--terra);}
-.srch{flex:1;max-width:180px;padding:6px 12px;border:1.5px solid var(--line);border-radius:20px;font-family:var(--sans);font-size:13px;color:var(--ink);outline:none;background:var(--white);}
-.srch:focus{border-color:var(--terra);}
-.mrow{display:flex;align-items:center;gap:13px;padding:13px 24px;background:var(--white);border-bottom:1px solid var(--line2);cursor:pointer;transition:background .1s;position:relative;}
-.mrow:hover{background:var(--terra-l);}
-.mrow::before{content:'';position:absolute;left:0;top:25%;bottom:25%;width:2.5px;background:var(--terra);border-radius:0 2px 2px 0;opacity:0;transition:opacity .13s;}
-.mrow:hover::before{opacity:1;}
-.mr-name{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--ink);margin-bottom:3px;}
-.mr-meta{font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.att-dots{display:flex;gap:3px;}
-.dot{width:7px;height:7px;border-radius:50%;}
-.dot-on{background:var(--terra);}
-.dot-off{background:var(--line);}
+.mlist{display:flex;flex-direction:column;gap:0;}
+.mrow{display:flex;align-items:center;gap:16px;padding:16px 0;border-bottom:1px solid var(--f2);cursor:pointer;transition:all .12s;}
+.mrow:hover .mrow-name{color:var(--r);}
+.mav{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px;font-weight:600;color:var(--w);flex-shrink:0;}
+.mrow-info{flex:1;min-width:0;}
+.mrow-name{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--k);transition:color .12s;margin-bottom:4px;}
+.mrow-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.mrow-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;}
+.mrow-detail{font-size:12.5px;color:var(--k3);}
+.mrow-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
 
-/* ANALYTICS */
-.an-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px 24px;}
-.an-card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:18px;}
-.an-title{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--ink);margin-bottom:14px;}
-.bar-wrap{display:flex;flex-direction:column;gap:10px;}
-.bar-row{display:flex;align-items:center;gap:10px;}
-.bar-lbl{font-size:12px;color:var(--ink3);min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.bar-track{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
-.bar-fill{height:100%;border-radius:3px;transition:width .5s ease;}
-.bar-val{font-size:12px;font-weight:600;color:var(--ink2);min-width:22px;text-align:right;}
+/* ── CHECK-IN STRIP ── */
+.checkin-strip{margin-bottom:32px;padding:20px 24px;background:var(--w);border:1px solid var(--f3);border-radius:16px;}
+.checkin-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;}
+.checkin-title{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--k);}
+.checkin-sub{font-size:13px;color:var(--k4);}
+.checkin-list{display:flex;flex-direction:column;gap:0;}
+.ci-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--f2);}
+.ci-row:last-child{border-bottom:none;}
+.ci-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;font-weight:600;color:var(--w);flex-shrink:0;}
+.ci-info{flex:1;min-width:0;}
+.ci-name{font-family:var(--serif);font-size:15px;font-weight:400;color:var(--k);margin-bottom:2px;}
+.ci-since{font-size:12.5px;color:var(--k4);}
+.ci-wa{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--f);border:1px solid var(--f3);color:var(--k3);cursor:pointer;text-decoration:none;flex-shrink:0;font-size:15px;transition:all .13s;}
+.ci-wa:hover{background:#25d366;border-color:#25d366;color:var(--w);}
 
-/* DETAIL PANEL */
-.ov{position:fixed;inset:0;background:rgba(26,20,16,.18);z-index:300;opacity:0;pointer-events:none;transition:opacity .2s;}
-.ov.on{opacity:1;pointer-events:all;}
-.dp{position:absolute;right:0;top:0;bottom:0;width:440px;max-width:100vw;background:var(--white);border-left:1px solid var(--line);display:flex;flex-direction:column;transform:translateX(110%);transition:transform .25s cubic-bezier(.32,.72,0,1);box-shadow:var(--sh2);}
-.ov.on .dp{transform:translateX(0);}
-.dp-hero{padding:20px 20px 0;border-bottom:1px solid var(--line);flex-shrink:0;background:linear-gradient(160deg,var(--terra-l) 0%,var(--white) 60%);}
-.dp-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;}
-.dp-name{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink);line-height:1.2;}
-.dp-meta{font-size:12.5px;color:var(--ink3);margin-top:3px;}
-.dp-x{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink4);}
-.dp-x:hover{background:var(--bg2);}
-.dp-x svg{width:10px;height:10px;}
-.dp-tabs{display:flex;}
-.dpt{padding:9px 14px;font-size:13px;font-weight:600;color:var(--ink4);cursor:pointer;border-bottom:2px solid transparent;transition:all .12s;white-space:nowrap;}
-.dpt.on{color:var(--terra);border-bottom-color:var(--terra);}
-.dp-body{flex:1;overflow-y:auto;padding:18px 20px;}
-.dp-body::-webkit-scrollbar{width:3px;}
-.dp-body::-webkit-scrollbar-thumb{background:var(--line);}
-.dp-foot{padding:13px 20px;border-top:1px solid var(--line);display:flex;gap:7px;flex-shrink:0;}
-.dp-foot .btn{flex:1;}
-.ds{margin-bottom:20px;}
-.ds-t{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:9px;}
-.ir{display:flex;gap:8px;margin-bottom:8px;align-items:baseline;}
-.irl{font-size:13px;color:var(--ink4);min-width:90px;flex-shrink:0;}
-.irv{font-size:13px;color:var(--ink2);}
-.tl-item{display:flex;gap:10px;padding-bottom:13px;position:relative;}
-.tl-item:not(:last-child)::before{content:'';position:absolute;left:5px;top:11px;bottom:0;width:1px;background:var(--line2);}
-.tl-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;margin-top:2px;border:2px solid var(--terra);background:var(--terra-l);}
+/* ── ANALYTICS PAGE ── */
+.an-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.an-card{background:var(--w);border:1px solid var(--f3);border-radius:18px;padding:0;overflow:hidden;}
+.an-card-head{padding:20px 22px 16px;border-bottom:1px solid var(--f2);}
+.an-card-eyebrow{font-size:10px;font-weight:700;color:var(--k4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
+.an-card-title{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--k);}
+.an-card-body{padding:18px 22px 20px;}
+.an-hero-stat{font-family:var(--serif);font-size:56px;font-weight:400;line-height:1;margin-bottom:4px;}
+.an-hero-label{font-size:12px;color:var(--k4);font-weight:500;}
+.an-bars{display:flex;flex-direction:column;gap:14px;}
+.an-bar-row{display:flex;align-items:center;gap:12px;}
+.an-bar-lbl{font-size:13px;color:var(--k2);min-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;}
+.an-bar-track{flex:1;height:3px;background:var(--f2);border-radius:2px;overflow:hidden;}
+.an-bar-fill{height:100%;border-radius:2px;transition:width .7s cubic-bezier(.16,1,.3,1);}
+.an-bar-val{font-family:var(--serif);font-size:16px;color:var(--k3);min-width:20px;text-align:right;}
+.an-empty{font-size:14px;color:var(--k4);padding:8px 0;font-style:italic;}
 
-/* IMPORT MODAL */
-.mo{position:fixed;inset:0;background:rgba(26,20,16,.22);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .16s;}
-.mo.on{opacity:1;pointer-events:all;}
-.md{background:var(--white);border-radius:22px 22px 0 0;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;transform:translateY(14px);transition:transform .2s;padding-bottom:env(safe-area-inset-bottom);}
-.mo.on .md{transform:translateY(0);}
-.md-h{padding:15px 18px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);z-index:1;}
-.md-t{font-family:var(--serif);font-size:17px;font-weight:500;color:var(--ink);}
-.md-b{padding:16px 18px 18px;}
-.fa{display:flex;justify-content:flex-end;gap:8px;padding-top:12px;border-top:1px solid var(--line);margin-top:4px;}
-.handle{width:36px;height:4px;background:var(--line);border-radius:2px;margin:12px auto 0;}
-.xbtn{width:27px;height:27px;border-radius:50%;background:var(--bg2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);}
-.xbtn svg{width:10px;height:10px;}
-.csv-ta{width:100%;min-height:110px;padding:12px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;font-family:monospace;font-size:12.5px;color:var(--ink2);outline:none;resize:vertical;line-height:1.7;}
-.csv-ta:focus{border-color:var(--terra);}
+/* ── DRAWERS (right panel) ── */
+.overlay{position:fixed;inset:0;background:rgba(28,20,16,.15);z-index:400;opacity:0;pointer-events:none;transition:opacity .2s;}
+.overlay.on{opacity:1;pointer-events:all;}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:480px;max-width:100vw;background:var(--w);border-left:1px solid var(--f3);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .26s cubic-bezier(.32,.72,0,1);z-index:401;box-shadow:-8px 0 32px rgba(28,20,16,.08);}
+.overlay.on .drawer{transform:translateX(0);}
+.dw-head{padding:22px 22px 0;border-bottom:1px solid var(--f2);flex-shrink:0;}
+.dw-eyebrow{font-size:11px;font-weight:600;color:var(--k4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+.dw-title{font-family:var(--serif);font-size:26px;font-weight:400;color:var(--k);margin-bottom:14px;line-height:1.2;}
+.dw-title em{font-style:italic;color:var(--r);}
+.dw-tabs{display:flex;gap:0;}
+.dwt{padding:10px 16px;font-size:13px;font-weight:600;color:var(--k4);cursor:pointer;border-bottom:2px solid transparent;transition:all .12s;white-space:nowrap;}
+.dwt.on{color:var(--r);border-bottom-color:var(--r);}
+.dw-body{flex:1;overflow-y:auto;padding:22px;}
+.dw-body::-webkit-scrollbar{width:3px;}
+.dw-body::-webkit-scrollbar-thumb{background:var(--f3);}
+.dw-foot{padding:16px 22px;border-top:1px solid var(--f2);display:flex;gap:8px;flex-shrink:0;}
+.dw-foot .btn{flex:1;}
+.dw-x{width:30px;height:30px;border-radius:50%;border:1px solid var(--f3);background:var(--w);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--k4);flex-shrink:0;}
+.dw-x:hover{background:var(--f2);}
+
+/* MEMBER DRAWER INFO */
+.dw-ir{display:flex;gap:10px;margin-bottom:10px;align-items:baseline;}
+.dw-irl{font-size:13px;color:var(--k4);min-width:96px;flex-shrink:0;}
+.dw-irv{font-size:13px;color:var(--k2);line-height:1.55;}
+.dw-section{margin-bottom:22px;}
+.dw-section-title{font-size:10.5px;font-weight:700;color:var(--k4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:11px;}
+.hist-item{display:flex;gap:12px;padding-bottom:12px;position:relative;}
+.hist-item:not(:last-child)::before{content:'';position:absolute;left:4px;top:10px;bottom:0;width:1px;background:var(--f2);}
+.hist-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:3px;background:var(--rl);border:2px solid var(--rm);}
+.hist-name{font-family:var(--serif);font-size:14px;font-weight:400;color:var(--k);}
+.hist-date{font-size:12px;color:var(--k4);margin-top:2px;}
+
+/* EVENT DRAWER */
+.rsvp-count-row{display:flex;gap:10px;margin-bottom:16px;}
+.rsvp-box{flex:1;background:var(--f);border-radius:10px;padding:12px;text-align:center;}
+.rsvp-n{font-family:var(--serif);font-size:28px;font-weight:400;color:var(--k);}
+.rsvp-l{font-size:11px;color:var(--k4);font-weight:500;margin-top:3px;}
+.rsvp-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--f2);}
+.rsvp-item:last-child{border-bottom:none;}
+.rsvp-toggle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;flex-shrink:0;transition:all .12s;}
+.rsvp-conf{background:rgba(45,122,79,.1);color:#2d7a4f;}
+.rsvp-pend{background:var(--f2);color:var(--k4);}
+
+/* ── MODALS ── */
+.modal-bg{position:fixed;inset:0;background:rgba(28,20,16,.2);z-index:600;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .16s;}
+.modal-bg.on{opacity:1;pointer-events:all;}
+.modal{background:var(--w);border-radius:22px 22px 0 0;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;transform:translateY(12px);transition:transform .2s;padding-bottom:env(safe-area-inset-bottom);}
+.modal-bg.on .modal{transform:translateY(0);}
+.modal-handle{width:38px;height:4px;background:var(--f3);border-radius:2px;margin:13px auto 0;}
+.modal-head{padding:16px 20px 13px;border-bottom:1px solid var(--f2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--w);z-index:1;}
+.modal-title{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--k);}
+.modal-x{width:28px;height:28px;border-radius:50%;background:var(--f2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--k3);}
+.modal-x svg{width:11px;height:11px;}
+.modal-body{padding:18px 20px 20px;}
+.modal-foot{display:flex;justify-content:flex-end;gap:8px;padding-top:14px;border-top:1px solid var(--f2);margin-top:6px;}
 
 /* DROP ZONE */
-.drop-zone{border:2px dashed var(--line);border-radius:14px;padding:32px 20px;text-align:center;transition:all .15s;cursor:pointer;background:var(--white);}
-.drop-zone:hover,.drop-zone.over{border-color:var(--terra);background:var(--terra-l);}
-.dz-icon{font-size:32px;margin-bottom:10px;}
-.dz-title{font-family:var(--serif);font-size:16px;font-weight:500;color:var(--ink2);margin-bottom:4px;}
-.dz-sub{font-size:13px;color:var(--ink4);line-height:1.6;}
+.dropzone{border:2px dashed var(--f3);border-radius:14px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--w);}
+.dropzone:hover,.dropzone.over{border-color:var(--r);background:var(--rl);}
+.dz-icon{font-size:36px;margin-bottom:12px;}
+.dz-title{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--k2);margin-bottom:5px;}
+.dz-sub{font-size:13px;color:var(--k4);line-height:1.65;}
+.dz-or{font-size:13px;color:var(--k4);text-align:center;padding:12px 0 10px;}
 
 /* REVIEW TABLE */
-.rtable{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px;}
-.rtable th{text-align:left;padding:7px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);border-bottom:1.5px solid var(--line);background:var(--bg);}
-.rtable td{padding:7px 10px;border-bottom:1px solid var(--line2);vertical-align:middle;}
-.rtable tr:hover td{background:var(--terra-l);}
-.rtable tr.rn td:first-child{border-left:2.5px solid var(--terra);}
-.rtable tr.re td:first-child{border-left:2.5px solid var(--green);}
-.ri{width:100%;border:none;outline:none;font-family:var(--sans);font-size:13px;color:var(--ink);background:none;padding:2px 0;}
-.ri:focus{border-bottom:1.5px solid var(--terra);}
-.rdel{width:24px;height:24px;border-radius:50%;border:none;background:none;cursor:pointer;color:var(--ink4);font-size:15px;display:flex;align-items:center;justify-content:center;}
-.rdel:hover{background:var(--terra-l);color:var(--terra);}
-.rtags{display:flex;flex-wrap:wrap;gap:3px;align-items:center;}
-.radd{font-size:11px;color:var(--ink4);cursor:pointer;padding:2px 6px;border:1px dashed var(--line);border-radius:10px;white-space:nowrap;}
-.radd:hover{color:var(--terra);border-color:var(--terra);}
-.rbadge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:8px;}
-.rbadge.n{background:var(--terra-l);color:var(--terra);}
-.rbadge.e{background:var(--green-l);color:var(--green);}
+.rtable{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:14px;}
+.rtable thead th{text-align:left;padding:8px 10px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--k4);border-bottom:1.5px solid var(--f3);}
+.rtable tbody td{padding:9px 10px;border-bottom:1px solid var(--f2);vertical-align:middle;}
+.rtable tbody tr:hover td{background:var(--rl);}
+.rtable tbody tr.isnew td:first-child{border-left:2.5px solid var(--r);}
+.rtable tbody tr.isex td:first-child{border-left:2.5px solid #2d7a4f;}
+.rinput{width:100%;border:none;outline:none;font-family:var(--sans);font-size:13.5px;color:var(--k);background:none;padding:1px 0;}
+.rinput:focus{border-bottom:1.5px solid var(--r);}
+.rbadge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:8px;margin-top:4px;display:inline-block;}
+.rbadge.n{background:var(--rl);color:var(--r);}
+.rbadge.e{background:rgba(45,122,79,.1);color:#2d7a4f;}
+.rtags-cell{display:flex;flex-wrap:wrap;gap:3px;align-items:center;}
+.radd-tag{font-size:11px;color:var(--k4);border:1px dashed var(--f4);border-radius:20px;padding:2px 8px;cursor:pointer;white-space:nowrap;transition:all .11s;}
+.radd-tag:hover{color:var(--r);border-color:var(--r);}
+.rdel{width:24px;height:24px;border-radius:50%;border:none;background:none;cursor:pointer;color:var(--k4);display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .11s;}
+.rdel:hover{background:var(--rl);color:var(--r);}
 
-/* AVATAR */
-.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;font-family:var(--serif);}
+/* REVIEW SUMMARY */
+.review-summary{background:var(--f);border-radius:11px;padding:14px 16px;margin-bottom:14px;display:flex;gap:20px;}
+.rs-n{font-family:var(--serif);font-size:26px;font-weight:400;color:var(--k);}
+.rs-l{font-size:11px;color:var(--k4);font-weight:500;margin-top:2px;}
 
-/* TOAST */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;padding:10px 20px;border-radius:30px;z-index:9999;opacity:0;transition:all .2s;pointer-events:none;white-space:nowrap;}
+/* MOBILE BOTTOM NAV */
+#bnav{display:none !important;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--k);color:var(--f);font-size:13.5px;font-weight:500;padding:11px 22px;border-radius:100px;z-index:999;opacity:0;transition:all .2s;pointer-events:none;white-space:nowrap;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* EMPTY */
-.empty{display:flex;flex-direction:column;align-items:center;padding:52px 24px;text-align:center;}
-.empty-icon{font-size:36px;opacity:.25;margin-bottom:14px;}
-.empty-title{font-family:var(--serif);font-size:19px;font-weight:500;color:var(--ink2);margin-bottom:6px;}
-.empty-sub{font-size:13.5px;color:var(--ink3);line-height:1.7;margin-bottom:20px;max-width:260px;}
+/* EMPTY STATE */
+.empty-state{padding:60px 0;text-align:center;}
+.es-icon{font-size:40px;margin-bottom:16px;opacity:.25;}
+.es-title{font-family:var(--serif);font-size:22px;font-weight:400;color:var(--k2);margin-bottom:8px;}
+.es-sub{font-size:14px;color:var(--k4);line-height:1.7;max-width:280px;margin:0 auto 22px;}
 
-#bnav{display:none;}
-@media(max-width:760px){
-  html,body{overflow:auto;height:auto;}
-  #app{height:auto;min-height:100vh;}
-  #sb{display:none;}
-  #sb.open{display:flex;position:fixed;left:0;top:0;bottom:0;z-index:200;width:230px;box-shadow:var(--sh2);}
-  .mob-bg{display:none;position:fixed;inset:0;background:rgba(26,20,16,.3);z-index:199;}
-  .mob-bg.on{display:block;}
-  #main{height:auto;}
-  #topbar{position:sticky;top:0;z-index:100;}
-  .tb-ham{display:flex;}
-  #ct{overflow:visible;height:auto;padding-bottom:70px;}
-  #bnav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--line);z-index:150;padding-bottom:env(safe-area-inset-bottom);}
-  .bni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px;border:none;background:none;cursor:pointer;color:var(--ink4);font-family:var(--sans);}
-  .bni.on{color:var(--terra);}
+/* ── MOBILE ── */
+@media(max-width:700px){
+  #wrap{padding:20px 16px;}
+  .nav-inner{padding:0 16px;}
+  .nav-tabs{display:none;}
+
+  .home-greeting{font-size:36px;}
+  .import-grid{grid-template-columns:1fr;}
+  .stat-bar{gap:20px;}
+  .sbar-n{font-size:36px;}
+  .an-grid{grid-template-columns:1fr;}
+  .page-title{font-size:28px;}
+  .row2{grid-template-columns:1fr;}
+  .drawer{width:100vw;border-left:none;}
+  .modal{max-width:100%;}
+  #bnav{display:flex !important;position:fixed;bottom:0;left:0;right:0;background:var(--w);border-top:1px solid var(--f3);z-index:200;padding-bottom:env(safe-area-inset-bottom);}
+  .bni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:9px 4px;border:none;background:none;cursor:pointer;color:var(--k4);font-family:var(--sans);}
+  .bni.on{color:var(--r);}
   .bni svg{width:19px;height:19px;}
-  .bni-l{font-size:10px;font-weight:600;}
-  .h-stats,.an-grid{grid-template-columns:1fr 1fr;}
-  .an-grid{padding:14px 16px;}
-  .home-hero,.launch-wrap,.sec-hd,.ev-scroll,.h-stats,.divider{padding-left:16px;padding-right:16px;}
-  .ev-scroll{padding:0 16px 18px;}
-  .mrow,.ev-row,.act-row{padding-left:16px;padding-right:16px;}
-  .ev-list-hd{padding-left:16px;padding-right:16px;}
-  .dp{width:100vw;border-left:none;}
-  .fr2{grid-template-columns:1fr;}
-  .fi,select.fi,textarea.fi{font-size:16px;}
-  .launch-secondary{grid-template-columns:1fr 1fr;}
+  .bni-l{font-size:10px;font-weight:500;}
+  body{padding-bottom:64px;}
+  .members-toolbar{gap:6px;}
+  .search-wrap{max-width:none;width:100%;flex:none;}
+  .ev-cards{margin:0 -16px;padding:0 16px 4px;}
+  .rtable{font-size:12px;}
 }
 </style>
 </head>
 <body>
-<div id="loader">
-  <div class="lf"><svg width="52" height="62" viewBox="0 0 52 62" fill="none"><path d="M26 4C26 4 10 20 10 34C10 43.4 17.2 51 26 51C34.8 51 42 43.4 42 34C42 20 26 4 26 4Z" stroke="#C9705A" stroke-width="2" stroke-linecap="round"/><path d="M26 51C26 51 16 42 19 30C21.5 20 26 14 26 14" stroke="#B8CCE0" stroke-width="1.6" stroke-linecap="round"/><path d="M26 14C26 14 31 24 29 32" stroke="#B8CCE0" stroke-width="1.6" stroke-linecap="round"/></svg></div>
-  <div class="ln">Mitzvah House <em>Hub</em></div>
-  <div class="ls">Brasil · Est. 2025</div>
-  <div class="lb"><div class="lp"></div></div>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="sp-flame">
+    <svg width="56" height="68" viewBox="0 0 56 68" fill="none">
+      <path d="M28 4C28 4 10 22 10 38C10 48.5 18 57 28 57C38 57 46 48.5 46 38C46 22 28 4 28 4Z" stroke="#C9705A" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <animate attributeName="d" dur="3s" repeatCount="indefinite"
+          values="M28 4C28 4 10 22 10 38C10 48.5 18 57 28 57C38 57 46 48.5 46 38C46 22 28 4 28 4Z;M28 6C28 6 11 23 11 38C11 48 18.5 56 28 56C37.5 56 45 48 45 38C45 23 28 6 28 6Z;M28 4C28 4 10 22 10 38C10 48.5 18 57 28 57C38 57 46 48.5 46 38C46 22 28 4 28 4Z"
+          calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+      </path>
+      <path d="M28 57C28 57 18 47 21 33C23 22 28 16 28 16" stroke="#F0C4B4" stroke-width="1.8" stroke-linecap="round">
+        <animate attributeName="opacity" values="0.7;1;0.7" dur="2.2s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+      </path>
+      <path d="M28 16C28 16 34 27 32 36" stroke="#F0C4B4" stroke-width="1.8" stroke-linecap="round">
+        <animate attributeName="opacity" values="1;0.5;1" dur="2.8s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+      </path>
+    </svg>
+  </div>
+  <div class="sp-title">Mitzvah House <em>Hub</em></div>
+  <div class="sp-sub">Brasil · Est. 2025</div>
+  <div class="sp-line"></div>
 </div>
-<div class="mob-bg" id="mob-bg" onclick="closeSB()"></div>
-<div id="app">
 
-<nav id="sb">
-  <div class="sb-top">
-    <div class="sb-name">Mitzvah House <em>Hub</em></div>
-    <div class="sb-sub">Brasil · Est. 2025</div>
-  </div>
-  <div class="sb-nav">
-    <div class="sni on" data-page="home" onclick="go('home',this)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span data-t="home"></span></div>
-    <div class="sni" data-page="events" onclick="go('events',this)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span data-t="events"></span><span class="cnt" id="sb-ev"></span></div>
-    <div class="sni" data-page="members" onclick="go('members',this)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg><span data-t="members"></span><span class="cnt" id="sb-m"></span></div>
-    <div class="sni" data-page="analytics" onclick="go('analytics',this)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span data-t="analytics"></span></div>
-  </div>
-  <div class="sb-foot">
-    <div class="lang-toggle"><button class="lt on" onclick="setLang('en',this)">EN</button><button class="lt" onclick="setLang('pt',this)">PT</button></div>
-    <div style="font-size:10.5px;color:var(--ink4);line-height:1.7">ADD Mitzvah House<br>São Paulo, Brasil</div>
-  </div>
-</nav>
+<!-- TOP NAV -->
+<div id="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">Mitzvah House <em>Hub</em></div>
+    <div class="nav-tabs">
+      <button class="nt on" data-page="home" onclick="nav('home')"><span data-t="home"></span></button>
+      <button class="nt" data-page="events" onclick="nav('events')"><span data-t="events"></span></button>
+      <button class="nt" data-page="members" onclick="nav('members')"><span data-t="members"></span></button>
+      <button class="nt" data-page="analytics" onclick="nav('analytics')"><span data-t="analytics"></span></button>
+    </div>
+    <div class="nav-right">
+      <button class="btn btn-o btn-sm" onclick="openModal('addm')"><span data-t="addPerson"></span></button>
+      <button class="btn btn-r btn-sm" onclick="openImport()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span data-t="import"></span>
+      </button>
+      <div class="lang-sw">
+        <button class="ls" onclick="setLang('pt',this)">PT</button>
+        <button class="ls on" onclick="setLang('en',this)">EN</button>
+      </div>
 
-<div id="main">
-  <div id="topbar">
-    <button class="tb-ham" onclick="toggleSB()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-    <span class="tb-title" id="pg-title"></span>
-    <div style="flex:1"></div>
-    <button class="btn btn-ghost" onclick="openM('addm')" style="font-size:13px;padding:7px 15px;margin-right:6px"><span data-t="addPerson"></span></button>
-    <button class="btn btn-terra" onclick="openImp()" style="font-size:13px;padding:7px 15px">
-      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <span data-t="import"></span>
-    </button>
+    </div>
   </div>
-  <div id="ct">
+</div>
+
+
+
+<!-- MAIN WRAP -->
+<div id="wrap">
 
 <!-- HOME -->
-<div class="panel on" id="p-home">
-  <div class="home-hero">
-    <div class="h-date" id="h-date"></div>
-    <div class="h-heading"><em>ADD Mitzvah</em><br>House</div>
-    <div class="h-sub" id="h-sub"></div>
+<div class="page on" id="p-home">
+  <div class="home-head">
+    <svg class="home-flame" width="220" height="280" viewBox="0 0 56 68" fill="none">
+      <path d="M28 4C28 4 10 22 10 38C10 48.5 18 57 28 57C38 57 46 48.5 46 38C46 22 28 4 28 4Z" stroke="#C9705A" stroke-width="1.5" fill="none">
+        <animate attributeName="d" dur="4s" repeatCount="indefinite"
+          values="M28 4C28 4 10 22 10 38C10 48.5 18 57 28 57C38 57 46 48.5 46 38C46 22 28 4 28 4Z;M28 6C28 6 11 23 11 38C11 48 19 56 28 56C37 56 45 48 45 38C45 23 28 6 28 6Z;M28 4C28 4 10 22 10 38C10 48.5 18 57 28 57C38 57 46 48.5 46 38C46 22 28 4 28 4Z"
+          calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+      </path>
+    </svg>
+    <div class="home-eyebrow" id="h-eyebrow"></div>
+    <div class="home-greeting" id="h-greeting"></div>
+    <div class="home-tagline" id="h-tagline"></div>
+    <div class="home-sub" id="h-sub"></div>
   </div>
-  <div id="h-tip"></div>
   <div id="h-launch"></div>
   <div id="h-data" style="display:none">
-    <div class="h-stats" id="h-stats"></div>
-    <div class="divider"></div>
-    <div class="sec-hd"><div class="sec-title" data-t="upcoming"></div><span class="sec-link" onclick="go('events',null)" data-t="seeAll"></span></div>
-    <div id="h-ev-cards"></div>
-    <div class="sec-hd" style="padding-top:4px"><div class="sec-title" data-t="recentActivity"></div></div>
-    <div id="h-activity"></div>
+    <div id="h-checkin"></div>
+    <div class="stat-bar" id="h-stats"></div>
+    <div class="section">
+      <div class="section-label" data-t="upcomingEvents"></div>
+      <div id="h-ev-cards"></div>
+    </div>
+    <div class="section">
+      <div class="section-label" data-t="recentActivity"></div>
+      <div class="activity-list" id="h-activity"></div>
+    </div>
   </div>
 </div>
 
 <!-- EVENTS -->
-<div class="panel" id="p-events">
-  <div style="padding:10px 16px;background:var(--white);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5;">
-    <span style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4)" data-t="allEvents"></span>
-    <button class="btn btn-terra" style="font-size:12.5px;padding:6px 14px" onclick="openM('addev')">+ <span data-t="newEvent"></span></button>
+<div class="page" id="p-events">
+  <div class="page-head">
+    <div class="page-title" data-t="events"></div>
+    <button class="btn btn-r btn-sm" onclick="openModal('addev')">+ <span data-t="newEvent"></span></button>
   </div>
   <div id="ev-list"></div>
 </div>
 
 <!-- MEMBERS -->
-<div class="panel" id="p-members">
-  <div class="filter-bar">
-    <input class="srch" id="srch" oninput="renderMembers()">
-    <button class="fb on" onclick="mf('all',this)" data-t="all"></button>
-    <div id="tag-filters" style="display:contents"></div>
-    <span style="margin-left:auto;font-size:12px;color:var(--ink4)" id="m-ct"></span>
+<div class="page" id="p-members">
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px;">
+    <div class="page-title" data-t="members"></div>
+    <button class="btn btn-o btn-sm" onclick="openImport()" data-t="import"></button>
   </div>
-  <div id="m-list"></div>
+  <div class="members-toolbar">
+    <div class="search-wrap">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input class="searchinp" id="srch" oninput="renderMembers()">
+    </div>
+    <button class="filtchip on" onclick="mfilt('all',this)" data-t="all"></button>
+    <div id="tag-chips" style="display:contents"></div>
+    <span class="m-count" id="m-ct"></span>
+  </div>
+  <div class="mlist" id="m-list"></div>
 </div>
 
 <!-- ANALYTICS -->
-<div class="panel" id="p-analytics"><div class="an-grid" id="an-grid"></div></div>
-
-  </div>
+<div class="page" id="p-analytics">
+  <div class="page-head"><div class="page-title" data-t="analytics"></div></div>
+  <div class="an-grid" id="an-grid"></div>
 </div>
-</div>
 
+</div><!-- /wrap -->
+
+<!-- BOTTOM NAV -->
 <nav id="bnav">
-  <button class="bni on" id="bn-home" onclick="go('home',null);setBN('home')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span class="bni-l" data-t="home"></span></button>
-  <button class="bni" id="bn-events" onclick="go('events',null);setBN('events')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="bni-l" data-t="events"></span></button>
-  <button class="bni" id="bn-members" onclick="go('members',null);setBN('members')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="bni-l" data-t="members"></span></button>
-  <button class="bni" id="bn-analytics" onclick="go('analytics',null);setBN('analytics')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span class="bni-l" data-t="analytics"></span></button>
+  <button class="bni on" id="bn-home" onclick="nav('home');setBN('home')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span class="bni-l" data-t="home"></span></button>
+  <button class="bni" id="bn-events" onclick="nav('events');setBN('events')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="bni-l" data-t="events"></span></button>
+  <button class="bni" id="bn-members" onclick="nav('members');setBN('members')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="bni-l" data-t="members"></span></button>
+  <button class="bni" id="bn-analytics" onclick="nav('analytics');setBN('analytics')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span class="bni-l" data-t="analytics"></span></button>
 </nav>
 
 <!-- IMPORT MODAL -->
-<div class="mo" id="impm"><div class="md">
-  <div class="handle" style="margin-bottom:0"></div>
-  <div class="md-h"><div class="md-t" id="imp-title"></div><button class="xbtn" onclick="closeM('impm')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-  <div class="md-b" id="imp-body"></div>
-</div></div>
-
-<!-- ADD MEMBER MODAL -->
-<div class="mo" id="addm"><div class="md">
-  <div class="handle" style="margin-bottom:0"></div>
-  <div class="md-h"><div class="md-t" data-t="addPerson"></div><button class="xbtn" onclick="closeM('addm')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-  <div class="md-b">
-    <div class="fr2"><div class="fg"><div class="fl" data-t="firstName"></div><input class="fi" id="am-fn"></div><div class="fg"><div class="fl" data-t="lastName"></div><input class="fi" id="am-ln"></div></div>
-    <div class="fr2"><div class="fg"><div class="fl" data-t="age"></div><input class="fi" id="am-age" type="number"></div><div class="fg"><div class="fl" data-t="neighborhood"></div><input class="fi" id="am-bairro"></div></div>
-    <div class="fr2"><div class="fg"><div class="fl">WhatsApp</div><input class="fi" id="am-ph" type="tel"></div><div class="fg"><div class="fl">Email</div><input class="fi" id="am-em" type="email"></div></div>
-    <div class="fg"><div class="fl" data-t="tags"></div>
-      <div class="tags-field" id="am-tags-field" onclick="document.getElementById('am-tag-in').focus()">
-        <input class="tag-input" id="am-tag-in" onkeydown="handleTagKey(event,'am')">
-      </div>
-      <div class="tag-sug" id="am-tag-sug"></div>
+<div class="modal-bg" id="imp-modal" onclick="mayCloseModal('imp-modal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <div class="modal-title" id="imp-modal-title"></div>
+      <button class="modal-x" onclick="closeModal('imp-modal')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div class="fg"><div class="fl" data-t="notes"></div><textarea class="fi" id="am-notes" style="min-height:52px"></textarea></div>
-    <div class="fa"><button class="btn btn-ghost" onclick="closeM('addm')" data-t="cancel"></button><button class="btn btn-terra" onclick="addMember()" data-t="add"></button></div>
-  </div>
-</div></div>
-
-<!-- ADD EVENT MODAL -->
-<div class="mo" id="addev"><div class="md">
-  <div class="handle" style="margin-bottom:0"></div>
-  <div class="md-h"><div class="md-t" data-t="newEvent"></div><button class="xbtn" onclick="closeM('addev')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-  <div class="md-b">
-    <div class="fr2"><div class="fg"><div class="fl" data-t="eventName"></div><input class="fi" id="ae-nm"></div><div class="fg"><div class="fl" data-t="date"></div><input class="fi" id="ae-dt" type="date"></div></div>
-    <div class="fg"><div class="fl" data-t="location"></div><input class="fi" id="ae-loc" placeholder="ADD Mitzvah House"></div>
-    <div class="fg"><div class="fl" data-t="description"></div><textarea class="fi" id="ae-desc" style="min-height:48px"></textarea></div>
-    <div class="fa"><button class="btn btn-ghost" onclick="closeM('addev')" data-t="cancel"></button><button class="btn btn-terra" onclick="addEvent()" data-t="create"></button></div>
-  </div>
-</div></div>
-
-<!-- MEMBER DETAIL -->
-<div class="ov" id="m-ov" onclick="mayCloseM(event)">
-  <div class="dp">
-    <div class="dp-hero">
-      <div class="dp-top"><div class="av" id="m-av" style="width:44px;height:44px;font-size:16px"></div><div style="flex:1"><div class="dp-name" id="m-nm"></div><div class="dp-meta" id="m-mt"></div></div><button class="dp-x" onclick="closeMDP()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-      <div class="dp-tabs"><div class="dpt on" onclick="mTab('info',this)" data-t="info"></div><div class="dpt" onclick="mTab('history',this)" data-t="historyTab"></div><div class="dpt" onclick="mTab('notes',this)" data-t="notesTab"></div></div>
-    </div>
-    <div class="dp-body" id="m-body"></div>
-    <div class="dp-foot"><button class="btn btn-ghost" id="m-wa">💬 WhatsApp</button><button class="btn btn-terra" onclick="openAddToEvent()" data-t="addToEvent"></button></div>
+    <div class="modal-body" id="imp-body"></div>
   </div>
 </div>
 
-<!-- EVENT DETAIL -->
-<div class="ov" id="ev-ov" onclick="mayCloseEv(event)">
-  <div class="dp">
-    <div class="dp-hero" style="background:linear-gradient(160deg,var(--navy-l) 0%,var(--white) 60%)">
-      <div class="dp-top"><div style="flex:1"><div class="dp-name" id="ev-nm"></div><div class="dp-meta" id="ev-mt"></div></div><button class="dp-x" onclick="closeEvDP()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-      <div class="dp-tabs"><div class="dpt on" onclick="evTab('rsvp',this)" data-t="confirmed"></div><div class="dpt" onclick="evTab('attendance',this)" data-t="attendance"></div></div>
+<!-- ADD MEMBER MODAL -->
+<div class="modal-bg" id="addm" onclick="mayCloseModal('addm',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head"><div class="modal-title" data-t="addPerson"></div><button class="modal-x" onclick="closeModal('addm')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="row2">
+        <div class="field"><div class="label" data-t="firstName"></div><input class="inp" id="am-fn"></div>
+        <div class="field"><div class="label" data-t="lastName"></div><input class="inp" id="am-ln"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><div class="label" data-t="age"></div><input class="inp" id="am-age" type="number"></div>
+        <div class="field"><div class="label" data-t="neighborhood"></div><input class="inp" id="am-bairro"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><div class="label">WhatsApp</div><input class="inp" id="am-ph" type="tel"></div>
+        <div class="field"><div class="label">Email</div><input class="inp" id="am-em" type="email"></div>
+      </div>
+      <div class="field">
+        <div class="label" data-t="tags"></div>
+        <div class="tagfield" id="am-tagfield" onclick="document.getElementById('am-taginput').focus()">
+          <input class="taginput" id="am-taginput" onkeydown="handleTagKey(event,'am')">
+        </div>
+        <div class="tagsug" id="am-tagsug"></div>
+      </div>
+      <div class="field"><div class="label" data-t="notes"></div><textarea class="inp" id="am-notes" style="min-height:54px"></textarea></div>
+      <div class="modal-foot"><button class="btn btn-o" onclick="closeModal('addm')" data-t="cancel"></button><button class="btn btn-r" onclick="addMember()" data-t="add"></button></div>
     </div>
-    <div class="dp-body" id="ev-body"></div>
-    <div class="dp-foot"><button class="btn btn-ghost" onclick="openImpForEv()" data-t="importRSVP"></button><button class="btn btn-terra" onclick="addToThisEvent()" data-t="addPerson"></button></div>
+  </div>
+</div>
+
+<!-- ADD EVENT MODAL -->
+<div class="modal-bg" id="addev" onclick="mayCloseModal('addev',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head"><div class="modal-title" data-t="newEvent"></div><button class="modal-x" onclick="closeModal('addev')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="row2">
+        <div class="field"><div class="label" data-t="eventName"></div><input class="inp" id="ae-nm"></div>
+        <div class="field"><div class="label" data-t="date"></div><input class="inp" id="ae-dt" type="date"></div>
+      </div>
+      <div class="field"><div class="label" data-t="location"></div><input class="inp" id="ae-loc" placeholder="ADD Mitzvah House"></div>
+      <div class="field"><div class="label" data-t="description"></div><textarea class="inp" id="ae-desc" style="min-height:48px"></textarea></div>
+      <div class="modal-foot"><button class="btn btn-o" onclick="closeModal('addev')" data-t="cancel"></button><button class="btn btn-r" onclick="addEvent()" data-t="create"></button></div>
+    </div>
+  </div>
+</div>
+
+<!-- MEMBER DRAWER -->
+<div class="overlay" id="m-ov" onclick="mayCloseDrawer('m-ov',event)">
+  <div class="drawer">
+    <div class="dw-head" style="padding:20px 22px 0">
+      <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;">
+        <div class="mav" id="dw-m-av" style="width:52px;height:52px;font-size:18px;flex-shrink:0;margin-top:2px;"></div>
+        <div style="flex:1;min-width:0;">
+          <div class="dw-title" id="dw-m-name" style="margin-bottom:6px;font-size:22px;"></div>
+          <div id="dw-m-tags" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;"></div>
+          <div style="font-size:13px;color:var(--k4)" id="dw-m-meta"></div>
+        </div>
+        <button class="dw-x" style="flex-shrink:0;margin-top:2px;" onclick="closeDrawer('m-ov')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <!-- Quick contact actions -->
+      <div id="dw-m-actions" style="display:flex;gap:8px;margin-bottom:16px;"></div>
+      <div class="dw-tabs">
+        <div class="dwt on" onclick="mDwTab('info',this)" data-t="info"></div>
+        <div class="dwt" onclick="mDwTab('history',this)" data-t="historyTab"></div>
+        <div class="dwt" onclick="mDwTab('notes',this)" data-t="notesTab"></div>
+      </div>
+    </div>
+    <div class="dw-body" id="dw-m-body"></div>
+    <div class="dw-foot">
+      <button class="btn btn-r" style="flex:1" onclick="addMemberToEvent()" data-t="addToEvent"></button>
+    </div>
+  </div>
+</div>
+
+<!-- EVENT DRAWER -->
+<div class="overlay" id="ev-ov" onclick="mayCloseDrawer('ev-ov',event)">
+  <div class="drawer">
+    <div class="dw-head">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+        <div>
+          <div class="dw-eyebrow" data-t="event"></div>
+          <div class="dw-title" id="dw-ev-name"></div>
+          <div style="font-size:13px;color:var(--k3)" id="dw-ev-meta"></div>
+        </div>
+        <button class="dw-x" style="flex-shrink:0;" onclick="closeDrawer('ev-ov')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="dw-tabs">
+        <div class="dwt on" onclick="evDwTab('rsvp',this)" data-t="confirmed"></div>
+        <div class="dwt" onclick="evDwTab('attendance',this)" data-t="attendance"></div>
+      </div>
+    </div>
+    <div class="dw-body" id="dw-ev-body"></div>
+    <div class="dw-foot">
+      <button class="btn btn-o" onclick="openImportForEvent()" data-t="importRSVPs"></button>
+      <button class="btn btn-r" onclick="addPersonToEvent()" data-t="addPerson"></button>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 <script>
-const T={
-  en:{home:'Home',events:'Events',members:'Members',analytics:'Analytics',import:'Import',addPerson:'Add person',newEvent:'New event',upcoming:'Upcoming events',seeAll:'See all →',recentActivity:'Recent activity',allEvents:'All events',firstName:'First name',lastName:'Last name',age:'Age',neighborhood:'Neighborhood',tags:'Tags',notes:'Notes',eventName:'Event name',date:'Date',location:'Location',description:'Description',cancel:'Cancel',create:'Create',add:'Add',confirmed:'Confirmed',attendance:'Attendance',importRSVP:'Import RSVPs',info:'Info',historyTab:'History',notesTab:'Notes',addToEvent:'Add to event',all:'All',eventsLabel:'events',confirmedLabel:'confirmed',membersLabel:'members',upcomingLabel:'upcoming',noData:'No data yet.',byTag:'By tag',topAttendees:'Top attendees',byNeighborhood:'By neighborhood',eventGrowth:'Events over time',importTitle:'Import data',dropTitle:'Drop a CSV file here',dropSub:'Export from Google Sheets → File → Download → CSV, then drag the file here.',pasteTitle:'Paste from Google Forms',pasteSub:'Open your linked spreadsheet, select all, copy, paste here.',addManual:'Add one person manually',pasteHere:'Paste CSV or spreadsheet data',forEvent:'Link to an event (optional)',noEvent:'No event',analyzeData:'Analyze',saveAll:'Save',review:'Review before saving',reviewSub:'Every field is editable. Add or remove tags. Remove rows you don\'t want. Nothing saves until you click Save.',newBadge:'New',existsBadge:'Existing',smartCols:'Detected columns',tipTitle:'Welcome to Mitzvah House Hub',tipText:'The fastest start: export your Google Form responses as a CSV, drag it in. The app reads everything automatically.',tipDismiss:'Got it',noPhone:'No WhatsApp on file',memberAdded:'Member added',eventCreated:'Event created',noEvents:'No events yet',noMembers:'No members yet',neverAttended:'No events yet',},
-  pt:{home:'Início',events:'Eventos',members:'Membros',analytics:'Relatórios',import:'Importar',addPerson:'Adicionar pessoa',newEvent:'Novo evento',upcoming:'Próximos eventos',seeAll:'Ver todos →',recentActivity:'Atividade recente',allEvents:'Todos os eventos',firstName:'Nome',lastName:'Sobrenome',age:'Idade',neighborhood:'Bairro',tags:'Tags',notes:'Observações',eventName:'Nome do evento',date:'Data',location:'Local',description:'Descrição',cancel:'Cancelar',create:'Criar',add:'Adicionar',confirmed:'Confirmados',attendance:'Presença',importRSVP:'Importar inscrições',info:'Info',historyTab:'Histórico',notesTab:'Notas',addToEvent:'Adicionar a evento',all:'Todos',eventsLabel:'eventos',confirmedLabel:'confirmados',membersLabel:'membros',upcomingLabel:'próximos',noData:'Sem dados ainda.',byTag:'Por tag',topAttendees:'Mais presentes',byNeighborhood:'Por bairro',eventGrowth:'Eventos ao longo do tempo',importTitle:'Importar dados',dropTitle:'Arraste um CSV aqui',dropSub:'Exporte do Google Sheets → Arquivo → Baixar → CSV, depois arraste aqui.',pasteTitle:'Cole do Google Forms',pasteSub:'Abra a planilha vinculada, selecione tudo, copie e cole aqui.',addManual:'Adicionar uma pessoa manualmente',pasteHere:'Cole os dados CSV aqui',forEvent:'Vincular a um evento (opcional)',noEvent:'Sem evento',analyzeData:'Analisar',saveAll:'Salvar',review:'Revisar antes de salvar',reviewSub:'Todos os campos são editáveis. Adicione ou remova tags. Remova linhas que não quer. Nada é salvo até você clicar em Salvar.',newBadge:'Novo',existsBadge:'Existente',smartCols:'Colunas detectadas',tipTitle:'Bem-vindo ao Mitzvah House Hub',tipText:'Começo mais rápido: exporte as respostas do seu Google Forms como CSV e arraste para cá. O app lê tudo automaticamente.',tipDismiss:'Entendi',noPhone:'Sem WhatsApp',memberAdded:'Membro adicionado',eventCreated:'Evento criado',noEvents:'Sem eventos ainda',noMembers:'Sem membros ainda',neverAttended:'Sem eventos ainda',}
-};
-
-const COLORS=['#C9705A','#2D4B73','#2d7a4f','#c47f1a','#7b5ea7','#0891b2','#be185d','#1a7a6e','#b04040','#4a6d8c'];
-const MO_EN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const MO_PT=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const DAYS_EN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const DAYS_PT=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-
-let lang='en',M=[],EV=[],mFilt='all',mTagFilt=null;
-let activeMid=null,activeEvId=null,activeMTab='info',activeEvTab='rsvp';
-let importParsed=[],importEvId=null,tipDismissed=false,amTags=[];
-
-function sv(){localStorage.setItem('mhh4_m',JSON.stringify(M));localStorage.setItem('mhh4_e',JSON.stringify(EV));}
-function load(){M=JSON.parse(localStorage.getItem('mhh4_m')||'[]');EV=JSON.parse(localStorage.getItem('mhh4_e')||'[]');tipDismissed=!!localStorage.getItem('mhh4_tip');}
-function tod(){return new Date().toISOString().split('T')[0];}
-function ini(m){return((m.fn?.[0]||'')+(m.ln?.[0]||'')).toUpperCase();}
-function abg(m){return COLORS[((m.fn?.charCodeAt(0)||0)+(m.ln?.charCodeAt(0)||0))%COLORS.length];}
-function tc(tag){return COLORS[Math.abs([...tag].reduce((a,c)=>a+c.charCodeAt(0),0))%COLORS.length];}
-function t(k){return T[lang][k]||T.en[k]||k;}
-function MO(){return lang==='pt'?MO_PT:MO_EN;}
-function DAYS(){return lang==='pt'?DAYS_PT:DAYS_EN;}
-function fd(d){try{const x=new Date(d+'T12:00:00');return MO()[x.getMonth()]+' '+x.getDate()+', '+x.getFullYear();}catch{return d||'—';}}
-function fdS(d){try{const x=new Date(d+'T12:00:00');return MO()[x.getMonth()]+' '+x.getDate();}catch{return d||'';}}
-function upcoming(){return[...EV].filter(e=>e.dt>=tod()).sort((a,b)=>a.dt.localeCompare(b.dt));}
-function past(){return[...EV].filter(e=>e.dt<tod()).sort((a,b)=>b.dt.localeCompare(a.dt));}
-function allTags(){const s=new Set();M.forEach(m=>(m.tags||[]).forEach(g=>s.add(g)));return[...s].sort();}
-function tpillHTML(tag,removable=false,idx=null){const c=tc(tag);return`<span style="display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:20px;background:${c}15;color:${c};border:1px solid ${c}30${removable?';cursor:pointer':''}" ${removable?`onclick="removeRTag(${idx},'${tag.replace(/'/g,"\\'")}')"`:''} title="${removable?'Remove tag':tag}">${tag}${removable?' ×':''}</span>`;}
-
-// ── LANG ──
-function setLang(l,el){lang=l;document.querySelectorAll('.lt').forEach(b=>b.classList.remove('on'));el.classList.add('on');applyT();renderCurrent();}
-function applyT(){
-  document.querySelectorAll('[data-t]').forEach(el=>{const k=el.getAttribute('data-t');if(!['INPUT','TEXTAREA'].includes(el.tagName))el.textContent=t(k);});
-  document.querySelectorAll('.dpt[data-t]').forEach(el=>el.textContent=t(el.getAttribute('data-t')));
-  document.querySelectorAll('.bni-l[data-t]').forEach(el=>el.textContent=t(el.getAttribute('data-t')));
-  document.querySelectorAll('.fb[data-t]').forEach(b=>b.textContent=t(b.getAttribute('data-t')));
-  const srch=document.getElementById('srch');if(srch)srch.placeholder=lang==='pt'?'Buscar...':'Search...';
-  const amIn=document.getElementById('am-tag-in');if(amIn)amIn.placeholder=lang==='pt'?'Digite e pressione Enter…':'Type and press Enter…';
-}
-
-// ── NAV ──
-let curPage='home';
-function go(page,el){
-  curPage=page;
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
-  document.getElementById('p-'+page)?.classList.add('on');
-  document.querySelectorAll('.sni').forEach(n=>n.classList.remove('on'));
-  if(el)el.classList.add('on');
-  else document.querySelectorAll('.sni[data-page]').forEach(n=>{if(n.dataset.page===page)n.classList.add('on');});
-  document.getElementById('pg-title').textContent=t(page);
-  closeSB();renderCurrent();upB();
-}
-function setBN(p){document.querySelectorAll('.bni').forEach(b=>b.classList.remove('on'));document.getElementById('bn-'+p)?.classList.add('on');}
-function toggleSB(){document.getElementById('sb').classList.toggle('open');document.getElementById('mob-bg').classList.toggle('on');}
-function closeSB(){document.getElementById('sb').classList.remove('open');document.getElementById('mob-bg').classList.remove('on');}
-function upB(){document.getElementById('sb-ev').textContent=EV.length||'';document.getElementById('sb-m').textContent=M.length||'';}
-function renderCurrent(){({home:renderHome,events:renderEvents,members:renderMembers,analytics:renderAnalytics})[curPage]?.();}
-
-// ── TAG FIELD ──
-function handleTagKey(e,pfx){
-  if(e.key==='Enter'||e.key===','){e.preventDefault();const v=e.target.value.trim().replace(/,$/,'');if(v)addTagToField(v,pfx);e.target.value='';}
-}
-function addTagToField(tag,pfx='am'){
-  if(pfx==='am'){if(!amTags.includes(tag))amTags.push(tag);renderAmTags();}
-}
-function renderAmTags(){
-  const field=document.getElementById('am-tags-field');
-  const inp=document.getElementById('am-tag-in');
-  if(!field||!inp)return;
-  field.querySelectorAll('.tpill').forEach(p=>p.remove());
-  amTags.forEach(tag=>{
-    const s=document.createElement('span');
-    const c=tc(tag);
-    s.className='tpill';
-    s.style.cssText=`background:${c}15;color:${c};border:1px solid ${c}30;cursor:pointer;font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:3px;`;
-    s.innerHTML=`${tag} <span style="opacity:.6">×</span>`;
-    s.onclick=()=>{amTags=amTags.filter(x=>x!==tag);renderAmTags();};
-    field.insertBefore(s,inp);
-  });
-  // suggestions — existing tags only, user-created
-  const existing=allTags().filter(tg=>!amTags.includes(tg)).slice(0,6);
-  const sug=document.getElementById('am-tag-sug');
-  if(sug)sug.innerHTML=existing.map(tg=>`<span class="tsi" onclick="addTagToField('${tg.replace(/'/g,"\\'")}','am')">${tg}</span>`).join('');
-}
-
-// ── HOME ──
-function renderHome(){
-  const now=new Date();
-  document.getElementById('h-date').textContent=DAYS()[now.getDay()]+', '+fdS(tod());
-  const hasData=M.length>0||EV.length>0;
-  document.getElementById('h-sub').textContent=hasData
-    ?`${M.length} ${t('membersLabel')} · ${upcoming().length} ${t('upcomingLabel')} · ${allTags().length} tags`
-    :(lang==='pt'?'Importe seus dados para começar.':'Import your data to get started.');
-  document.getElementById('h-tip').innerHTML=!tipDismissed?`
-    <div class="tip-strip">
-      <div style="font-size:20px;flex-shrink:0">💡</div>
-      <div><div style="font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:3px">${t('tipTitle')}</div>
-      <div style="font-size:12.5px;color:var(--navy);opacity:.8;line-height:1.65">${t('tipText')}</div>
-      <span class="tip-dismiss" onclick="dismissTip()">${t('tipDismiss')}</span></div>
-    </div>`:'';
-  if(!hasData){
-    document.getElementById('h-data').style.display='none';
-    renderLaunch();
-  }else{
-    document.getElementById('h-launch').innerHTML='';
-    document.getElementById('h-data').style.display='block';
-    document.getElementById('h-stats').innerHTML=`
-      <div class="hstat" style="padding-left:24px"><div class="hstat-n">${M.length}</div><div class="hstat-l">${t('membersLabel')}</div></div>
-      <div class="hstat" style="padding-left:24px"><div class="hstat-n" style="color:var(--navy)">${EV.length}</div><div class="hstat-l">${t('events')}</div></div>
-      <div class="hstat" style="padding-left:24px"><div class="hstat-n" style="color:var(--ink2)">${allTags().length}</div><div class="hstat-l">Tags</div></div>`;
-    const up=upcoming();
-    document.getElementById('h-ev-cards').innerHTML=up.length
-      ?`<div class="ev-scroll">${up.slice(0,5).map(ev=>{const d=new Date(ev.dt+'T12:00:00');const conf=(ev.rsvp||[]).filter(r=>r.status==='confirmed').length;return`<div class="ev-card" onclick="openEvDP(${ev.id})"><div class="ev-card-bar"></div><div class="ev-card-dt">${isNaN(d)?ev.dt:DAYS()[d.getDay()]+' · '+d.getDate()+' '+MO()[d.getMonth()]}</div><div class="ev-card-nm">${ev.nm}</div><div class="ev-card-cnt">${conf} ${t('confirmedLabel')}</div></div>`;}).join('')}</div>`
-      :`<div style="padding:0 24px 16px;font-size:13.5px;color:var(--ink4)">${t('noEvents')} — <span style="color:var(--terra);cursor:pointer;font-weight:600" onclick="openM('addev')">+ ${t('newEvent')}</span></div>`;
-    const acts=[];
-    [...EV].sort((a,b)=>b.dt.localeCompare(a.dt)).slice(0,3).forEach(ev=>acts.push({icon:'📅',text:`<strong>${ev.nm}</strong>`,dt:ev.dt,bg:'var(--navy-l)'}));
-    [...M].sort((a,b)=>(b.joined||'').localeCompare(a.joined||'')).slice(0,3).forEach(m=>acts.push({icon:'👤',text:`<strong>${m.fn} ${m.ln}</strong>`,dt:m.joined||tod(),bg:'var(--terra-l)'}));
-    acts.sort((a,b)=>b.dt.localeCompare(a.dt));
-    document.getElementById('h-activity').innerHTML=acts.length
-      ?acts.slice(0,5).map(a=>`<div class="act-row"><div class="act-icon" style="background:${a.bg}">${a.icon}</div><div class="act-text">${a.text}</div><div class="act-time">${fdS(a.dt)}</div></div>`).join('')
-      :`<div style="padding:16px 24px;color:var(--ink4);font-size:13.5px">${lang==='pt'?'Sem atividade ainda.':'No activity yet.'}</div>`;
+// ── i18n ──────────────────────────────────────────────────────────────
+const STRINGS = {
+  en: {
+    home:'Home', events:'Events', members:'Members', analytics:'Analytics',
+    import:'Import', addPerson:'Add person', newEvent:'New event',
+    upcomingEvents:'Upcoming events', recentActivity:'Recent activity', allEvents:'All events',
+    firstName:'First name', lastName:'Last name', age:'Age', neighborhood:'Neighborhood',
+    tags:'Tags', notes:'Notes', eventName:'Event name', date:'Date',
+    location:'Location', description:'Description',
+    cancel:'Cancel', create:'Create', add:'Add', save:'Save',
+    confirmed:'Confirmed', attendance:'Attendance',
+    importRSVPs:'Import RSVPs', addToEvent:'Add to event',
+    info:'Info', historyTab:'History', notesTab:'Notes',
+    member:'Member', event:'Event',
+    all:'All', eventsLabel:'events', membersLabel:'members',
+    confirmedLabel:'confirmed', pendingLabel:'pending',
+    noData:'No data yet',
+    byTag:'Community tags', topAttendees:'Most present', byNeighborhood:'Where they live', growthLabel:'Events over time',
+    noEvents:'No events yet', noMembers:'No members yet', noneYet:'None yet',
+    startTitle:'Get your community in', startSub:'A home for every person in your community.',
+    dropLabel:'Drop a CSV file', dropSub:'Export from Google Sheets → File → Download → CSV, then drag it here.',
+    pasteLabel:'Paste from Google Forms', pasteSub:'Open your linked spreadsheet, select all, copy, paste.',
+    orAddManual:'or add one person manually →',
+    reviewTitle:'Review before saving', reviewSub:'Every field is editable. Tags are yours to add — the app never assigns them. Remove rows you don\'t want.',
+    newLabel:'New', existingLabel:'Already in', detectedCols:'Detected columns',
+    noEventLink:'No event', forEventLabel:'Link to an event (optional)',
+    analyzeBtn:'Analyze', saveAllBtn:'Save', backBtn:'← Back',
+    searchPlaceholder:'Search…', memberSince:'Member since', lastEvent:'Last event',
+    noPhoneMsg:'No WhatsApp on file', memberAdded:'Member added', eventCreated:'Event created',
+    howtitle:'How to export from Google Sheets', howsteps:'1. Open the linked spreadsheet\n2. File → Download → CSV (.csv)\n3. Drag the file below',
+    pasteSteps:'1. Open your Google Forms linked spreadsheet\n2. Select all (Ctrl+A) → Copy (Ctrl+C)\n3. Paste below',
+  },
+  pt: {
+    home:'Início', events:'Eventos', members:'Membros', analytics:'Relatórios',
+    import:'Importar', addPerson:'Adicionar pessoa', newEvent:'Novo evento',
+    upcomingEvents:'Próximos eventos', recentActivity:'Atividade recente', allEvents:'Todos os eventos',
+    firstName:'Nome', lastName:'Sobrenome', age:'Idade', neighborhood:'Bairro',
+    tags:'Tags', notes:'Observações', eventName:'Nome do evento', date:'Data',
+    location:'Local', description:'Descrição',
+    cancel:'Cancelar', create:'Criar', add:'Adicionar', save:'Salvar',
+    confirmed:'Confirmados', attendance:'Presença',
+    importRSVPs:'Importar inscrições', addToEvent:'Adicionar a evento',
+    info:'Info', historyTab:'Histórico', notesTab:'Notas',
+    member:'Membro', event:'Evento',
+    all:'Todos', eventsLabel:'eventos', membersLabel:'membros',
+    confirmedLabel:'confirmados', pendingLabel:'pendentes',
+    noData:'Sem dados ainda',
+    byTag:'Tags da comunidade', topAttendees:'Mais presentes', byNeighborhood:'Onde moram', growthLabel:'Eventos ao longo do tempo',
+    noEvents:'Sem eventos ainda', noMembers:'Sem membros ainda', noneYet:'Nenhum ainda',
+    startTitle:'Traga sua comunidade', startSub:'Um lugar para conhecer e lembrar de cada pessoa da sua comunidade.',
+    dropLabel:'Arraste um CSV aqui', dropSub:'Exporte do Google Sheets → Arquivo → Baixar → CSV, depois arraste aqui.',
+    pasteLabel:'Cole do Google Forms', pasteSub:'Abra a planilha vinculada, selecione tudo, copie e cole.',
+    orAddManual:'ou adicionar uma pessoa manualmente →',
+    reviewTitle:'Revisar antes de salvar', reviewSub:'Todos os campos são editáveis. As tags são suas — o app nunca as atribui automaticamente. Remova linhas que não quer.',
+    newLabel:'Novo', existingLabel:'Já está', detectedCols:'Colunas detectadas',
+    noEventLink:'Sem evento', forEventLabel:'Vincular a um evento (opcional)',
+    analyzeBtn:'Analisar', saveAllBtn:'Salvar', backBtn:'← Voltar',
+    searchPlaceholder:'Buscar…', memberSince:'Membro desde', lastEvent:'Último evento',
+    noPhoneMsg:'Sem WhatsApp', memberAdded:'Membro adicionado', eventCreated:'Evento criado',
+    howtitle:'Como exportar do Google Sheets', howsteps:'1. Abra a planilha vinculada ao formulário\n2. Arquivo → Baixar → CSV (.csv)\n3. Arraste o arquivo abaixo',
+    pasteSteps:'1. Abra a planilha vinculada ao Google Forms\n2. Selecione tudo (Ctrl+A) → Copie (Ctrl+C)\n3. Cole abaixo',
   }
+};
+let lang = 'en';
+function s(k) { return STRINGS[lang][k] || STRINGS.en[k] || k; }
+function setLang(l, el) {
+  lang = l;
+  document.querySelectorAll('.ls').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  applyStrings();
+  renderCurrent();
 }
-function renderLaunch(){
-  document.getElementById('h-launch').innerHTML=`
-    <div class="launch-wrap">
-      <div class="launch-title">${t('importTitle')}</div>
-      <div class="launch-sub">${lang==='pt'?'Traga seus dados. O app lê nomes, idades e informações automaticamente — você revisa antes de salvar.':'Bring in your data. The app reads names, ages, and information automatically — you review before saving.'}</div>
-      <div class="launch-primary" onclick="openImp()">
-        <div class="launch-primary-icon">📂</div>
-        <div style="flex:1"><div class="launch-primary-title">${t('dropTitle')}</div><div class="launch-primary-sub">${t('dropSub')}</div></div>
-        <div class="launch-primary-arr">→</div>
+function applyStrings() {
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const k = el.getAttribute('data-t');
+    if (!['INPUT','TEXTAREA'].includes(el.tagName)) el.textContent = s(k);
+  });
+  document.querySelectorAll('.dwt[data-t]').forEach(el => el.textContent = s(el.getAttribute('data-t')));
+  document.querySelectorAll('.bni-l[data-t]').forEach(el => el.textContent = s(el.getAttribute('data-t')));
+  document.querySelectorAll('.filtchip[data-t]').forEach(b => b.textContent = s(b.getAttribute('data-t')));
+  const srch = document.getElementById('srch');
+  if (srch) srch.placeholder = s('searchPlaceholder');
+  const amti = document.getElementById('am-taginput');
+  if (amti) amti.placeholder = lang === 'pt' ? 'Digite e pressione Enter…' : 'Type and press Enter…';
+}
+
+// ── DATA ──────────────────────────────────────────────────────────────
+const PALETTES = ['#C9705A','#2D4B73','#2d7a4f','#c47f1a','#7b5ea7','#0891b2','#be185d','#1a7a6e','#855e3a','#3a6685'];
+const MOS = {en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], pt:['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']};
+const DAYS = {en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], pt:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']};
+
+let M = [], EV = [];
+let activeMid = null, activeEvId = null, mDwTabActive = 'info', evDwTabActive = 'rsvp';
+let mFilterTag = null;
+let importParsed = [], importForEvId = null;
+let amTags = [];
+
+function save() { localStorage.setItem('mhh5_m', JSON.stringify(M)); localStorage.setItem('mhh5_e', JSON.stringify(EV)); }
+function load() { M = JSON.parse(localStorage.getItem('mhh5_m') || '[]'); EV = JSON.parse(localStorage.getItem('mhh5_e') || '[]'); }
+function today() { return new Date().toISOString().split('T')[0]; }
+function initials(m) { return ((m.fn?.[0] || '') + (m.ln?.[0] || '')).toUpperCase(); }
+function avatarBg(m) { return PALETTES[((m.fn?.charCodeAt(0) || 0) + (m.ln?.charCodeAt(0) || 0)) % PALETTES.length]; }
+function tagColor(tag) { return PALETTES[Math.abs([...tag].reduce((a, c) => a + c.charCodeAt(0), 0)) % PALETTES.length]; }
+function mo() { return MOS[lang]; }
+function dy() { return DAYS[lang]; }
+function fmtDate(d) { try { const x = new Date(d + 'T12:00:00'); return mo()[x.getMonth()] + ' ' + x.getDate() + ', ' + x.getFullYear(); } catch { return d || '—'; } }
+function fmtShort(d) { try { const x = new Date(d + 'T12:00:00'); return mo()[x.getMonth()] + ' ' + x.getDate(); } catch { return d || ''; } }
+function upcoming() { return [...EV].filter(e => e.dt >= today()).sort((a, b) => a.dt.localeCompare(b.dt)); }
+function past() { return [...EV].filter(e => e.dt < today()).sort((a, b) => b.dt.localeCompare(a.dt)); }
+function allTags() { const s = new Set(); M.forEach(m => (m.tags || []).forEach(t => s.add(t))); return [...s].sort(); }
+function tagPill(tag, removable = false, idx = null) {
+  const c = tagColor(tag);
+  const rm = removable ? `onclick="removeRTag(${idx},'${tag.replace(/'/g, "\\'")}');event.stopPropagation()"` : '';
+  return `<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:${c}15;color:${c};border:1px solid ${c}28;${removable ? 'cursor:pointer' : ''}" ${rm}>${tag}${removable ? ' ×' : ''}</span>`;
+}
+
+// ── NAV ──────────────────────────────────────────────────────────────
+let curPage = 'home';
+function nav(page) {
+  curPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.getElementById('p-' + page)?.classList.add('on');
+  document.querySelectorAll('.nt, #mob-menu .nt').forEach(b => b.classList.toggle('on', b.dataset.page === page));
+  renderCurrent();
+}
+function setBN(p) { document.querySelectorAll('.bni').forEach(b => b.classList.remove('on')); document.getElementById('bn-' + p)?.classList.add('on'); }
+function renderCurrent() { ({ home: renderHome, events: renderEvents, members: renderMembers, analytics: renderAnalytics })[curPage]?.(); }
+function toggleMobMenu() { /* removed */ }
+
+// ── HOME ──────────────────────────────────────────────────────────────
+function daysSince(dt) {
+  if (!dt) return 9999;
+  return Math.floor((Date.now() - new Date(dt + 'T12:00:00')) / 86400000);
+}
+function lastAttended(m) {
+  const evts = EV.filter(e => (e.attendees || []).includes(m.id));
+  if (!evts.length) return null;
+  return evts.sort((a, b) => b.dt.localeCompare(a.dt))[0].dt;
+}
+function renderHome() {
+  const now = new Date();
+  const hr = now.getHours();
+  const greetEn = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  const greetPt = hr < 12 ? 'Bom dia' : hr < 17 ? 'Boa tarde' : 'Boa noite';
+  const greet = lang === 'pt' ? greetPt : greetEn;
+  const hasData = M.length > 0 || EV.length > 0;
+
+  document.getElementById('h-eyebrow').textContent = dy()[now.getDay()] + ' · ' + fmtShort(today());
+
+  if (!hasData) {
+    // Empty state — warm, quiet welcome
+    document.getElementById('h-greeting').innerHTML = `${greet}.`;
+    document.getElementById('h-tagline').innerHTML = lang === 'pt'
+      ? 'Um lugar para conhecer e lembrar de cada pessoa da sua comunidade.'
+      : 'A home for every person in your community.';
+    document.getElementById('h-sub').textContent = '';
+    document.getElementById('h-data').style.display = 'none';
+    renderLaunch();
+    return;
+  }
+
+  // Has data — greeting shifts to be about the community
+  document.getElementById('h-greeting').innerHTML = `${greet}.`;
+  document.getElementById('h-tagline').innerHTML = lang === 'pt'
+    ? `<em>${M.length} pessoas</em> na sua comunidade.`
+    : `<em>${M.length} people</em> in your community.`;
+  document.getElementById('h-sub').textContent = '';
+  document.getElementById('h-launch').innerHTML = '';
+  document.getElementById('h-data').style.display = 'block';
+
+  // ── CHECK-IN: people who haven't been seen in 30+ days ──
+  const THRESHOLD = 30;
+  const quietPeople = M.map(m => {
+    const last = lastAttended(m);
+    const since = last ? daysSince(last) : (m.joined ? daysSince(m.joined) : 999);
+    return { m, last, since };
+  }).filter(x => x.since >= THRESHOLD)
+    .sort((a, b) => b.since - a.since)
+    .slice(0, 5);
+
+  if (quietPeople.length) {
+    const title = lang === 'pt'
+      ? `${quietPeople.length} ${quietPeople.length === 1 ? 'pessoa' : 'pessoas'} sem presença há mais de ${THRESHOLD} dias`
+      : `${quietPeople.length} ${quietPeople.length === 1 ? 'person' : 'people'} not seen in over ${THRESHOLD} days`;
+    document.getElementById('h-checkin').innerHTML = `
+      <div class="checkin-strip">
+        <div class="checkin-head">
+          <div class="checkin-title">${title}</div>
+        </div>
+        <div class="checkin-list">
+          ${quietPeople.map(({ m, last, since }) => {
+            const sinceStr = since >= 365
+              ? Math.floor(since / 365) + (lang === 'pt' ? ' ano' : 'yr')
+              : since >= 30
+              ? Math.floor(since / 30) + (lang === 'pt' ? ' mes' : 'mo')
+              : since + (lang === 'pt' ? ' dias' : 'd');
+            const lastStr = last ? fmtShort(last) : (lang === 'pt' ? 'Nunca' : 'Never');
+            const waHref = m.ph ? `https://wa.me/55${m.ph.replace(/\D/g,'')}` : null;
+            return `<div class="ci-row">
+              <div class="ci-av" style="background:${avatarBg(m)}">${initials(m)}</div>
+              <div class="ci-info" style="cursor:pointer" onclick="openMemberDrawer(${m.id})">
+                <div class="ci-name">${m.fn} ${m.ln}</div>
+                <div class="ci-since">${lang === 'pt' ? 'Última vez' : 'Last seen'}: ${lastStr} · ${sinceStr} ${lang === 'pt' ? 'atrás' : 'ago'}</div>
+              </div>
+              ${waHref ? `<a class="ci-wa" href="${waHref}" target="_blank" title="WhatsApp">💬</a>` : `<div class="ci-wa" style="opacity:.3;cursor:default">💬</div>`}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  } else {
+    document.getElementById('h-checkin').innerHTML = '';
+  }
+
+  // ── STATS ──
+  const up = upcoming();
+  const newThisMonth = M.filter(m => m.joined && daysSince(m.joined) <= 30).length;
+  document.getElementById('h-stats').innerHTML = `
+    <div class="sbar-item"><div class="sbar-n">${M.length}</div><div class="sbar-l">${(lang==='pt'?'MEMBROS':'MEMBERS')}</div></div>
+    <div class="sbar-item"><div class="sbar-n" style="color:var(--k)">${EV.length}</div><div class="sbar-l">${(lang==='pt'?'EVENTOS':'EVENTS')}</div></div>
+    <div class="sbar-item"><div class="sbar-n" style="color:var(--k3);font-size:${newThisMonth>0?'48px':'36px'}">${newThisMonth > 0 ? '+'+newThisMonth : '—'}</div><div class="sbar-l">${(lang==='pt'?'NOVOS (30D)':'NEW (30D)')}</div></div>`;
+
+  // ── UPCOMING EVENTS ──
+  document.getElementById('h-ev-cards').innerHTML = up.length
+    ? `<div class="ev-cards">${up.slice(0, 6).map(ev => {
+        const d = new Date(ev.dt + 'T12:00:00');
+        const conf = (ev.rsvp || []).filter(r => r.status === 'confirmed').length;
+        return `<div class="evc" onclick="openEventDrawer(${ev.id})">
+          <div class="evc-top"><div><div class="evc-date">${isNaN(d) ? '?' : d.getDate()}</div><div class="evc-mo">${isNaN(d) ? '' : mo()[d.getMonth()] + ' · ' + dy()[d.getDay()]}</div></div><div class="evc-dot"></div></div>
+          <div class="evc-name">${ev.nm}</div>
+          <div class="evc-cnt">${conf} ${s('confirmedLabel')}</div>
+        </div>`;
+      }).join('')}</div>`
+    : `<div style="font-size:14px;color:var(--k4);padding:8px 0">${s('noEvents')} — <span style="color:var(--r);cursor:pointer;font-weight:500" onclick="openModal('addev')">+ ${s('newEvent')}</span></div>`;
+
+  // ── RECENT ACTIVITY ──
+  const acts = [];
+  [...EV].sort((a, b) => b.dt.localeCompare(a.dt)).slice(0, 3).forEach(ev => acts.push({ text: ev.nm, dt: ev.dt, type: 'event' }));
+  [...M].sort((a, b) => (b.joined || '').localeCompare(a.joined || '')).slice(0, 3).forEach(m => acts.push({ text: m.fn + ' ' + m.ln, dt: m.joined || today(), type: 'member' }));
+  acts.sort((a, b) => b.dt.localeCompare(a.dt));
+  document.getElementById('h-activity').innerHTML = acts.length
+    ? acts.slice(0, 5).map(a => `<div class="act-item"><div class="act-dot" style="${a.type==='member'?'':'background:var(--k2)'}"></div><div class="act-text">${a.type==='member' ? s('member') : s('event')}: <strong>${a.text}</strong></div><div class="act-time">${fmtShort(a.dt)}</div></div>`).join('')
+    : `<div style="font-size:14px;color:var(--k4);padding:8px 0">${s('noneYet')}</div>`;
+}
+
+function renderLaunch() {
+  const intro = lang === 'pt'
+    ? 'Comece trazendo sua comunidade.'
+    : 'Start by bringing your community in.';
+  document.getElementById('h-launch').innerHTML = `
+    <div style="margin-bottom:32px;">
+      <div style="font-size:14px;color:var(--k3);margin-bottom:20px;font-weight:300">${intro}</div>
+      <div class="import-grid">
+        <div class="icard primary" onclick="openImport('drop')">
+          <span class="ic-icon">📂</span>
+          <div class="ic-title">${s('dropLabel')}</div>
+          <div class="ic-sub">${lang==='pt'?'Exporte do Google Sheets como CSV e arraste aqui.':'Export from Google Sheets as CSV and drag it here.'}</div>
+        </div>
+        <div class="icard" onclick="openImport('paste')">
+          <span class="ic-icon">📋</span>
+          <div class="ic-title">${s('pasteLabel')}</div>
+          <div class="ic-sub">${lang==='pt'?'Copie da planilha vinculada ao formulário.':'Copy from your linked spreadsheet.'}</div>
+        </div>
+        <div class="icard" onclick="openModal('addev')">
+          <span class="ic-icon">📅</span>
+          <div class="ic-title">${lang==='pt'?'Criar um evento':'Create an event'}</div>
+          <div class="ic-sub">${lang==='pt'?'Adicione participantes depois.':'Add attendees as they come.'}</div>
+        </div>
       </div>
-      <div class="launch-secondary">
-        <div class="launch-sec-opt" onclick="openImp('paste')">
-          <span class="launch-sec-icon">📋</span>
-          <div class="launch-sec-title">${t('pasteTitle')}</div>
-          <div class="launch-sec-sub">${t('pasteSub')}</div>
-        </div>
-        <div class="launch-sec-opt" onclick="openM('addm')">
-          <span class="launch-sec-icon">✏️</span>
-          <div class="launch-sec-title">${t('addManual')}</div>
-          <div class="launch-sec-sub">${lang==='pt'?'Preencha os campos manualmente.':'Fill in the fields manually.'}</div>
-        </div>
+      <div class="home-or">${lang==='pt'?'ou':'or'}</div>
+      <div class="home-manual" onclick="openModal('addm')">
+        <div class="home-manual-text">${lang==='pt'?'Adicionar uma pessoa manualmente →':'Add someone manually →'}</div>
       </div>
     </div>`;
 }
-function dismissTip(){tipDismissed=true;localStorage.setItem('mhh4_tip','1');document.getElementById('h-tip').innerHTML='';}
 
-// ── IMPORT MODAL ──
-function openImp(mode='drop'){importEvId=null;renderImpStep(mode);document.getElementById('imp-title').textContent=t('importTitle');openM('impm');}
-function openImpForEv(){importEvId=activeEvId;closeEvDP();renderImpStep('drop');document.getElementById('imp-title').textContent=t('importRSVP');openM('impm');}
-function evOpts(){return`<option value="">${t('noEvent')}</option>`+EV.map(e=>`<option value="${e.id}"${e.id===importEvId?' selected':''}>${e.nm}</option>`).join('');}
+// ── IMPORT ──────────────────────────────────────────────────────────────
+function openImport(mode = 'drop') {
+  importForEvId = null;
+  document.getElementById('imp-modal-title').textContent = s('importTitle') || s('import');
+  renderImpStep(mode);
+  openModal('imp-modal');
+}
+function openImportForEvent() {
+  importForEvId = activeEvId;
+  closeDrawer('ev-ov');
+  document.getElementById('imp-modal-title').textContent = s('importRSVPs');
+  renderImpStep('drop');
+  openModal('imp-modal');
+}
+function evSelectOpts() {
+  return `<option value="">${s('noEventLink')}</option>` + EV.map(e => `<option value="${e.id}"${e.id === importForEvId ? ' selected' : ''}>${e.nm}</option>`).join('');
+}
 
-function renderImpStep(mode='drop'){
-  if(mode==='paste'){
-    document.getElementById('imp-body').innerHTML=`
-      <div style="background:var(--navy-l);border:1px solid var(--navy-m);border-radius:11px;padding:11px 14px;font-size:13px;color:var(--navy);line-height:1.8;margin-bottom:14px">${lang==='pt'?'1. Abra a planilha vinculada ao seu Google Forms<br>2. Selecione tudo (Ctrl+A) → Copie (Ctrl+C)<br>3. Cole abaixo':'1. Open your Google Forms linked spreadsheet<br>2. Select all (Ctrl+A) → Copy (Ctrl+C)<br>3. Paste below'}</div>
-      <div class="fg"><div class="fl">${t('pasteHere')}</div><textarea class="csv-ta" id="imp-ta" style="min-height:130px"></textarea></div>
-      <div class="fg"><div class="fl">${t('forEvent')}</div><select class="fi" id="imp-ev-sel">${evOpts()}</select></div>
+function renderImpStep(mode = 'drop') {
+  if (mode === 'paste') {
+    document.getElementById('imp-body').innerHTML = `
+      <div style="background:#EEF2F7;border-radius:11px;padding:13px 16px;font-size:13px;color:#2D4B73;line-height:1.8;margin-bottom:16px;white-space:pre-line">${s('pasteSteps')}</div>
+      <div class="field"><div class="label">${s('pasteHere') || 'Paste here'}</div>
+        <textarea class="inp csv-ta" id="imp-ta" style="min-height:130px;font-family:monospace;font-size:12.5px;background:var(--f);"></textarea>
+      </div>
+      <div class="field"><div class="label">${s('forEventLabel')}</div><select class="inp" id="imp-ev-sel">${evSelectOpts()}</select></div>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-ghost" onclick="renderImpStep('drop')">${lang==='pt'?'← Voltar':'← Back'}</button>
-        <button class="btn btn-ink" style="flex:1" onclick="parseCSV(document.getElementById('imp-ta').value)">
+        <button class="btn btn-o" onclick="renderImpStep('drop')">${s('backBtn')}</button>
+        <button class="btn btn-k" style="flex:1" onclick="parseCSV(document.getElementById('imp-ta').value)">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-          ${t('analyzeData')}
+          ${s('analyzeBtn')}
         </button>
       </div>`;
-  }else{
-    document.getElementById('imp-body').innerHTML=`
-      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('fpick').click()">
+  } else {
+    document.getElementById('imp-body').innerHTML = `
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('fpick').click()">
         <input type="file" id="fpick" accept=".csv,.tsv,.txt" style="display:none" onchange="handleFile(this)">
         <div class="dz-icon">📂</div>
-        <div class="dz-title">${t('dropTitle')}</div>
-        <div class="dz-sub">${t('dropSub')}</div>
+        <div class="dz-title">${s('dropLabel')}</div>
+        <div class="dz-sub">${s('dropSub')}</div>
       </div>
-      <div style="text-align:center;padding:10px 0;font-size:13px;color:var(--ink4)">${lang==='pt'?'ou':'or'}</div>
-      <button class="btn btn-ghost" style="width:100%;margin-bottom:14px;border-radius:12px" onclick="renderImpStep('paste')">📋 ${t('pasteTitle')}</button>
-      <div class="fg"><div class="fl">${t('forEvent')}</div><select class="fi" id="imp-ev-sel">${evOpts()}</select></div>`;
+      <div class="dz-or">${lang === 'pt' ? 'ou' : 'or'}</div>
+      <button class="btn btn-o" style="width:100%;border-radius:12px;margin-bottom:14px" onclick="renderImpStep('paste')">📋 ${s('pasteLabel')}</button>
+      <div class="field"><div class="label">${s('forEventLabel')}</div><select class="inp" id="imp-ev-sel">${evSelectOpts()}</select></div>`;
     setupDrop();
   }
 }
-function setupDrop(){
-  const z=document.getElementById('drop-zone');if(!z)return;
-  z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('over');});
-  z.addEventListener('dragleave',()=>z.classList.remove('over'));
-  z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('over');const f=e.dataTransfer.files[0];if(f)readFile(f);});
-}
-function handleFile(inp){const f=inp.files[0];if(f)readFile(f);}
-function readFile(f){const r=new FileReader();r.onload=e=>parseCSV(e.target.result);r.readAsText(f);}
 
-// ── SMART PARSER ──
-function parseCSV(raw){
-  if(!raw?.trim()){toast(lang==='pt'?'Cole os dados primeiro':'Paste data first');return;}
-  const lines=raw.trim().split(/\r?\n/).filter(Boolean);
-  if(lines.length<2){toast(lang==='pt'?'Dados insuficientes':'Not enough data');return;}
-  const headers=splitL(lines[0]);
-  const rows=lines.slice(1).map(splitL);
-  const map={};
-  const m=(hl,keys)=>keys.some(k=>hl.includes(k));
-  headers.forEach((h,i)=>{
-    const hl=h.toLowerCase().trim();
-    if(map.fullname==null&&m(hl,['name','nome','full','participant','attendee','inscrito']))map.fullname=i;
-    if(map.fname==null&&(hl==='first name'||hl==='nome'||hl==='primeiro nome'||hl==='first'))map.fname=i;
-    if(map.lname==null&&(hl==='last name'||hl==='sobrenome'||hl==='surname'||hl==='last'))map.lname=i;
-    if(map.age==null&&m(hl,['age','idade','anos']))map.age=i;
-    if(map.phone==null&&m(hl,['phone','tel','whatsapp','celular','mobile','fone']))map.phone=i;
-    if(map.email==null&&m(hl,['email','e-mail','mail','correio']))map.email=i;
-    if(map.hood==null&&m(hl,['neighborhood','bairro','district','cidade','city','region','região']))map.hood=i;
+function setupDrop() {
+  const z = document.getElementById('dropzone'); if (!z) return;
+  z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('over'); });
+  z.addEventListener('dragleave', () => z.classList.remove('over'));
+  z.addEventListener('drop', e => { e.preventDefault(); z.classList.remove('over'); const f = e.dataTransfer.files[0]; if (f) readFile(f); });
+}
+function handleFile(inp) { const f = inp.files[0]; if (f) readFile(f); }
+function readFile(f) { const r = new FileReader(); r.onload = e => parseCSV(e.target.result); r.readAsText(f); }
+
+// ── SMART PARSER ──────────────────────────────────────────────────────
+function parseCSV(raw) {
+  if (!raw?.trim()) { toast(lang === 'pt' ? 'Cole os dados primeiro' : 'Paste data first'); return; }
+  const lines = raw.trim().split(/\r?\n/).filter(Boolean);
+  if (lines.length < 2) { toast(lang === 'pt' ? 'Dados insuficientes' : 'Not enough data'); return; }
+  const headers = splitLine(lines[0]);
+  const rows = lines.slice(1).map(splitLine);
+  // Smart column detection
+  const map = {};
+  const match = (hl, keys) => keys.some(k => hl.includes(k));
+  headers.forEach((h, i) => {
+    const hl = h.toLowerCase().trim();
+    if (map.fullname == null && match(hl, ['name','nome','full','participant','attendee','inscrito','participante'])) map.fullname = i;
+    if (map.fname == null && (hl === 'first name' || hl === 'nome' || hl === 'primeiro nome' || hl === 'first')) map.fname = i;
+    if (map.lname == null && (hl === 'last name' || hl === 'sobrenome' || hl === 'surname' || hl === 'last')) map.lname = i;
+    if (map.age == null && match(hl, ['age','idade','anos','birth'])) map.age = i;
+    if (map.phone == null && match(hl, ['phone','tel','whatsapp','celular','mobile','fone'])) map.phone = i;
+    if (map.email == null && match(hl, ['email','e-mail','mail','correio'])) map.email = i;
+    if (map.hood == null && match(hl, ['neighborhood','bairro','district','cidade','city','region','região','bairro'])) map.hood = i;
   });
-  const people=rows.map(row=>{
-    if(row.every(c=>!c?.trim()))return null;
-    let fn='',ln='';
-    if(map.fullname!=null){const pts=(row[map.fullname]||'').trim().split(/\s+/);fn=pts[0]||'';ln=pts.slice(1).join(' ');}
-    if(map.fname!=null)fn=(row[map.fname]||'').trim()||fn;
-    if(map.lname!=null)ln=(row[map.lname]||'').trim()||ln;
-    if(!fn&&!ln)return null;
-    const existing=M.find(m=>m.fn.toLowerCase()===fn.toLowerCase()&&m.ln.toLowerCase()===ln.toLowerCase());
-    return{fn,ln,age:parseInt(row[map.age])||null,ph:(row[map.phone]||'').trim(),em:(row[map.email]||'').trim(),bairro:(row[map.hood]||'').trim(),
-      tags:[], // ← NO auto-tags. User assigns tags in review screen.
-      is_new:!existing,eid:existing?.id};
+  const people = rows.map(row => {
+    if (row.every(c => !c?.trim())) return null;
+    let fn = '', ln = '';
+    if (map.fullname != null) { const pts = (row[map.fullname] || '').trim().split(/\s+/); fn = pts[0] || ''; ln = pts.slice(1).join(' '); }
+    if (map.fname != null) fn = (row[map.fname] || '').trim() || fn;
+    if (map.lname != null) ln = (row[map.lname] || '').trim() || ln;
+    if (!fn && !ln) return null;
+    const existing = M.find(m => m.fn.toLowerCase() === fn.toLowerCase() && m.ln.toLowerCase() === ln.toLowerCase());
+    return { fn, ln, age: parseInt(row[map.age]) || null, ph: (row[map.phone] || '').trim(), em: (row[map.email] || '').trim(), bairro: (row[map.hood] || '').trim(), tags: [], // NO auto-tags — only user assigns
+      is_new: !existing, eid: existing?.id };
   }).filter(Boolean);
-  if(!people.length){toast(lang==='pt'?'Nenhuma pessoa encontrada':'No people found');return;}
-  importParsed=people;
-  renderReview(map,headers);
+  if (!people.length) { toast(lang === 'pt' ? 'Nenhuma pessoa encontrada' : 'No people found'); return; }
+  importParsed = people;
+  renderReview(map, headers);
 }
-function splitL(line){const r=[];let c='',q=false;for(const ch of line){if(ch==='"')q=!q;else if(ch===','&&!q){r.push(c.trim());c='';}else c+=ch;}r.push(c.trim());return r;}
+function splitLine(line) {
+  const r = []; let c = '', q = false;
+  for (const ch of line) { if (ch === '"') q = !q; else if (ch === ',' && !q) { r.push(c.trim()); c = ''; } else c += ch; }
+  r.push(c.trim()); return r;
+}
 
-// ── REVIEW ──
-function renderReview(map,headers){
-  const evSel=document.getElementById('imp-ev-sel')?.value||'';
-  importEvId=importEvId||(evSel?parseInt(evSel):null);
-  const cols=Object.entries(map||{}).map(([f,i])=>`<span style="font-size:11px;background:var(--bg2);border-radius:6px;padding:2px 8px;color:var(--ink3)"><em style="color:var(--ink4)">${(headers||[])[i]||'?'}</em> → ${f}</span>`).join(' ');
-  document.getElementById('imp-title').textContent=t('review');
-  document.getElementById('imp-body').innerHTML=`
-    <p style="font-size:13px;color:var(--ink3);margin-bottom:10px;line-height:1.65">${t('reviewSub')}</p>
-    ${cols?`<div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:4px;align-items:center"><span style="font-size:11px;font-weight:700;color:var(--ink4);margin-right:4px">${t('smartCols')}:</span>${cols}</div>`:''}
+// ── REVIEW ────────────────────────────────────────────────────────────
+function renderReview(map, headers) {
+  const evSel = document.getElementById('imp-ev-sel')?.value || '';
+  if (evSel) importForEvId = parseInt(evSel) || null;
+  const colInfo = Object.entries(map || {}).map(([f, i]) =>
+    `<span style="font-size:11.5px;background:var(--f2);border-radius:6px;padding:2px 9px;color:var(--k3)"><em style="color:var(--k4)">${(headers || [])[i] || '?'}</em> → ${f}</span>`
+  ).join(' ');
+  document.getElementById('imp-modal-title').textContent = s('reviewTitle');
+  const newCount = importParsed.filter(p => p.is_new).length;
+  const exCount = importParsed.length - newCount;
+  document.getElementById('imp-body').innerHTML = `
+    <p style="font-size:13.5px;color:var(--k3);line-height:1.65;margin-bottom:12px">${s('reviewSub')}</p>
+    <div class="review-summary">
+      <div><div class="rs-n" style="color:var(--r)">${newCount}</div><div class="rs-l">${s('newLabel').toUpperCase()}</div></div>
+      ${exCount ? `<div><div class="rs-n" style="color:#2d7a4f">${exCount}</div><div class="rs-l">${s('existingLabel').toUpperCase()}</div></div>` : ''}
+      <div><div class="rs-n" style="color:var(--k3)">${importParsed.length}</div><div class="rs-l">TOTAL</div></div>
+    </div>
+    ${colInfo ? `<div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:5px;align-items:center"><span style="font-size:11px;font-weight:600;color:var(--k4);margin-right:4px">${s('detectedCols')}:</span>${colInfo}</div>` : ''}
     <div style="overflow-x:auto;margin-bottom:14px">
     <table class="rtable">
-      <thead><tr><th style="min-width:160px">${lang==='pt'?'Nome':'Name'}</th><th style="min-width:50px">${t('age')}</th><th style="min-width:100px">${t('neighborhood')}</th><th style="min-width:180px">Tags <span style="font-weight:400;opacity:.6;font-size:9px">${lang==='pt'?'(você decide)':'(you decide)'}</span></th><th></th></tr></thead>
-      <tbody id="rtbody">${importParsed.map((p,i)=>rrow(p,i)).join('')}</tbody>
+      <thead><tr>
+        <th style="min-width:150px">${lang === 'pt' ? 'Nome' : 'Name'}</th>
+        <th style="min-width:48px">${s('age')}</th>
+        <th style="min-width:100px">${s('neighborhood')}</th>
+        <th>Tags <span style="font-weight:400;opacity:.5;font-size:9px">${lang === 'pt' ? '(você define)' : '(you decide)'}</span></th>
+        <th style="width:30px"></th>
+      </tr></thead>
+      <tbody id="rtbody">${importParsed.map((p, i) => reviewRow(p, i)).join('')}</tbody>
     </table>
     </div>
-    <div class="fg"><div class="fl">${t('forEvent')}</div><select class="fi" id="imp-ev-sel2">${evOpts()}</select></div>
+    <div class="field"><div class="label">${s('forEventLabel')}</div><select class="inp" id="imp-ev-sel2">${evSelectOpts()}</select></div>
     <div style="display:flex;gap:8px">
-      <button class="btn btn-ghost" onclick="renderImpStep()">${lang==='pt'?'← Voltar':'← Back'}</button>
-      <button class="btn btn-green" style="flex:1" onclick="saveImport()">✓ ${t('saveAll')} · ${importParsed.filter(p=>p.is_new).length} ${lang==='pt'?'novos':'new'}</button>
+      <button class="btn btn-o" onclick="renderImpStep('drop')">${s('backBtn')}</button>
+      <button class="btn btn-r" style="flex:1" onclick="saveImport()">✓ ${s('saveAllBtn')} · ${newCount} ${lang === 'pt' ? 'novos' : 'new'}</button>
     </div>`;
-  if(importEvId){const s=document.getElementById('imp-ev-sel2');if(s)s.value=importEvId;}
+  if (importForEvId) { const sel = document.getElementById('imp-ev-sel2'); if (sel) sel.value = importForEvId; }
 }
-function rrow(p,i){
-  const tagHtml=(p.tags||[]).map(tag=>tpillHTML(tag,true,i)).join('');
-  return`<tr class="${p.is_new?'rn':'re'}">
-    <td><div style="display:flex;flex-direction:column;gap:3px">
-      <input class="ri" value="${p.fn} ${p.ln}" onblur="updName(${i},this.value)">
-      <span class="rbadge ${p.is_new?'n':'e'}">${p.is_new?t('newBadge'):t('existsBadge')}</span>
-    </div></td>
-    <td><input class="ri" value="${p.age||''}" onblur="updF(${i},'age',this.value)" style="width:50px"></td>
-    <td><input class="ri" value="${p.bairro||''}" onblur="updF(${i},'bairro',this.value)"></td>
-    <td><div class="rtags" id="rtags-${i}">${tagHtml}<span class="radd" onclick="addRTag(${i})">+ tag</span></div></td>
-    <td><button class="rdel" onclick="delRRow(${i})">×</button></td>
+function reviewRow(p, i) {
+  const tags = (p.tags || []).map(tag => tagPill(tag, true, i)).join('');
+  return `<tr class="${p.is_new ? 'isnew' : 'isex'}">
+    <td><input class="rinput" value="${p.fn} ${p.ln}" onblur="updName(${i},this.value)" style="font-weight:500">
+      <div class="rbadge ${p.is_new ? 'n' : 'e'}">${p.is_new ? s('newLabel') : s('existingLabel')}</div></td>
+    <td><input class="rinput" value="${p.age || ''}" onblur="updF(${i},'age',this.value)" style="width:44px"></td>
+    <td><input class="rinput" value="${p.bairro || ''}" onblur="updF(${i},'bairro',this.value)"></td>
+    <td><div class="rtags-cell" id="rtc-${i}">${tags}<span class="radd-tag" onclick="addRTag(${i})">+ tag</span></div></td>
+    <td><button class="rdel" onclick="delRow(${i})">×</button></td>
   </tr>`;
 }
-function updName(i,v){if(!importParsed[i])return;const pts=v.trim().split(/\s+/);importParsed[i].fn=pts[0]||'';importParsed[i].ln=pts.slice(1).join(' ')||'';}
-function updF(i,f,v){if(!importParsed[i])return;importParsed[i][f]=f==='age'?parseInt(v)||null:v;}
-function delRRow(i){importParsed.splice(i,1);const tb=document.getElementById('rtbody');if(tb)tb.innerHTML=importParsed.map((p,j)=>rrow(p,j)).join('');}
-function removeRTag(i,tag){if(!importParsed[i])return;importParsed[i].tags=(importParsed[i].tags||[]).filter(t=>t!==tag);rerenderRTags(i);}
-function addRTag(i){const tag=prompt(lang==='pt'?'Nome da tag:':'Tag name:');if(!tag?.trim())return;if(!importParsed[i].tags)importParsed[i].tags=[];if(!importParsed[i].tags.includes(tag.trim()))importParsed[i].tags.push(tag.trim());rerenderRTags(i);}
-function rerenderRTags(i){const cell=document.getElementById(`rtags-${i}`);if(cell){cell.innerHTML=(importParsed[i].tags||[]).map(tag=>tpillHTML(tag,true,i)).join('')+`<span class="radd" onclick="addRTag(${i})">+ tag</span>`;}}
+function updName(i, v) { if (!importParsed[i]) return; const pts = v.trim().split(/\s+/); importParsed[i].fn = pts[0] || ''; importParsed[i].ln = pts.slice(1).join(' ') || ''; }
+function updF(i, f, v) { if (!importParsed[i]) return; importParsed[i][f] = f === 'age' ? parseInt(v) || null : v; }
+function delRow(i) { importParsed.splice(i, 1); const tb = document.getElementById('rtbody'); if (tb) tb.innerHTML = importParsed.map((p, j) => reviewRow(p, j)).join(''); }
+function removeRTag(i, tag) { if (!importParsed[i]) return; importParsed[i].tags = (importParsed[i].tags || []).filter(t => t !== tag); rerenderRTags(i); }
+function addRTag(i) { const tag = prompt(lang === 'pt' ? 'Nome da tag:' : 'Tag name:'); if (!tag?.trim()) return; if (!importParsed[i].tags) importParsed[i].tags = []; if (!importParsed[i].tags.includes(tag.trim())) importParsed[i].tags.push(tag.trim()); rerenderRTags(i); }
+function rerenderRTags(i) { const cell = document.getElementById(`rtc-${i}`); if (cell) cell.innerHTML = (importParsed[i].tags || []).map(tag => tagPill(tag, true, i)).join('') + `<span class="radd-tag" onclick="addRTag(${i})">+ tag</span>`; }
 
-function saveImport(){
-  let added=0;
-  const evId=parseInt(document.getElementById('imp-ev-sel2')?.value)||importEvId||null;
-  const ev=evId?EV.find(e=>e.id===evId):null;
-  importParsed.forEach(p=>{
-    if(!p.is_new){
-      if(ev&&!ev.rsvp?.find(r=>r.mid===p.eid)){if(!ev.rsvp)ev.rsvp=[];ev.rsvp.push({mid:p.eid,status:'confirmed'});}
-      if(p.eid&&p.tags?.length){const em=M.find(x=>x.id===p.eid);if(em)em.tags=[...new Set([...(em.tags||[]),...p.tags])];}
+function saveImport() {
+  let added = 0;
+  const evId = parseInt(document.getElementById('imp-ev-sel2')?.value) || importForEvId || null;
+  const ev = evId ? EV.find(e => e.id === evId) : null;
+  importParsed.forEach(p => {
+    if (!p.is_new) {
+      if (ev && !ev.rsvp?.find(r => r.mid === p.eid)) { if (!ev.rsvp) ev.rsvp = []; ev.rsvp.push({ mid: p.eid, status: 'confirmed' }); }
+      if (p.eid && p.tags?.length) { const em = M.find(x => x.id === p.eid); if (em) em.tags = [...new Set([...(em.tags || []), ...p.tags])]; }
       return;
     }
-    const nm={id:Date.now()+added,fn:p.fn,ln:p.ln,age:p.age,tags:p.tags||[],ph:p.ph,em:p.em,bairro:p.bairro,notes:'',joined:tod(),attendees:[]};
+    const nm = { id: Date.now() + added, fn: p.fn, ln: p.ln, age: p.age, tags: p.tags || [], ph: p.ph, em: p.em, bairro: p.bairro, notes: '', joined: today(), attendees: [] };
     M.push(nm);
-    if(ev){if(!ev.rsvp)ev.rsvp=[];ev.rsvp.push({mid:nm.id,status:'confirmed'});}
+    if (ev) { if (!ev.rsvp) ev.rsvp = []; ev.rsvp.push({ mid: nm.id, status: 'confirmed' }); }
     added++;
   });
-  sv();upB();closeM('impm');importParsed=[];importEvId=null;
-  toast(`${added} ${lang==='pt'?'novos membros adicionados':'new members added'}!`);
+  save(); closeModal('imp-modal'); importParsed = []; importForEvId = null;
+  toast(`${added} ${lang === 'pt' ? 'novos membros adicionados' : 'new members added'}!`);
   renderCurrent();
 }
 
-// ── EVENTS ──
-function renderEvents(){
-  const up=upcoming(),pt=past();let html='';
-  if(up.length){html+=`<div class="ev-list-hd">${t('upcoming')}</div>`;html+=up.map(evRow).join('');}
-  if(pt.length){html+=`<div class="ev-list-hd" style="padding-top:14px">${lang==='pt'?'Anteriores':'Past'}</div>`;html+=pt.map(evRow).join('');}
-  if(!html)html=emptyS(t('noEvents'),lang==='pt'?'Crie um evento.':'Create your first event.','addev');
-  document.getElementById('ev-list').innerHTML=html;
+// ── EVENTS ───────────────────────────────────────────────────────────
+function renderEvents() {
+  const up = upcoming(), pt = past();
+  let html = '';
+  if (up.length) { html += `<div class="ev-section-title">${s('upcomingEvents')}</div><div class="evlist">${up.map(evRow).join('')}</div>`; }
+  if (pt.length) { html += `<div class="ev-section-title" style="padding-top:28px">${lang === 'pt' ? 'Anteriores' : 'Past'}</div><div class="evlist">${pt.map(evRow).join('')}</div>`; }
+  if (!html) html = emptyState(s('noEvents'), lang === 'pt' ? 'Crie um evento ou importe inscrições.' : 'Create an event or import RSVPs.', () => openModal('addev'));
+  document.getElementById('ev-list').innerHTML = html;
 }
-function evRow(ev){
-  const d=new Date(ev.dt+'T12:00:00');
-  const conf=(ev.rsvp||[]).filter(r=>r.status==='confirmed').length;
-  return`<div class="ev-row" onclick="openEvDP(${ev.id})">
-    <div class="ev-datebox"><div class="ev-mo">${isNaN(d)?'':MO()[d.getMonth()]}</div><div class="ev-d">${isNaN(d)?'?':d.getDate()}</div></div>
-    <div class="ev-info"><div class="ev-nm">${ev.nm}</div><div class="ev-meta">${ev.loc||'ADD Mitzvah House'}</div></div>
-    <div class="ev-cnt"><div class="ev-cnt-n">${conf}</div><div class="ev-cnt-l">${t('confirmedLabel')}</div></div>
+function evRow(ev) {
+  const d = new Date(ev.dt + 'T12:00:00');
+  const conf = (ev.rsvp || []).filter(r => r.status === 'confirmed').length;
+  return `<div class="evrow" onclick="openEventDrawer(${ev.id})">
+    <div class="evrow-dt"><div class="evrow-day">${isNaN(d) ? '?' : d.getDate()}</div><div class="evrow-mo">${isNaN(d) ? '' : mo()[d.getMonth()]}</div></div>
+    <div class="evrow-info"><div class="evrow-name">${ev.nm}</div><div class="evrow-meta">${ev.loc || 'ADD Mitzvah House'}${!isNaN(d) ? ' · ' + dy()[d.getDay()] : ''}</div></div>
+    <div class="evrow-right"><div class="evrow-cnt">${conf}</div><div class="evrow-clabel">${s('confirmedLabel')}</div></div>
   </div>`;
 }
-function openEvDP(id){activeEvId=id;activeEvTab='rsvp';const ev=EV.find(e=>e.id===id);if(!ev)return;document.getElementById('ev-nm').textContent=ev.nm;document.getElementById('ev-mt').textContent=fd(ev.dt)+(ev.loc?' · '+ev.loc:'');document.querySelectorAll('#ev-ov .dpt').forEach((tab,i)=>tab.classList.toggle('on',i===0));renderEvTab(ev);document.getElementById('ev-ov').classList.add('on');}
-function closeEvDP(){document.getElementById('ev-ov').classList.remove('on');}
-function mayCloseEv(e){if(e.target.id==='ev-ov')closeEvDP();}
-function evTab(tab,el){activeEvTab=tab;document.querySelectorAll('#ev-ov .dpt').forEach(x=>x.classList.remove('on'));el?.classList.add('on');const ev=EV.find(e=>e.id===activeEvId);if(ev)renderEvTab(ev);}
-function renderEvTab(ev){
-  const rsvp=ev.rsvp||[];
-  if(activeEvTab==='rsvp'){
-    const conf=rsvp.filter(r=>r.status==='confirmed'),pend=rsvp.filter(r=>r.status==='pending');
-    document.getElementById('ev-body').innerHTML=`
-      <div style="display:flex;gap:9px;margin-bottom:14px">
-        <div style="flex:1;background:var(--green-l);border-radius:10px;padding:12px;text-align:center"><div style="font-family:var(--serif);font-size:24px;font-weight:700;color:var(--green)">${conf.length}</div><div style="font-size:11px;color:var(--green)">${t('confirmed')}</div></div>
-        <div style="flex:1;background:#fdf6e7;border-radius:10px;padding:12px;text-align:center"><div style="font-family:var(--serif);font-size:24px;font-weight:700;color:#c47f1a">${pend.length}</div><div style="font-size:11px;color:#c47f1a">${lang==='pt'?'Pendentes':'Pending'}</div></div>
-      </div>
-      ${[...conf,...pend].map(r=>{const m=M.find(x=>x.id===r.mid);return m?`<div style="display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--line2)">
-        <div class="av" style="width:32px;height:32px;font-size:12px;background:${abg(m)}">${ini(m)}</div>
-        <div style="flex:1"><div style="font-family:var(--serif);font-size:14px;font-weight:500">${m.fn} ${m.ln}</div>
-        <div style="display:flex;gap:3px;margin-top:3px;flex-wrap:wrap">${(m.tags||[]).map(tag=>tpillHTML(tag)).join('')}</div></div>
-        <div onclick="cycleRSVP(${ev.id},${r.mid})" style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;background:${r.status==='confirmed'?'var(--green-l)':'#fdf6e7'};color:${r.status==='confirmed'?'var(--green)':'#c47f1a'}">${r.status==='confirmed'?'✓':'?'}</div>
-      </div>`:'';}).join('')||`<div style="font-size:13px;color:var(--ink4);padding:12px 0">${lang==='pt'?'Sem inscrições.':'No RSVPs yet.'}</div>`}`;
-  }else{
-    const att=ev.attendees||[];
-    document.getElementById('ev-body').innerHTML=att.map(mid=>{const m=M.find(x=>x.id===mid);return m?`<div style="display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--line2)"><div class="av" style="width:32px;height:32px;font-size:12px;background:${abg(m)}">${ini(m)}</div><div style="flex:1;font-family:var(--serif);font-size:14px;font-weight:500">${m.fn} ${m.ln}</div><div style="width:24px;height:24px;border-radius:50%;background:var(--green-l);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px">✓</div></div>`:'';}).join('')||`<div style="font-size:13px;color:var(--ink4)">${lang==='pt'?'Sem presenças.':'No attendance marked.'}</div>`;}
+function openEventDrawer(id) {
+  activeEvId = id; evDwTabActive = 'rsvp';
+  const ev = EV.find(e => e.id === id); if (!ev) return;
+  document.getElementById('dw-ev-name').textContent = ev.nm;
+  document.getElementById('dw-ev-meta').textContent = fmtDate(ev.dt) + (ev.loc ? ' · ' + ev.loc : '');
+  document.querySelectorAll('#ev-ov .dwt').forEach((t, i) => t.classList.toggle('on', i === 0));
+  renderEvDwTab(ev);
+  openDrawer('ev-ov');
 }
-function cycleRSVP(evId,mid){const ev=EV.find(e=>e.id===evId);if(!ev)return;const r=ev.rsvp?.find(x=>x.mid===mid);if(!r)return;r.status=r.status==='confirmed'?'pending':'confirmed';sv();renderEvTab(ev);}
-function addToThisEvent(){const ev=EV.find(e=>e.id===activeEvId);if(!ev||!M.length){toast(t('noMembers'));return;}const nm=prompt(lang==='pt'?'Nome do membro:':'Member name:');if(!nm)return;const m=M.find(x=>(x.fn+' '+x.ln).toLowerCase().includes(nm.toLowerCase()));if(!m){toast(lang==='pt'?'Não encontrado':'Not found');return;}if(!ev.rsvp)ev.rsvp=[];if(ev.rsvp.find(r=>r.mid===m.id)){toast(lang==='pt'?'Já está':'Already in list');return;}ev.rsvp.push({mid:m.id,status:'confirmed'});sv();renderEvTab(ev);toast(`${m.fn} added`);}
+function evDwTab(tab, el) { evDwTabActive = tab; document.querySelectorAll('#ev-ov .dwt').forEach(x => x.classList.remove('on')); el?.classList.add('on'); const ev = EV.find(e => e.id === activeEvId); if (ev) renderEvDwTab(ev); }
+function renderEvDwTab(ev) {
+  const rsvp = ev.rsvp || [];
+  if (evDwTabActive === 'rsvp') {
+    const conf = rsvp.filter(r => r.status === 'confirmed'), pend = rsvp.filter(r => r.status === 'pending');
+    document.getElementById('dw-ev-body').innerHTML = `
+      <div class="rsvp-count-row">
+        <div class="rsvp-box"><div class="rsvp-n" style="color:#2d7a4f">${conf.length}</div><div class="rsvp-l">${s('confirmed').toUpperCase()}</div></div>
+        <div class="rsvp-box"><div class="rsvp-n" style="color:#c47f1a">${pend.length}</div><div class="rsvp-l">${s('pendingLabel').toUpperCase()}</div></div>
+      </div>
+      ${[...conf, ...pend].map(r => { const m = M.find(x => x.id === r.mid); return m ? `<div class="rsvp-item">
+        <div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div>
+        <div style="flex:1"><div style="font-family:var(--serif);font-size:15px;font-weight:400;color:var(--k);margin-bottom:3px">${m.fn} ${m.ln}</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">${(m.tags || []).map(tag => tagPill(tag)).join('')}</div></div>
+        <div class="rsvp-toggle ${r.status === 'confirmed' ? 'rsvp-conf' : 'rsvp-pend'}" onclick="cycleRSVP(${ev.id},${r.mid})">${r.status === 'confirmed' ? '✓' : '?'}</div>
+      </div>` : ''; }).join('') || `<div style="font-size:14px;color:var(--k4);padding:12px 0">${lang === 'pt' ? 'Sem inscrições ainda.' : 'No RSVPs yet.'}</div>`}`;
+  } else {
+    const att = ev.attendees || [];
+    document.getElementById('dw-ev-body').innerHTML = att.map(mid => { const m = M.find(x => x.id === mid); return m ? `<div class="rsvp-item"><div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div><div style="flex:1;font-family:var(--serif);font-size:15px;font-weight:400;color:var(--k)">${m.fn} ${m.ln}</div><div style="color:#2d7a4f;font-size:13px">✓</div></div>` : ''; }).join('') || `<div style="font-size:14px;color:var(--k4);padding:12px 0">${lang === 'pt' ? 'Sem presenças.' : 'No attendance marked.'}</div>`;
+  }
+}
+function cycleRSVP(evId, mid) { const ev = EV.find(e => e.id === evId); if (!ev) return; const r = ev.rsvp?.find(x => x.mid === mid); if (!r) return; r.status = r.status === 'confirmed' ? 'pending' : 'confirmed'; save(); renderEvDwTab(ev); }
+function addPersonToEvent() { const ev = EV.find(e => e.id === activeEvId); if (!ev || !M.length) { toast(s('noMembers')); return; } const nm = prompt(lang === 'pt' ? 'Nome do membro:' : 'Member name:'); if (!nm) return; const m = M.find(x => (x.fn + ' ' + x.ln).toLowerCase().includes(nm.toLowerCase())); if (!m) { toast(lang === 'pt' ? 'Não encontrado' : 'Not found'); return; } if (!ev.rsvp) ev.rsvp = []; if (ev.rsvp.find(r => r.mid === m.id)) { toast(lang === 'pt' ? 'Já está' : 'Already on list'); return; } ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); renderEvDwTab(ev); toast(`${m.fn} added`); }
 
-// ── MEMBERS ──
-function renderMembers(){
-  const q=(document.getElementById('srch')?.value||'').toLowerCase();
-  let list=[...M];
-  if(mTagFilt)list=list.filter(m=>(m.tags||[]).includes(mTagFilt));
-  if(q)list=list.filter(m=>(m.fn+' '+m.ln+(m.bairro||'')).toLowerCase().includes(q));
-  document.getElementById('m-ct').textContent=list.length;
-  const tags=allTags();
-  document.getElementById('tag-filters').innerHTML=tags.slice(0,6).map(tag=>`<button class="fb ${mTagFilt===tag?'on':''}" onclick="fByTag('${tag.replace(/'/g,"\\'")}')" style="${mTagFilt===tag?`background:${tc(tag)};border-color:${tc(tag)}`:''}">${tag}</button>`).join('');
-  const last5=[...EV].sort((a,b)=>b.dt.localeCompare(a.dt)).slice(0,5);
-  document.getElementById('m-list').innerHTML=list.length
-    ?list.map(m=>{
-        const dots=last5.map(e=>`<div class="dot ${e.attendees?.includes(m.id)?'dot-on':'dot-off'}"></div>`).join('');
-        const cnt=EV.filter(e=>e.attendees?.includes(m.id)).length;
-        return`<div class="mrow" onclick="openMDP(${m.id})">
-          <div class="av" style="width:40px;height:40px;font-size:15px;background:${abg(m)}">${ini(m)}</div>
-          <div style="flex:1;min-width:0">
-            <div class="mr-name">${m.fn} ${m.ln}${m.age?` <span style="font-family:var(--sans);font-size:13px;font-weight:400;color:var(--ink4)">(${m.age})</span>`:''}</div>
-            <div class="mr-meta">
-              ${(m.tags||[]).map(tag=>tpillHTML(tag)).join('')}
-              ${m.bairro?`<span>${m.bairro}</span>`:''}
-              ${cnt?`<span>${cnt} ${t('eventsLabel')}</span>`:''}
-              <div class="att-dots">${dots}</div>
-            </div>
+// ── MEMBERS ───────────────────────────────────────────────────────────
+function renderMembers() {
+  const q = (document.getElementById('srch')?.value || '').toLowerCase();
+  let list = [...M];
+  if (mFilterTag) list = list.filter(m => (m.tags || []).includes(mFilterTag));
+  if (q) list = list.filter(m => (m.fn + ' ' + m.ln + (m.bairro || '')).toLowerCase().includes(q));
+  document.getElementById('m-ct').textContent = list.length;
+  // Tag filter chips
+  const tags = allTags();
+  document.getElementById('tag-chips').innerHTML = tags.slice(0, 7).map(tag => `<button class="filtchip ${mFilterTag === tag ? 'on' : ''}" onclick="filterByTag('${tag.replace(/'/g, "\\'")}',this)" style="${mFilterTag === tag ? `background:${tagColor(tag)};border-color:${tagColor(tag)}` : ''}">${tag}</button>`).join('');
+  // last5 dots removed — using last-seen date instead
+  document.getElementById('m-list').innerHTML = list.length
+    ? list.map(m => {
+      
+        const cnt = EV.filter(e => e.attendees?.includes(m.id)).length;
+        const tags = (m.tags || []).map(tag => `<span class="mrow-tag" style="background:${tagColor(tag)}15;color:${tagColor(tag)};border:1px solid ${tagColor(tag)}28;">${tag}</span>`).join('');
+        const lastEv = lastAttended(m);
+        const sinceStr = lastEv ? fmtShort(lastEv) : (lang==='pt'?'Nunca':'Never');
+        const quietFlag = daysSince(lastEv || m.joined || '') >= 30;
+        return `<div class="mrow" onclick="openMemberDrawer(${m.id})">
+          <div class="mav" style="width:44px;height:44px;font-size:16px;background:${avatarBg(m)}">${initials(m)}</div>
+          <div class="mrow-info">
+            <div class="mrow-name">${m.fn} ${m.ln}${m.age ? ` <span style="font-family:var(--sans);font-size:14px;font-weight:300;color:var(--k4)">${m.age}</span>` : ''}</div>
+            <div class="mrow-meta">${tags}${m.bairro ? `<span class="mrow-detail">${m.bairro}</span>` : ''}${cnt ? `<span class="mrow-detail">${cnt} ${s('eventsLabel')}</span>` : ''}</div>
+          </div>
+          <div class="mrow-right" style="text-align:right;flex-shrink:0">
+            <div style="font-size:12px;color:${quietFlag?'var(--r)':'var(--k4)'};font-weight:${quietFlag?'600':'400'}">${sinceStr}</div>
+            <div style="font-size:10px;color:var(--k4);margin-top:1px">${lang==='pt'?'últ. vez':'last seen'}</div>
           </div>
         </div>`;
       }).join('')
-    :emptyS(t('noMembers'),lang==='pt'?'Importe dados ou adicione manualmente.':'Import or add manually.','impm');
+    : emptyState(s('noMembers'), lang === 'pt' ? 'Importe dados ou adicione manualmente.' : 'Import or add manually.', () => openImport());
 }
-function mf(f,el){mFilt=f;mTagFilt=null;document.querySelectorAll('.filter-bar .fb').forEach(b=>{b.classList.remove('on');b.style.background='';b.style.borderColor='';});el.classList.add('on');renderMembers();}
-function fByTag(tag){if(mTagFilt===tag){mTagFilt=null;}else{mTagFilt=tag;mFilt='all';}renderMembers();}
+function mfilt(f, el) { mFilterTag = null; document.querySelectorAll('.filtchip').forEach(b => { b.classList.remove('on'); b.style.background = ''; b.style.borderColor = ''; }); el.classList.add('on'); renderMembers(); }
+function filterByTag(tag, el) { mFilterTag = mFilterTag === tag ? null : tag; renderMembers(); }
 
-// ── MEMBER DETAIL ──
-function openMDP(id){
-  activeMid=id;activeMTab='info';
-  const m=M.find(x=>x.id===id);if(!m)return;
-  document.getElementById('m-av').style.background=abg(m);document.getElementById('m-av').textContent=ini(m);
-  document.getElementById('m-nm').textContent=m.fn+' '+m.ln;
-  const cnt=EV.filter(e=>e.attendees?.includes(m.id)).length;
-  document.getElementById('m-mt').textContent=`${m.age?m.age+(lang==='pt'?' anos':' yrs')+' · ':''}${m.bairro?m.bairro+' · ':''}${cnt} ${t('eventsLabel')}`;
-  document.querySelectorAll('#m-ov .dpt').forEach((tab,i)=>tab.classList.toggle('on',i===0));
-  document.getElementById('m-wa').onclick=()=>{if(m.ph)window.open('https://wa.me/55'+m.ph.replace(/\D/g,''),'_blank');else toast(t('noPhone'));};
-  renderMTab(m);document.getElementById('m-ov').classList.add('on');
+// ── MEMBER DRAWER ──────────────────────────────────────────────────────
+function openMemberDrawer(id) {
+  activeMid = id; mDwTabActive = 'info';
+  const m = M.find(x => x.id === id); if (!m) return;
+  document.getElementById('dw-m-name').innerHTML = `<em>${m.fn}</em> ${m.ln}`;
+  document.getElementById('dw-m-tags').innerHTML = (m.tags || []).map(tag => tagPill(tag)).join('');
+  const cnt = EV.filter(e => e.attendees?.includes(m.id)).length;
+  document.getElementById('dw-m-meta').textContent = [m.age ? m.age + (lang === 'pt' ? ' anos' : ' yrs') : '', m.bairro, cnt + ' ' + s('eventsLabel')].filter(Boolean).join(' · ');
+  document.querySelectorAll('#m-ov .dwt').forEach((t, i) => t.classList.toggle('on', i === 0));
+  // WhatsApp handled via dw-m-actions buttons
+  renderMDwTab(m);
+  openDrawer('m-ov');
 }
-function closeMDP(){document.getElementById('m-ov').classList.remove('on');}
-function mayCloseM(e){if(e.target.id==='m-ov')closeMDP();}
-function mTab(tab,el){activeMTab=tab;document.querySelectorAll('#m-ov .dpt').forEach(x=>x.classList.remove('on'));el?.classList.add('on');renderMTab(M.find(x=>x.id===activeMid));}
-function renderMTab(m){
-  if(!m)return;
-  const evs=EV.filter(e=>e.attendees?.includes(m.id)).sort((a,b)=>b.dt.localeCompare(a.dt));
-  const ir=(l,v)=>`<div class="ir"><div class="irl">${l}</div><div class="irv">${v||'—'}</div></div>`;
-  if(activeMTab==='info'){
-    document.getElementById('m-body').innerHTML=`
-      ${(m.tags||[]).length?`<div class="ds"><div class="ds-t">Tags</div><div style="display:flex;flex-wrap:wrap;gap:5px">${(m.tags||[]).map(tag=>tpillHTML(tag)).join('')}</div></div>`:''}
-      <div class="ds"><div class="ds-t">${lang==='pt'?'Contato':'Contact'}</div>
-        ${ir('WhatsApp',m.ph?`<a href="https://wa.me/55${m.ph.replace(/\D/g,'')}" target="_blank" style="color:var(--terra)">${m.ph}</a>`:'')}
-        ${ir('Email',m.em)}${ir(t('neighborhood'),m.bairro)}
-        ${ir(lang==='pt'?'Membro desde':'Member since',m.joined?fd(m.joined):'')}
+function mDwTab(tab, el) { mDwTabActive = tab; document.querySelectorAll('#m-ov .dwt').forEach(x => x.classList.remove('on')); el?.classList.add('on'); const m = M.find(x => x.id === activeMid); if (m) renderMDwTab(m); }
+function renderMDwTab(m) {
+  const evs = EV.filter(e => e.attendees?.includes(m.id)).sort((a, b) => b.dt.localeCompare(a.dt));
+  const ir = (l, v) => `<div class="dw-ir"><div class="dw-irl">${l}</div><div class="dw-irv">${v || '—'}</div></div>`;
+  if (mDwTabActive === 'info') {
+    const lastEvt = evs[0];
+    document.getElementById('dw-m-body').innerHTML = `
+      <div class="dw-section">
+        <div class="dw-section-title">${lang==='pt'?'Participação':'Participation'}</div>
+        ${ir(s('eventsLabel'), `<strong style="color:var(--r);font-family:var(--serif);font-size:16px">${evs.length}</strong>`)}
+        ${ir(s('lastEvent'), lastEvt ? `<span style="color:${daysSince(lastEvt.dt)>=30?'var(--r)':'var(--k2)'}">${lastEvt.nm} · ${fmtShort(lastEvt.dt)}</span>` : `<em style="color:var(--k4)">${lang==='pt'?'Nenhum evento ainda':'No events yet'}</em>`)}
+        ${ir(s('memberSince'), m.joined ? fmtDate(m.joined) : '—')}
       </div>
-      <div class="ds"><div class="ds-t">${lang==='pt'?'Participação':'Participation'}</div>
-        ${ir(t('eventsLabel'),`<strong style="color:var(--terra)">${evs.length}</strong>`)}
-        ${ir(lang==='pt'?'Último':'Last event',evs.length?evs[0].nm+' — '+fdS(evs[0].dt):'')}
+      <div class="dw-section">
+        <div class="dw-section-title">${lang==='pt'?'Contato':'Contact'}</div>
+        ${m.ph ? ir('WhatsApp', `<a href="https://wa.me/55${m.ph.replace(/\D/g,'')}" target="_blank" style="color:var(--r);text-decoration:none">${m.ph}</a>`) : ''}
+        ${m.em ? ir('Email', `<a href="mailto:${m.em}" style="color:var(--r);text-decoration:none">${m.em}</a>`) : ''}
+        ${m.bairro ? ir(s('neighborhood'), m.bairro) : ''}
+        ${!m.ph && !m.em && !m.bairro ? `<div style="font-size:13.5px;color:var(--k4);font-style:italic">${lang==='pt'?'Sem contato cadastrado':'No contact info yet'}</div>` : ''}
       </div>`;
-  }else if(activeMTab==='history'){
-    document.getElementById('m-body').innerHTML=`<div class="ds"><div class="ds-t">${t('historyTab')} · ${evs.length}</div>
-      ${evs.length?evs.map(ev=>{const d=new Date(ev.dt+'T12:00:00');return`<div class="tl-item"><div class="tl-dot"></div><div><div style="font-family:var(--serif);font-size:14px;font-weight:500;color:var(--ink)">${ev.nm}</div><div style="font-size:11.5px;color:var(--ink4);margin-top:2px">${isNaN(d)?ev.dt:d.getDate()+' '+MO()[d.getMonth()]+' '+d.getFullYear()}</div></div></div>`;}).join(''):`<div style="font-size:13px;color:var(--ink4)">${t('neverAttended')}</div>`}
+  } else if (mDwTabActive === 'history') {
+    document.getElementById('dw-m-body').innerHTML = `<div class="dw-section"><div class="dw-section-title">${s('historyTab')} · ${evs.length}</div>
+      ${evs.length ? evs.map(ev => { const d = new Date(ev.dt + 'T12:00:00'); return `<div class="hist-item"><div class="hist-dot"></div><div><div class="hist-name">${ev.nm}</div><div class="hist-date">${isNaN(d) ? ev.dt : d.getDate() + ' ' + mo()[d.getMonth()] + ' ' + d.getFullYear()}</div></div></div>`; }).join('') : `<div style="font-size:14px;color:var(--k4)">${s('noneYet')}</div>`}
     </div>`;
-  }else{
-    document.getElementById('m-body').innerHTML=`<div class="ds"><div class="ds-t">${t('notesTab')}</div>
-      <textarea style="width:100%;background:var(--bg);border:1.5px solid var(--line);border-radius:11px;padding:12px;font-family:var(--sans);font-size:14px;color:var(--ink);resize:none;outline:none;min-height:180px;line-height:1.7;transition:border .13s" onfocus="this.style.borderColor='var(--terra)'" onblur="saveNotes(${m.id},this.value)">${m.notes||''}</textarea>
-    </div>`;
+  } else {
+    document.getElementById('dw-m-body').innerHTML = `<textarea style="width:100%;height:calc(100% - 8px);background:transparent;border:none;border-bottom:1px solid var(--f2);padding:4px 0;font-family:var(--sans);font-size:15px;color:var(--k);resize:none;outline:none;line-height:1.8;color:var(--k2)" placeholder="${lang==='pt'?'Notas sobre esta pessoa…':'Notes about this person…'}" onfocus="this.style.borderBottomColor='var(--r)'" onblur="saveNotes(${m.id},this.value)">${m.notes || ''}</textarea>`;
   }
 }
-function saveNotes(id,v){const m=M.find(x=>x.id===id);if(m){m.notes=v;sv();}}
-function openAddToEvent(){const m=M.find(x=>x.id===activeMid);if(!m)return;const up=upcoming();if(!up.length){toast(t('noEvents'));return;}const nm=prompt(lang==='pt'?'Nome do evento (deixe vazio para o próximo):':'Event name (blank for next):');const ev=nm?EV.find(e=>e.nm.toLowerCase().includes(nm.toLowerCase())):up[0];if(!ev){toast(lang==='pt'?'Não encontrado':'Not found');return;}if(!ev.attendees)ev.attendees=[];if(ev.attendees.includes(m.id)){toast(lang==='pt'?'Já está no evento':'Already in event');return;}ev.attendees.push(m.id);if(!ev.rsvp)ev.rsvp=[];if(!ev.rsvp.find(r=>r.mid===m.id))ev.rsvp.push({mid:m.id,status:'confirmed'});sv();toast(`${m.fn} → ${ev.nm}`);renderMTab(m);}
+function saveNotes(id, val) { const m = M.find(x => x.id === id); if (m) { m.notes = val; save(); } }
+function addMemberToEvent() { const m = M.find(x => x.id === activeMid); if (!m) return; const up = upcoming(); if (!up.length) { toast(s('noEvents')); return; } const nm = prompt(lang === 'pt' ? 'Nome do evento (deixe vazio para o próximo):' : 'Event name (blank for next):'); const ev = nm ? EV.find(e => e.nm.toLowerCase().includes(nm.toLowerCase())) : up[0]; if (!ev) { toast(lang === 'pt' ? 'Não encontrado' : 'Not found'); return; } if (!ev.attendees) ev.attendees = []; if (ev.attendees.includes(m.id)) { toast(lang === 'pt' ? 'Já está no evento' : 'Already in event'); return; } ev.attendees.push(m.id); if (!ev.rsvp) ev.rsvp = []; if (!ev.rsvp.find(r => r.mid === m.id)) ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); toast(`${m.fn} → ${ev.nm}`); renderMDwTab(m); }
 
-// ── ADD MEMBER ──
-function addMember(){
-  const fn=document.getElementById('am-fn').value.trim(),ln=document.getElementById('am-ln').value.trim();
-  if(!fn||!ln){toast(lang==='pt'?'Nome obrigatório':'Name required');return;}
-  M.push({id:Date.now(),fn,ln,age:parseInt(document.getElementById('am-age').value)||null,tags:[...amTags],ph:document.getElementById('am-ph').value.trim(),em:document.getElementById('am-em').value.trim(),bairro:document.getElementById('am-bairro').value.trim(),notes:document.getElementById('am-notes').value.trim(),joined:tod(),attendees:[]});
-  sv();closeM('addm');upB();amTags=[];
-  ['am-fn','am-ln','am-age','am-ph','am-em','am-bairro','am-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  toast(t('memberAdded'));renderCurrent();
+// ── ADD MEMBER ─────────────────────────────────────────────────────────
+function handleTagKey(e, pfx) { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); const v = e.target.value.trim().replace(/,$/, ''); if (v) addTagToField(v, pfx); e.target.value = ''; } }
+function addTagToField(tag, pfx = 'am') { if (pfx === 'am') { if (!amTags.includes(tag)) amTags.push(tag); renderAmTags(); } }
+function renderAmTags() {
+  const field = document.getElementById('am-tagfield');
+  const inp = document.getElementById('am-taginput');
+  if (!field || !inp) return;
+  field.querySelectorAll('.tagpill').forEach(p => p.remove());
+  amTags.forEach(tag => {
+    const span = document.createElement('span');
+    const c = tagColor(tag);
+    span.className = 'tagpill rm';
+    span.style.cssText = `background:${c}15;color:${c};border:1px solid ${c}28;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:3px;`;
+    span.innerHTML = `${tag} <span style="opacity:.6">×</span>`;
+    span.onclick = () => { amTags = amTags.filter(x => x !== tag); renderAmTags(); };
+    field.insertBefore(span, inp);
+  });
+  // Show existing tags as suggestions
+  const existing = allTags().filter(t => !amTags.includes(t)).slice(0, 6);
+  const sug = document.getElementById('am-tagsug');
+  if (sug) sug.innerHTML = existing.map(t => `<span class="tsug" onclick="addTagToField('${t.replace(/'/g, "\\'")}','am')">${t}</span>`).join('');
+}
+function addMember() {
+  const fn = document.getElementById('am-fn').value.trim(), ln = document.getElementById('am-ln').value.trim();
+  if (!fn || !ln) { toast(lang === 'pt' ? 'Nome obrigatório' : 'Name required'); return; }
+  M.push({ id: Date.now(), fn, ln, age: parseInt(document.getElementById('am-age').value) || null, tags: [...amTags], ph: document.getElementById('am-ph').value.trim(), em: document.getElementById('am-em').value.trim(), bairro: document.getElementById('am-bairro').value.trim(), notes: document.getElementById('am-notes').value.trim(), joined: today(), attendees: [] });
+  save(); closeModal('addm'); amTags = [];
+  ['am-fn','am-ln','am-age','am-ph','am-em','am-bairro','am-notes'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  toast(s('memberAdded')); renderCurrent();
 }
 
-// ── ADD EVENT ──
-function addEvent(){
-  const nm=document.getElementById('ae-nm').value.trim(),dt=document.getElementById('ae-dt').value;
-  if(!nm||!dt){toast(lang==='pt'?'Nome e data obrigatórios':'Name and date required');return;}
-  EV.push({id:Date.now(),nm,dt,loc:document.getElementById('ae-loc').value.trim()||'ADD Mitzvah House',desc:document.getElementById('ae-desc').value.trim(),attendees:[],rsvp:[],created:tod()});
-  sv();closeM('addev');upB();toast(t('eventCreated'));
-  ['ae-nm','ae-dt','ae-loc','ae-desc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+// ── ADD EVENT ──────────────────────────────────────────────────────────
+function addEvent() {
+  const nm = document.getElementById('ae-nm').value.trim(), dt = document.getElementById('ae-dt').value;
+  if (!nm || !dt) { toast(lang === 'pt' ? 'Nome e data obrigatórios' : 'Name and date required'); return; }
+  EV.push({ id: Date.now(), nm, dt, loc: document.getElementById('ae-loc').value.trim() || 'ADD Mitzvah House', desc: document.getElementById('ae-desc').value.trim(), attendees: [], rsvp: [], created: today() });
+  save(); closeModal('addev'); toast(s('eventCreated'));
+  ['ae-nm','ae-dt','ae-loc','ae-desc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   renderCurrent();
 }
 
-// ── ANALYTICS ──
-function renderAnalytics(){
-  const tags=allTags();
-  const tagC={};tags.forEach(tag=>{tagC[tag]=M.filter(m=>(m.tags||[]).includes(tag)).length;});
-  const topTags=Object.entries(tagC).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  const maxT=topTags[0]?.[1]||1;
-  const topAtt=M.map(m=>({m,n:EV.filter(e=>e.attendees?.includes(m.id)).length})).sort((a,b)=>b.n-a.n).slice(0,6);
-  const maxA=topAtt[0]?.n||1;
-  const bairros={};M.forEach(m=>{if(m.bairro)bairros[m.bairro]=(bairros[m.bairro]||0)+1;});
-  const bTop=Object.entries(bairros).sort((a,b)=>b[1]-a[1]).slice(0,6);const maxB=bTop[0]?.[1]||1;
-  const evM={};EV.forEach(e=>{if(e.dt){const k=e.dt.slice(0,7);evM[k]=(evM[k]||0)+1;}});
-  const evMSorted=Object.entries(evM).sort((a,b)=>a[0].localeCompare(b[0])).slice(-6);const maxM=Math.max(...evMSorted.map(x=>x[1]),1);
-  const nd=`<div style="font-size:13px;color:var(--ink4);padding:8px 0">${t('noData')}</div>`;
-  document.getElementById('an-grid').innerHTML=`
-    <div class="an-card"><div class="an-title">${t('byTag')}</div>${topTags.length?`<div class="bar-wrap">${topTags.map(([tag,n])=>`<div class="bar-row"><div class="bar-lbl" style="cursor:pointer;color:${tc(tag)};font-weight:600" onclick="go('members',null);fByTag('${tag.replace(/'/g,"\\'")}')">${tag}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxT*100)}%;background:${tc(tag)}"></div></div><div class="bar-val">${n}</div></div>`).join('')}</div>`:nd}</div>
-    <div class="an-card"><div class="an-title">${t('topAttendees')}</div>${topAtt.filter(x=>x.n>0).length?`<div class="bar-wrap">${topAtt.filter(x=>x.n>0).map(({m,n})=>`<div class="bar-row"><div class="bar-lbl" style="cursor:pointer" onclick="openMDP(${m.id})">${m.fn} ${m.ln.charAt(0)}.</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxA*100)}%;background:var(--terra)"></div></div><div class="bar-val">${n}</div></div>`).join('')}</div>`:nd}</div>
-    <div class="an-card"><div class="an-title">${t('byNeighborhood')}</div>${bTop.length?`<div class="bar-wrap">${bTop.map(([b,n])=>`<div class="bar-row"><div class="bar-lbl">${b}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxB*100)}%;background:var(--navy)"></div></div><div class="bar-val">${n}</div></div>`).join('')}</div>`:nd}</div>
-    <div class="an-card"><div class="an-title">${t('eventGrowth')}</div>${evMSorted.length?`<div class="bar-wrap">${evMSorted.map(([mo,n])=>`<div class="bar-row"><div class="bar-lbl">${mo.slice(5)}/${mo.slice(2,4)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxM*100)}%;background:var(--green)"></div></div><div class="bar-val">${n}</div></div>`).join('')}</div>`:nd}</div>`;
+// ── ANALYTICS ─────────────────────────────────────────────────────────
+function renderAnalytics() {
+  const tags = allTags();
+  const tagC = {}; tags.forEach(tag => { tagC[tag] = M.filter(m => (m.tags || []).includes(tag)).length; });
+  const topTags = Object.entries(tagC).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maxT = topTags[0]?.[1] || 1;
+  const topAtt = M.map(m => ({ m, n: EV.filter(e => e.attendees?.includes(m.id)).length })).sort((a, b) => b.n - a.n).slice(0, 6);
+  const maxA = topAtt[0]?.n || 1;
+  const bairros = {}; M.forEach(m => { if (m.bairro) bairros[m.bairro] = (bairros[m.bairro] || 0) + 1; });
+  const bTop = Object.entries(bairros).sort((a, b) => b[1] - a[1]).slice(0, 6); const maxB = bTop[0]?.[1] || 1;
+  const evMo = {}; EV.forEach(e => { if (e.dt) { const k = e.dt.slice(0, 7); evMo[k] = (evMo[k] || 0) + 1; } });
+  const evMoSorted = Object.entries(evMo).sort((a, b) => a[0].localeCompare(b[0])).slice(-8); const maxM = Math.max(...evMoSorted.map(x => x[1]), 1);
+  const nd = `<div class="an-empty">${s('noData')}</div>`;
+  const bar = (lbl, val, max, color, onclick) =>
+    `<div class="an-bar-row"><div class="an-bar-lbl" ${onclick ? `style="cursor:pointer;color:${color}" onclick="${onclick}"` : ''}>${lbl}</div><div class="an-bar-track"><div class="an-bar-fill" style="width:${Math.round(val/max*100)}%;background:${color}"></div></div><div class="an-bar-val" style="color:${color}">${val}</div></div>`;
+  const totalEvents = EV.length;
+  const totalRSVPs = EV.reduce((sum, e) => sum + (e.rsvp || []).filter(r => r.status === 'confirmed').length, 0);
+  const avgAttendance = totalEvents ? Math.round(totalRSVPs / totalEvents) : 0;
+  const card = (ey, ti, body) => `<div class="an-card"><div class="an-card-head"><div class="an-card-eyebrow">${ey}</div><div class="an-card-title">${ti}</div></div><div class="an-card-body">${body}</div></div>`;
+  const overviewBody = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
+    <div style="padding-right:18px;border-right:1px solid var(--f2)"><div class="an-hero-stat" style="color:var(--r)">${M.length}</div><div class="an-hero-label">${s('membersLabel').toUpperCase()}</div></div>
+    <div style="padding:0 18px;border-right:1px solid var(--f2)"><div class="an-hero-stat" style="color:var(--k2)">${totalEvents}</div><div class="an-hero-label">${s('events').toUpperCase()}</div></div>
+    <div style="padding-left:18px"><div class="an-hero-stat" style="color:var(--k3)">${avgAttendance}</div><div class="an-hero-label">${lang==='pt'?'MÉDIA/EVENTO':'AVG/EVENT'}</div></div>
+  </div>`;
+  document.getElementById('an-grid').innerHTML =
+    card(lang==='pt'?'Visão geral':'Overview', lang==='pt'?'Comunidade':'Community', overviewBody) +
+    card('Tags', s('byTag'), topTags.length ? `<div class="an-bars">${topTags.map(([tag,n]) => bar(tag,n,maxT,tagColor(tag),`filterByTag('${tag.replace(/'/g,"\'")}',null);nav('members')`)).join('')}</div>` : nd) +
+    card(lang==='pt'?'Pessoas':'People', s('topAttendees'), topAtt.filter(x=>x.n>0).length ? `<div class="an-bars">${topAtt.filter(x=>x.n>0).map(({m,n}) => bar(m.fn+' '+m.ln.charAt(0)+'.',n,maxA,'#C9705A',`openMemberDrawer(${m.id})`)).join('')}</div>` : nd) +
+    card(lang==='pt'?'Localização':'Location', s('byNeighborhood'), bTop.length ? `<div class="an-bars">${bTop.map(([b,n]) => bar(b,n,maxB,'#2D4B73')).join('')}</div>` : nd) +
+    `<div class="an-card" style="grid-column:1/-1"><div class="an-card-head"><div class="an-card-eyebrow">${lang==='pt'?'Crescimento':'Growth'}</div><div class="an-card-title">${s('growthLabel')}</div></div><div class="an-card-body">${evMoSorted.length ? `<div class="an-bars">${evMoSorted.map(([k,n]) => bar(k.slice(5)+'/'+k.slice(2,4),n,maxM,'#2d7a4f')).join('')}</div>` : nd}</div></div>`;
 }
 
-// ── HELPERS ──
-function emptyS(title,sub,btn){return`<div class="empty"><div class="empty-icon">✦</div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div><button class="btn btn-terra" onclick="${btn==='impm'?"openImp()":"openM('"+btn+"')"}">${btn==='impm'?t('import'):'+ '+t('newEvent')}</button></div>`;}
-function openM(id){document.getElementById(id)?.classList.add('on');if(id==='addm'){amTags=[];setTimeout(()=>{renderAmTags();applyT();},30);}}
-function closeM(id){document.getElementById(id)?.classList.remove('on');}
-document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on');}));
-function toast(msg,dur=2600){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),dur);}
 
-// ── INIT ──
-load();applyT();renderHome();upB();
-setTimeout(()=>{const l=document.getElementById('loader');l.classList.add('out');setTimeout(()=>l.remove(),700);},1400);
+// ── DRAWERS & MODALS ───────────────────────────────────────────────────
+function openDrawer(id) { document.getElementById(id)?.classList.add('on'); }
+function closeDrawer(id) { document.getElementById(id)?.classList.remove('on'); }
+function mayCloseDrawer(id, e) { if (e.target.id === id) closeDrawer(id); }
+function openModal(id) {
+  document.getElementById(id)?.classList.add('on');
+  if (id === 'addm') { amTags = []; setTimeout(() => { renderAmTags(); applyStrings(); }, 30); }
+}
+function closeModal(id) { document.getElementById(id)?.classList.remove('on'); }
+function mayCloseModal(id, e) { if (e.target.id === id) closeModal(id); }
+
+// ── EMPTY STATE ────────────────────────────────────────────────────────
+function emptyState(title, sub, action) {
+  const id = 'es-' + Math.random().toString(36).slice(2);
+  setTimeout(() => { const btn = document.getElementById(id); if (btn) btn.onclick = action; }, 10);
+  return `<div class="empty-state"><div class="es-icon">✦</div><div class="es-title">${title}</div><div class="es-sub">${sub}</div><button class="btn btn-r" id="${id}">${lang === 'pt' ? 'Importar dados' : 'Import data'}</button></div>`;
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────
+function toast(msg, dur = 2600) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), dur); }
+
+// ── INIT ───────────────────────────────────────────────────────────────
+load();
+applyStrings();
+renderHome();
+// Splash
+setTimeout(() => { const sp = document.getElementById('splash'); sp.classList.add('gone'); setTimeout(() => sp.remove(), 900); }, 1600);
 </script>
 </body>
 </html>
