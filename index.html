@@ -669,7 +669,7 @@ select.inp{cursor:pointer;}
 <div class="overlay" id="ev-ov" onclick="mayCloseDrawer('ev-ov',event)">
   <div class="drawer">
     <div class="dw-head">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
         <div>
           <div class="dw-eyebrow" data-t="event"></div>
           <div class="dw-title" id="dw-ev-name"></div>
@@ -677,10 +677,7 @@ select.inp{cursor:pointer;}
         </div>
         <button class="dw-x" style="flex-shrink:0;" onclick="closeDrawer('ev-ov')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
-      <div class="dw-tabs">
-        <div class="dwt on" onclick="evDwTab('rsvp',this)" data-t="confirmed"></div>
-        <div class="dwt" onclick="evDwTab('attendance',this)" data-t="attendance"></div>
-      </div>
+      <div id="dw-ev-summary" style="display:flex;gap:8px;margin-bottom:4px;"></div>
     </div>
     <div class="dw-body" id="dw-ev-body"></div>
     <div class="dw-foot">
@@ -1199,91 +1196,66 @@ function evRow(ev) {
   </div>`;
 }
 function openEventDrawer(id) {
-  // Coerce to string since IDs may be stored as either type
   id = String(id);
-  activeEvId = id; evDwTabActive = 'rsvp';
+  activeEvId = id;
   const ev = EV.find(e => String(e.id) === id); if (!ev) return;
   document.getElementById('dw-ev-name').textContent = ev.nm;
   document.getElementById('dw-ev-meta').textContent = fmtDate(ev.dt) + (ev.loc ? ' · ' + ev.loc : '');
-  document.querySelectorAll('#ev-ov .dwt').forEach((t, i) => t.classList.toggle('on', i === 0));
-  renderEvDwTab(ev);
+  renderEvBody(ev);
   openDrawer('ev-ov');
 }
 function evDwTab(tab, el) {
-  evDwTabActive = tab;
-  document.querySelectorAll('#ev-ov .dwt').forEach(x => x.classList.remove('on'));
-  el?.classList.add('on');
   const ev = EV.find(e => String(e.id) === String(activeEvId));
-  if (ev) renderEvDwTab(ev);
+  if (ev) renderEvBody(ev);
 }
-function renderEvDwTab(ev) {
+function renderEvBody(ev) {
   const rsvp = ev.rsvp || [];
-  if (evDwTabActive === 'rsvp') {
-    const conf = rsvp.filter(r => r.status === 'confirmed');
-    const pend = rsvp.filter(r => r.status === 'pending');
-    let rows = [...conf,...pend].map(r => {
-      const m = M.find(x => x.id === r.mid);
-      if (!m) return '';
-      return `<div class="rsvp-item">
-        <div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div>
-        <div style="flex:1"><div style="font-family:var(--serif);font-size:15px;color:var(--k)">${m.fn} ${m.ln}</div>
-          <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px">${(m.tags||[]).map(t=>tagPill(t)).join('')}</div></div>
-        <div style="font-size:12px;color:${r.status==='confirmed'?'#2d7a4f':'#c47f1a'};font-weight:600">${r.status==='confirmed'?"RSVP'd":'Pending'}</div>
-      </div>`;
-    }).join('');
-    document.getElementById('dw-ev-body').innerHTML =
-      `<div class="rsvp-count-row">
-        <div class="rsvp-box"><div class="rsvp-n" style="color:#2d7a4f">${conf.length}</div><div class="rsvp-l">RSVP'D</div></div>
-        <div class="rsvp-box"><div class="rsvp-n" style="color:#c47f1a">${pend.length}</div><div class="rsvp-l">PENDING</div></div>
+  const att = ev.attendees || [];
+  const confirmed = rsvp.filter(r => r.status === 'confirmed');
+  const candidates = [...new Set([...rsvp.map(r => String(r.mid)), ...att.map(String)])];
+  const allSel = candidates.length > 0 && candidates.every(id => att.map(String).includes(id));
+  const summaryEl = document.getElementById('dw-ev-summary');
+  if (summaryEl) summaryEl.innerHTML = `
+    <div class="rsvp-box"><div class="rsvp-n" style="color:#2d7a4f;font-size:22px">${confirmed.length}</div><div class="rsvp-l">RSVP'D</div></div>
+    <div class="rsvp-box"><div class="rsvp-n" style="color:var(--r);font-size:22px">${att.length}</div><div class="rsvp-l">ATTENDED</div></div>`;
+  let rows = candidates.map(mid => {
+    const m = M.find(x => String(x.id) === mid);
+    if (!m) return '';
+    const came = att.map(String).includes(mid);
+    const isRsvp = rsvp.find(r => String(r.mid) === mid);
+    return `<div class="att-item" onclick="window.toggleAttendance('${String(ev.id)}','${mid}')">
+      <div class="att-check ${came ? 'on' : ''}">${came ? '✓' : ''}</div>
+      <div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:var(--serif);font-size:15px;color:var(--k)">${m.fn} ${m.ln}</div>
+        ${m.bairro ? `<div style="font-size:12px;color:var(--k4)">${m.bairro}</div>` : ''}
       </div>
-      <div style="font-size:12px;color:var(--k4);margin-bottom:12px;font-style:italic">Who said they're coming. Confirm who actually attended in the Attendance tab.</div>
-      ${rows || '<div style="font-size:14px;color:var(--k4);padding:12px 0">No RSVPs yet.</div>'}`;
-  } else {
-    // ATTENDANCE TAB
-    const att = ev.attendees || [];
-    const rsvpIds = rsvp.map(r => r.mid);
-    const candidates = [...new Set([...rsvpIds, ...att])];
-    const allSel = candidates.length > 0 && candidates.every(id => att.includes(id));
-    let rows = candidates.map(mid => {
-      const m = M.find(x => x.id === mid);
-      if (!m) return '';
-      const came = (att||[]).map(String).includes(String(mid));
-      return `<div class="att-item" onclick="window.toggleAttendance('${ev.id}','${mid}')">
-        <div class="att-check ${came?'on':''}">${came?'✓':''}</div>
-        <div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div>
-        <div style="flex:1">
-          <div style="font-family:var(--serif);font-size:15px;color:var(--k)">${m.fn} ${m.ln}</div>
-          ${m.bairro?`<div style="font-size:12px;color:var(--k4)">${m.bairro}</div>`:''}
-        </div>
-      </div>`;
-    }).join('');
-    document.getElementById('dw-ev-body').innerHTML =
-      `<div class="att-toolbar">
-        <div style="font-size:13px;color:var(--k3);flex:1">${att.length} of ${candidates.length} attended</div>
-        <button class="att-sel-btn ${allSel?'all-selected':''}" onclick="window.toggleSelectAll('${ev.id}')">
+      ${!isRsvp ? '<div style="font-size:10px;color:var(--k4);font-style:italic">walk-in</div>' : ''}
+    </div>`;
+  }).join('');
+  document.getElementById('dw-ev-body').innerHTML = candidates.length
+    ? `<div class="att-toolbar">
+        <div style="font-size:13px;color:var(--k3);flex:1">Tap to confirm attendance</div>
+        <button class="att-sel-btn ${allSel ? 'all-selected' : ''}" onclick="window.toggleSelectAll('${String(ev.id)}')">
           ${allSel ? 'Deselect all' : 'Select all'}
         </button>
-      </div>
-      ${rows || '<div style="font-size:14px;color:var(--k4);padding:12px 0">Import RSVPs first, then confirm attendance here.</div>'}`;
-  }
+      </div>${rows}`
+    : '<div style="font-size:14px;color:var(--k4);padding:16px 0;font-style:italic">No one added yet. Import a CSV or add people manually.</div>';
 }
-
 async function toggleAttendance(evId, mid) {
   const ev = EV.find(e => String(e.id) === String(evId)); if (!ev) return;
   if (!ev.attendees) ev.attendees = [];
-  const i = ev.attendees.indexOf(mid);
-  if (i > -1) ev.attendees.splice(i, 1);
+  const idx = ev.attendees.map(String).indexOf(String(mid));
+  if (idx > -1) ev.attendees.splice(idx, 1);
   else ev.attendees.push(mid);
-  save(); fbSaveEvent(ev); renderEvDwTab(ev);
+  save(); fbSaveEvent(ev); renderEvBody(ev);
 }
-
 async function toggleSelectAll(evId) {
   const ev = EV.find(e => String(e.id) === String(evId)); if (!ev) return;
-  const rsvpIds = (ev.rsvp||[]).map(r=>r.mid);
-  const candidates = [...new Set([...rsvpIds,...(ev.attendees||[])])];
-  const allSel = candidates.every(id => (ev.attendees||[]).includes(id));
+  const candidates = [...new Set([...(ev.rsvp||[]).map(r=>String(r.mid)),...(ev.attendees||[]).map(String)])];
+  const allSel = candidates.every(id => (ev.attendees||[]).map(String).includes(id));
   ev.attendees = allSel ? [] : [...candidates];
-  save(); fbSaveEvent(ev); renderEvDwTab(ev);
+  save(); fbSaveEvent(ev); renderEvBody(ev);
 }
 
 function cycleRSVP(evId, mid) { const ev = EV.find(e => String(e.id) === String(evId)); if (!ev) return; const r = ev.rsvp?.find(x => x.mid === mid); if (!r) return; r.status = r.status === 'confirmed' ? 'pending' : 'confirmed'; save(); renderEvDwTab(ev); }
