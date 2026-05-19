@@ -39,9 +39,9 @@ body{overflow-x:hidden;}
 .nt:hover{background:var(--f);color:var(--k2);}
 .nt.on{background:var(--rl);color:var(--r);font-weight:600;}
 .nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;}
-.lang-sw{display:flex;background:var(--f2);border-radius:20px;padding:2px;gap:2px;}
-.ls{padding:4px 10px;border-radius:16px;border:none;background:none;font-family:var(--sans);font-size:11.5px;font-weight:600;color:var(--k3);cursor:pointer;transition:all .12s;}
-.ls.on{background:var(--r);color:var(--w);}
+
+
+
 
 
 /* ── LAYOUT ── */
@@ -374,10 +374,7 @@ select.inp{cursor:pointer;}
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         <span data-t="import"></span>
       </button>
-      <div class="lang-sw">
-        <button class="ls" onclick="setLang('pt',this)">PT</button>
-        <button class="ls on" onclick="setLang('en',this)">EN</button>
-      </div>
+
 
     </div>
   </div>
@@ -608,46 +605,11 @@ const STRINGS = {
     howtitle:'How to export from Google Sheets', howsteps:'1. Open the linked spreadsheet\n2. File → Download → CSV (.csv)\n3. Drag the file below',
     pasteSteps:'1. Open your Google Forms linked spreadsheet\n2. Select all (Ctrl+A) → Copy (Ctrl+C)\n3. Paste below',
   },
-  pt: {
-    home:'Início', events:'Eventos', members:'Membros', analytics:'Relatórios',
-    import:'Importar', addPerson:'Adicionar pessoa', newEvent:'Novo evento',
-    upcomingEvents:'Próximos eventos', recentActivity:'Atividade recente', allEvents:'Todos os eventos',
-    firstName:'Nome', lastName:'Sobrenome', age:'Idade', neighborhood:'Bairro',
-    tags:'Tags', notes:'Observações', eventName:'Nome do evento', date:'Data',
-    location:'Local', description:'Descrição',
-    cancel:'Cancelar', create:'Criar', add:'Adicionar', save:'Salvar',
-    confirmed:'Confirmados', attendance:'Presença',
-    importRSVPs:'Importar inscrições', addToEvent:'Adicionar a evento',
-    info:'Info', historyTab:'Histórico', notesTab:'Notas',
-    member:'Membro', event:'Evento',
-    all:'Todos', eventsLabel:'eventos', membersLabel:'membros',
-    confirmedLabel:'confirmados', pendingLabel:'pendentes',
-    noData:'Sem dados ainda',
-    byTag:'Tags da comunidade', topAttendees:'Mais presentes', byNeighborhood:'Onde moram', growthLabel:'Eventos ao longo do tempo',
-    noEvents:'Sem eventos ainda', noMembers:'Sem membros ainda', noneYet:'Nenhum ainda',
-    startTitle:'Traga sua comunidade', startSub:'Um lugar para conhecer e lembrar de cada pessoa da sua comunidade.',
-    dropLabel:'Arraste um CSV aqui', dropSub:'Exporte do Google Sheets → Arquivo → Baixar → CSV, depois arraste aqui.',
-    pasteLabel:'Cole do Google Forms', pasteSub:'Abra a planilha vinculada, selecione tudo, copie e cole.',
-    orAddManual:'ou adicionar uma pessoa manualmente →',
-    reviewTitle:'Revisar antes de salvar', reviewSub:'Todos os campos são editáveis. As tags são suas — o app nunca as atribui automaticamente. Remova linhas que não quer.',
-    newLabel:'Novo', existingLabel:'Já está', detectedCols:'Colunas detectadas',
-    noEventLink:'Sem evento', forEventLabel:'Vincular a um evento (opcional)',
-    analyzeBtn:'Analisar', saveAllBtn:'Salvar', backBtn:'← Voltar',
-    searchPlaceholder:'Buscar…', memberSince:'Membro desde', lastEvent:'Último evento',
-    noPhoneMsg:'Sem WhatsApp', memberAdded:'Membro adicionado', eventCreated:'Evento criado',
-    howtitle:'Como exportar do Google Sheets', howsteps:'1. Abra a planilha vinculada ao formulário\n2. Arquivo → Baixar → CSV (.csv)\n3. Arraste o arquivo abaixo',
-    pasteSteps:'1. Abra a planilha vinculada ao Google Forms\n2. Selecione tudo (Ctrl+A) → Copie (Ctrl+C)\n3. Cole abaixo',
-  }
+
 };
-let lang = 'en';
-function s(k) { return STRINGS[lang][k] || STRINGS.en[k] || k; }
-function setLang(l, el) {
-  lang = l;
-  document.querySelectorAll('.ls').forEach(b => b.classList.remove('on'));
-  el.classList.add('on');
-  applyStrings();
-  renderCurrent();
-}
+const lang = 'en';
+function s(k) { return STRINGS.en[k] || k; }
+function setLang(l,el){}
 function applyStrings() {
   document.querySelectorAll('[data-t]').forEach(el => {
     const k = el.getAttribute('data-t');
@@ -659,7 +621,7 @@ function applyStrings() {
   const srch = document.getElementById('srch');
   if (srch) srch.placeholder = s('searchPlaceholder');
   const amti = document.getElementById('am-taginput');
-  if (amti) amti.placeholder = lang === 'pt' ? 'Digite e pressione Enter…' : 'Type and press Enter…';
+  if (amti) amti.placeholder = 'Type and press Enter…';
 }
 
 // ── DATA ──────────────────────────────────────────────────────────────
@@ -728,9 +690,7 @@ function renderHome() {
   if (!hasData) {
     // Empty state — warm, quiet welcome
     document.getElementById('h-greeting').innerHTML = `${greet}.`;
-    document.getElementById('h-tagline').innerHTML = lang === 'pt'
-      ? 'Um lugar para conhecer e lembrar de cada pessoa da sua comunidade.'
-      : 'A home for every person in your community.';
+    document.getElementById('h-tagline').innerHTML = 'A home for every person in your community.';
     document.getElementById('h-sub').textContent = '';
     document.getElementById('h-data').style.display = 'none';
     renderLaunch();
@@ -739,9 +699,7 @@ function renderHome() {
 
   // Has data — greeting shifts to be about the community
   document.getElementById('h-greeting').innerHTML = `${greet}.`;
-  document.getElementById('h-tagline').innerHTML = lang === 'pt'
-    ? `<em>${M.length} pessoas</em> na sua comunidade.`
-    : `<em>${M.length} people</em> in your community.`;
+  document.getElementById('h-tagline').innerHTML = `<em>${M.length} people</em> in your community.`;
   document.getElementById('h-sub').textContent = '';
   document.getElementById('h-launch').innerHTML = '';
   document.getElementById('h-data').style.display = 'block';
@@ -757,9 +715,7 @@ function renderHome() {
     .slice(0, 5);
 
   if (quietPeople.length) {
-    const title = lang === 'pt'
-      ? `${quietPeople.length} ${quietPeople.length === 1 ? 'pessoa' : 'pessoas'} sem presença há mais de ${THRESHOLD} dias`
-      : `${quietPeople.length} ${quietPeople.length === 1 ? 'person' : 'people'} not seen in over ${THRESHOLD} days`;
+    const title = `${quietPeople.length} ${quietPeople.length === 1 ? 'person' : 'people'} not seen in over ${THRESHOLD} days`;
     document.getElementById('h-checkin').innerHTML = `
       <div class="checkin-strip">
         <div class="checkin-head">
@@ -768,17 +724,17 @@ function renderHome() {
         <div class="checkin-list">
           ${quietPeople.map(({ m, last, since }) => {
             const sinceStr = since >= 365
-              ? Math.floor(since / 365) + (lang === 'pt' ? ' ano' : 'yr')
+              ? Math.floor(since / 365) + ('yr')
               : since >= 30
-              ? Math.floor(since / 30) + (lang === 'pt' ? ' mes' : 'mo')
-              : since + (lang === 'pt' ? ' dias' : 'd');
-            const lastStr = last ? fmtShort(last) : (lang === 'pt' ? 'Nunca' : 'Never');
+              ? Math.floor(since / 30) + ('mo')
+              : since + ('d');
+            const lastStr = last ? fmtShort(last) : ('Never');
             const waHref = m.ph ? `https://wa.me/55${m.ph.replace(/\D/g,'')}` : null;
             return `<div class="ci-row">
               <div class="ci-av" style="background:${avatarBg(m)}">${initials(m)}</div>
               <div class="ci-info" style="cursor:pointer" onclick="openMemberDrawer(${m.id})">
                 <div class="ci-name">${m.fn} ${m.ln}</div>
-                <div class="ci-since">${lang === 'pt' ? 'Última vez' : 'Last seen'}: ${lastStr} · ${sinceStr} ${lang === 'pt' ? 'atrás' : 'ago'}</div>
+                <div class="ci-since">${'Last seen'}: ${lastStr} · ${sinceStr} ${'ago'}</div>
               </div>
               ${waHref ? `<a class="ci-wa" href="${waHref}" target="_blank" title="WhatsApp">💬</a>` : `<div class="ci-wa" style="opacity:.3;cursor:default">💬</div>`}
             </div>`;
@@ -793,9 +749,9 @@ function renderHome() {
   const up = upcoming();
   const newThisMonth = M.filter(m => m.joined && daysSince(m.joined) <= 30).length;
   document.getElementById('h-stats').innerHTML = `
-    <div class="sbar-item"><div class="sbar-n">${M.length}</div><div class="sbar-l">${(lang==='pt'?'MEMBROS':'MEMBERS')}</div></div>
-    <div class="sbar-item"><div class="sbar-n" style="color:var(--k)">${EV.length}</div><div class="sbar-l">${(lang==='pt'?'EVENTOS':'EVENTS')}</div></div>
-    <div class="sbar-item"><div class="sbar-n" style="color:var(--k3);font-size:${newThisMonth>0?'48px':'36px'}">${newThisMonth > 0 ? '+'+newThisMonth : '—'}</div><div class="sbar-l">${(lang==='pt'?'NOVOS (30D)':'NEW (30D)')}</div></div>`;
+    <div class="sbar-item"><div class="sbar-n">${M.length}</div><div class="sbar-l">${('MEMBERS')}</div></div>
+    <div class="sbar-item"><div class="sbar-n" style="color:var(--k)">${EV.length}</div><div class="sbar-l">${('EVENTS')}</div></div>
+    <div class="sbar-item"><div class="sbar-n" style="color:var(--k3);font-size:${newThisMonth>0?'48px':'36px'}">${newThisMonth > 0 ? '+'+newThisMonth : '—'}</div><div class="sbar-l">${('NEW (30D)')}</div></div>`;
 
   // ── UPCOMING EVENTS ──
   document.getElementById('h-ev-cards').innerHTML = up.length
@@ -821,9 +777,7 @@ function renderHome() {
 }
 
 function renderLaunch() {
-  const intro = lang === 'pt'
-    ? 'Comece trazendo sua comunidade.'
-    : 'Start by bringing your community in.';
+  const intro = 'Start by bringing your community in.';
   document.getElementById('h-launch').innerHTML = `
     <div style="margin-bottom:32px;">
       <div style="font-size:14px;color:var(--k3);margin-bottom:20px;font-weight:300">${intro}</div>
@@ -831,22 +785,22 @@ function renderLaunch() {
         <div class="icard primary" onclick="openImport('drop')">
           <span class="ic-icon">📂</span>
           <div class="ic-title">${s('dropLabel')}</div>
-          <div class="ic-sub">${lang==='pt'?'Exporte do Google Sheets como CSV e arraste aqui.':'Export from Google Sheets as CSV and drag it here.'}</div>
+          <div class="ic-sub">${'Export from Google Sheets as CSV and drag it here.'}</div>
         </div>
         <div class="icard" onclick="openImport('paste')">
           <span class="ic-icon">📋</span>
           <div class="ic-title">${s('pasteLabel')}</div>
-          <div class="ic-sub">${lang==='pt'?'Copie da planilha vinculada ao formulário.':'Copy from your linked spreadsheet.'}</div>
+          <div class="ic-sub">${'Copy from your linked spreadsheet.'}</div>
         </div>
         <div class="icard" onclick="openModal('addev')">
           <span class="ic-icon">📅</span>
-          <div class="ic-title">${lang==='pt'?'Criar um evento':'Create an event'}</div>
-          <div class="ic-sub">${lang==='pt'?'Adicione participantes depois.':'Add attendees as they come.'}</div>
+          <div class="ic-title">${'Create an event'}</div>
+          <div class="ic-sub">${'Add attendees as they come.'}</div>
         </div>
       </div>
-      <div class="home-or">${lang==='pt'?'ou':'or'}</div>
+      <div class="home-or">${'or'}</div>
       <div class="home-manual" onclick="openModal('addm')">
-        <div class="home-manual-text">${lang==='pt'?'Adicionar uma pessoa manualmente →':'Add someone manually →'}</div>
+        <div class="home-manual-text">${'Add someone manually →'}</div>
       </div>
     </div>`;
 }
@@ -892,7 +846,7 @@ function renderImpStep(mode = 'drop') {
         <div class="dz-title">${s('dropLabel')}</div>
         <div class="dz-sub">${s('dropSub')}</div>
       </div>
-      <div class="dz-or">${lang === 'pt' ? 'ou' : 'or'}</div>
+      <div class="dz-or">${'or'}</div>
       <button class="btn btn-o" style="width:100%;border-radius:12px;margin-bottom:14px" onclick="renderImpStep('paste')">📋 ${s('pasteLabel')}</button>
       <div class="field"><div class="label">${s('forEventLabel')}</div><select class="inp" id="imp-ev-sel">${evSelectOpts()}</select></div>`;
     setupDrop();
@@ -910,9 +864,9 @@ function readFile(f) { const r = new FileReader(); r.onload = e => parseCSV(e.ta
 
 // ── SMART PARSER ──────────────────────────────────────────────────────
 function parseCSV(raw) {
-  if (!raw?.trim()) { toast(lang === 'pt' ? 'Cole os dados primeiro' : 'Paste data first'); return; }
+  if (!raw?.trim()) { toast('Paste data first'); return; }
   const lines = raw.trim().split(/\r?\n/).filter(Boolean);
-  if (lines.length < 2) { toast(lang === 'pt' ? 'Dados insuficientes' : 'Not enough data'); return; }
+  if (lines.length < 2) { toast('Not enough data'); return; }
   const headers = splitLine(lines[0]);
   const rows = lines.slice(1).map(splitLine);
   // Smart column detection
@@ -939,7 +893,7 @@ function parseCSV(raw) {
     return { fn, ln, age: parseInt(row[map.age]) || null, ph: (row[map.phone] || '').trim(), em: (row[map.email] || '').trim(), bairro: (row[map.hood] || '').trim(), tags: [], // NO auto-tags — only user assigns
       is_new: !existing, eid: existing?.id };
   }).filter(Boolean);
-  if (!people.length) { toast(lang === 'pt' ? 'Nenhuma pessoa encontrada' : 'No people found'); return; }
+  if (!people.length) { toast('No people found'); return; }
   importParsed = people;
   renderReview(map, headers);
 }
@@ -970,10 +924,10 @@ function renderReview(map, headers) {
     <div style="overflow-x:auto;margin-bottom:14px">
     <table class="rtable">
       <thead><tr>
-        <th style="min-width:150px">${lang === 'pt' ? 'Nome' : 'Name'}</th>
+        <th style="min-width:150px">${'Name'}</th>
         <th style="min-width:48px">${s('age')}</th>
         <th style="min-width:100px">${s('neighborhood')}</th>
-        <th>Tags <span style="font-weight:400;opacity:.5;font-size:9px">${lang === 'pt' ? '(você define)' : '(you decide)'}</span></th>
+        <th>Tags <span style="font-weight:400;opacity:.5;font-size:9px">${'(you decide)'}</span></th>
         <th style="width:30px"></th>
       </tr></thead>
       <tbody id="rtbody">${importParsed.map((p, i) => reviewRow(p, i)).join('')}</tbody>
@@ -982,7 +936,7 @@ function renderReview(map, headers) {
     <div class="field"><div class="label">${s('forEventLabel')}</div><select class="inp" id="imp-ev-sel2">${evSelectOpts()}</select></div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-o" onclick="renderImpStep('drop')">${s('backBtn')}</button>
-      <button class="btn btn-r" style="flex:1" onclick="saveImport()">✓ ${s('saveAllBtn')} · ${newCount} ${lang === 'pt' ? 'novos' : 'new'}</button>
+      <button class="btn btn-r" style="flex:1" onclick="saveImport()">✓ ${s('saveAllBtn')} · ${newCount} ${'new'}</button>
     </div>`;
   if (importForEvId) { const sel = document.getElementById('imp-ev-sel2'); if (sel) sel.value = importForEvId; }
 }
@@ -1001,7 +955,7 @@ function updName(i, v) { if (!importParsed[i]) return; const pts = v.trim().spli
 function updF(i, f, v) { if (!importParsed[i]) return; importParsed[i][f] = f === 'age' ? parseInt(v) || null : v; }
 function delRow(i) { importParsed.splice(i, 1); const tb = document.getElementById('rtbody'); if (tb) tb.innerHTML = importParsed.map((p, j) => reviewRow(p, j)).join(''); }
 function removeRTag(i, tag) { if (!importParsed[i]) return; importParsed[i].tags = (importParsed[i].tags || []).filter(t => t !== tag); rerenderRTags(i); }
-function addRTag(i) { const tag = prompt(lang === 'pt' ? 'Nome da tag:' : 'Tag name:'); if (!tag?.trim()) return; if (!importParsed[i].tags) importParsed[i].tags = []; if (!importParsed[i].tags.includes(tag.trim())) importParsed[i].tags.push(tag.trim()); rerenderRTags(i); }
+function addRTag(i) { const tag = prompt('Tag name:'); if (!tag?.trim()) return; if (!importParsed[i].tags) importParsed[i].tags = []; if (!importParsed[i].tags.includes(tag.trim())) importParsed[i].tags.push(tag.trim()); rerenderRTags(i); }
 function rerenderRTags(i) { const cell = document.getElementById(`rtc-${i}`); if (cell) cell.innerHTML = (importParsed[i].tags || []).map(tag => tagPill(tag, true, i)).join('') + `<span class="radd-tag" onclick="addRTag(${i})">+ tag</span>`; }
 
 function saveImport() {
@@ -1020,7 +974,7 @@ function saveImport() {
     added++;
   });
   save(); closeModal('imp-modal'); importParsed = []; importForEvId = null;
-  toast(`${added} ${lang === 'pt' ? 'novos membros adicionados' : 'new members added'}!`);
+  toast(`${added} ${'new members added'}!`);
   renderCurrent();
 }
 
@@ -1029,8 +983,8 @@ function renderEvents() {
   const up = upcoming(), pt = past();
   let html = '';
   if (up.length) { html += `<div class="ev-section-title">${s('upcomingEvents')}</div><div class="evlist">${up.map(evRow).join('')}</div>`; }
-  if (pt.length) { html += `<div class="ev-section-title" style="padding-top:28px">${lang === 'pt' ? 'Anteriores' : 'Past'}</div><div class="evlist">${pt.map(evRow).join('')}</div>`; }
-  if (!html) html = emptyState(s('noEvents'), lang === 'pt' ? 'Crie um evento ou importe inscrições.' : 'Create an event or import RSVPs.', () => openModal('addev'));
+  if (pt.length) { html += `<div class="ev-section-title" style="padding-top:28px">${'Past'}</div><div class="evlist">${pt.map(evRow).join('')}</div>`; }
+  if (!html) html = emptyState(s('noEvents'), 'Create an event or import RSVPs.', () => openModal('addev'));
   document.getElementById('ev-list').innerHTML = html;
 }
 function evRow(ev) {
@@ -1066,14 +1020,14 @@ function renderEvDwTab(ev) {
         <div style="flex:1"><div style="font-family:var(--serif);font-size:15px;font-weight:400;color:var(--k);margin-bottom:3px">${m.fn} ${m.ln}</div>
           <div style="display:flex;gap:4px;flex-wrap:wrap">${(m.tags || []).map(tag => tagPill(tag)).join('')}</div></div>
         <div class="rsvp-toggle ${r.status === 'confirmed' ? 'rsvp-conf' : 'rsvp-pend'}" onclick="cycleRSVP(${ev.id},${r.mid})">${r.status === 'confirmed' ? '✓' : '?'}</div>
-      </div>` : ''; }).join('') || `<div style="font-size:14px;color:var(--k4);padding:12px 0">${lang === 'pt' ? 'Sem inscrições ainda.' : 'No RSVPs yet.'}</div>`}`;
+      </div>` : ''; }).join('') || `<div style="font-size:14px;color:var(--k4);padding:12px 0">${'No RSVPs yet.'}</div>`}`;
   } else {
     const att = ev.attendees || [];
-    document.getElementById('dw-ev-body').innerHTML = att.map(mid => { const m = M.find(x => x.id === mid); return m ? `<div class="rsvp-item"><div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div><div style="flex:1;font-family:var(--serif);font-size:15px;font-weight:400;color:var(--k)">${m.fn} ${m.ln}</div><div style="color:#2d7a4f;font-size:13px">✓</div></div>` : ''; }).join('') || `<div style="font-size:14px;color:var(--k4);padding:12px 0">${lang === 'pt' ? 'Sem presenças.' : 'No attendance marked.'}</div>`;
+    document.getElementById('dw-ev-body').innerHTML = att.map(mid => { const m = M.find(x => x.id === mid); return m ? `<div class="rsvp-item"><div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div><div style="flex:1;font-family:var(--serif);font-size:15px;font-weight:400;color:var(--k)">${m.fn} ${m.ln}</div><div style="color:#2d7a4f;font-size:13px">✓</div></div>` : ''; }).join('') || `<div style="font-size:14px;color:var(--k4);padding:12px 0">${'No attendance marked.'}</div>`;
   }
 }
 function cycleRSVP(evId, mid) { const ev = EV.find(e => e.id === evId); if (!ev) return; const r = ev.rsvp?.find(x => x.mid === mid); if (!r) return; r.status = r.status === 'confirmed' ? 'pending' : 'confirmed'; save(); renderEvDwTab(ev); }
-function addPersonToEvent() { const ev = EV.find(e => e.id === activeEvId); if (!ev || !M.length) { toast(s('noMembers')); return; } const nm = prompt(lang === 'pt' ? 'Nome do membro:' : 'Member name:'); if (!nm) return; const m = M.find(x => (x.fn + ' ' + x.ln).toLowerCase().includes(nm.toLowerCase())); if (!m) { toast(lang === 'pt' ? 'Não encontrado' : 'Not found'); return; } if (!ev.rsvp) ev.rsvp = []; if (ev.rsvp.find(r => r.mid === m.id)) { toast(lang === 'pt' ? 'Já está' : 'Already on list'); return; } ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); renderEvDwTab(ev); toast(`${m.fn} added`); }
+function addPersonToEvent() { const ev = EV.find(e => e.id === activeEvId); if (!ev || !M.length) { toast(s('noMembers')); return; } const nm = prompt('Member name:'); if (!nm) return; const m = M.find(x => (x.fn + ' ' + x.ln).toLowerCase().includes(nm.toLowerCase())); if (!m) { toast('Not found'); return; } if (!ev.rsvp) ev.rsvp = []; if (ev.rsvp.find(r => r.mid === m.id)) { toast('Already on list'); return; } ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); renderEvDwTab(ev); toast(`${m.fn} added`); }
 
 // ── MEMBERS ───────────────────────────────────────────────────────────
 function renderMembers() {
@@ -1092,7 +1046,7 @@ function renderMembers() {
         const cnt = EV.filter(e => e.attendees?.includes(m.id)).length;
         const tags = (m.tags || []).map(tag => `<span class="mrow-tag" style="background:${tagColor(tag)}15;color:${tagColor(tag)};border:1px solid ${tagColor(tag)}28;">${tag}</span>`).join('');
         const lastEv = lastAttended(m);
-        const sinceStr = lastEv ? fmtShort(lastEv) : (lang==='pt'?'Nunca':'Never');
+        const sinceStr = lastEv ? fmtShort(lastEv) : ('Never');
         const quietFlag = daysSince(lastEv || m.joined || '') >= 30;
         return `<div class="mrow" onclick="openMemberDrawer(${m.id})">
           <div class="mav" style="width:44px;height:44px;font-size:16px;background:${avatarBg(m)}">${initials(m)}</div>
@@ -1102,11 +1056,11 @@ function renderMembers() {
           </div>
           <div class="mrow-right" style="text-align:right;flex-shrink:0">
             <div style="font-size:12px;color:${quietFlag?'var(--r)':'var(--k4)'};font-weight:${quietFlag?'600':'400'}">${sinceStr}</div>
-            <div style="font-size:10px;color:var(--k4);margin-top:1px">${lang==='pt'?'últ. vez':'last seen'}</div>
+            <div style="font-size:10px;color:var(--k4);margin-top:1px">${'last seen'}</div>
           </div>
         </div>`;
       }).join('')
-    : emptyState(s('noMembers'), lang === 'pt' ? 'Importe dados ou adicione manualmente.' : 'Import or add manually.', () => openImport());
+    : emptyState(s('noMembers'), 'Import or add manually.', () => openImport());
 }
 function mfilt(f, el) { mFilterTag = null; document.querySelectorAll('.filtchip').forEach(b => { b.classList.remove('on'); b.style.background = ''; b.style.borderColor = ''; }); el.classList.add('on'); renderMembers(); }
 function filterByTag(tag, el) { mFilterTag = mFilterTag === tag ? null : tag; renderMembers(); }
@@ -1118,7 +1072,7 @@ function openMemberDrawer(id) {
   document.getElementById('dw-m-name').innerHTML = `<em>${m.fn}</em> ${m.ln}`;
   document.getElementById('dw-m-tags').innerHTML = (m.tags || []).map(tag => tagPill(tag)).join('');
   const cnt = EV.filter(e => e.attendees?.includes(m.id)).length;
-  document.getElementById('dw-m-meta').textContent = [m.age ? m.age + (lang === 'pt' ? ' anos' : ' yrs') : '', m.bairro, cnt + ' ' + s('eventsLabel')].filter(Boolean).join(' · ');
+  document.getElementById('dw-m-meta').textContent = [m.age ? m.age + (' yrs') : '', m.bairro, cnt + ' ' + s('eventsLabel')].filter(Boolean).join(' · ');
   document.querySelectorAll('#m-ov .dwt').forEach((t, i) => t.classList.toggle('on', i === 0));
   // WhatsApp handled via dw-m-actions buttons
   renderMDwTab(m);
@@ -1132,28 +1086,28 @@ function renderMDwTab(m) {
     const lastEvt = evs[0];
     document.getElementById('dw-m-body').innerHTML = `
       <div class="dw-section">
-        <div class="dw-section-title">${lang==='pt'?'Participação':'Participation'}</div>
+        <div class="dw-section-title">${'Participation'}</div>
         ${ir(s('eventsLabel'), `<strong style="color:var(--r);font-family:var(--serif);font-size:16px">${evs.length}</strong>`)}
-        ${ir(s('lastEvent'), lastEvt ? `<span style="color:${daysSince(lastEvt.dt)>=30?'var(--r)':'var(--k2)'}">${lastEvt.nm} · ${fmtShort(lastEvt.dt)}</span>` : `<em style="color:var(--k4)">${lang==='pt'?'Nenhum evento ainda':'No events yet'}</em>`)}
+        ${ir(s('lastEvent'), lastEvt ? `<span style="color:${daysSince(lastEvt.dt)>=30?'var(--r)':'var(--k2)'}">${lastEvt.nm} · ${fmtShort(lastEvt.dt)}</span>` : `<em style="color:var(--k4)">${'No events yet'}</em>`)}
         ${ir(s('memberSince'), m.joined ? fmtDate(m.joined) : '—')}
       </div>
       <div class="dw-section">
-        <div class="dw-section-title">${lang==='pt'?'Contato':'Contact'}</div>
+        <div class="dw-section-title">${'Contact'}</div>
         ${m.ph ? ir('WhatsApp', `<a href="https://wa.me/55${m.ph.replace(/\D/g,'')}" target="_blank" style="color:var(--r);text-decoration:none">${m.ph}</a>`) : ''}
         ${m.em ? ir('Email', `<a href="mailto:${m.em}" style="color:var(--r);text-decoration:none">${m.em}</a>`) : ''}
         ${m.bairro ? ir(s('neighborhood'), m.bairro) : ''}
-        ${!m.ph && !m.em && !m.bairro ? `<div style="font-size:13.5px;color:var(--k4);font-style:italic">${lang==='pt'?'Sem contato cadastrado':'No contact info yet'}</div>` : ''}
+        ${!m.ph && !m.em && !m.bairro ? `<div style="font-size:13.5px;color:var(--k4);font-style:italic">${'No contact info yet'}</div>` : ''}
       </div>`;
   } else if (mDwTabActive === 'history') {
     document.getElementById('dw-m-body').innerHTML = `<div class="dw-section"><div class="dw-section-title">${s('historyTab')} · ${evs.length}</div>
       ${evs.length ? evs.map(ev => { const d = new Date(ev.dt + 'T12:00:00'); return `<div class="hist-item"><div class="hist-dot"></div><div><div class="hist-name">${ev.nm}</div><div class="hist-date">${isNaN(d) ? ev.dt : d.getDate() + ' ' + mo()[d.getMonth()] + ' ' + d.getFullYear()}</div></div></div>`; }).join('') : `<div style="font-size:14px;color:var(--k4)">${s('noneYet')}</div>`}
     </div>`;
   } else {
-    document.getElementById('dw-m-body').innerHTML = `<textarea style="width:100%;height:calc(100% - 8px);background:transparent;border:none;border-bottom:1px solid var(--f2);padding:4px 0;font-family:var(--sans);font-size:15px;color:var(--k);resize:none;outline:none;line-height:1.8;color:var(--k2)" placeholder="${lang==='pt'?'Notas sobre esta pessoa…':'Notes about this person…'}" onfocus="this.style.borderBottomColor='var(--r)'" onblur="saveNotes(${m.id},this.value)">${m.notes || ''}</textarea>`;
+    document.getElementById('dw-m-body').innerHTML = `<textarea style="width:100%;height:calc(100% - 8px);background:transparent;border:none;border-bottom:1px solid var(--f2);padding:4px 0;font-family:var(--sans);font-size:15px;color:var(--k);resize:none;outline:none;line-height:1.8;color:var(--k2)" placeholder="${'Notes about this person…'}" onfocus="this.style.borderBottomColor='var(--r)'" onblur="saveNotes(${m.id},this.value)">${m.notes || ''}</textarea>`;
   }
 }
 function saveNotes(id, val) { const m = M.find(x => x.id === id); if (m) { m.notes = val; save(); } }
-function addMemberToEvent() { const m = M.find(x => x.id === activeMid); if (!m) return; const up = upcoming(); if (!up.length) { toast(s('noEvents')); return; } const nm = prompt(lang === 'pt' ? 'Nome do evento (deixe vazio para o próximo):' : 'Event name (blank for next):'); const ev = nm ? EV.find(e => e.nm.toLowerCase().includes(nm.toLowerCase())) : up[0]; if (!ev) { toast(lang === 'pt' ? 'Não encontrado' : 'Not found'); return; } if (!ev.attendees) ev.attendees = []; if (ev.attendees.includes(m.id)) { toast(lang === 'pt' ? 'Já está no evento' : 'Already in event'); return; } ev.attendees.push(m.id); if (!ev.rsvp) ev.rsvp = []; if (!ev.rsvp.find(r => r.mid === m.id)) ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); toast(`${m.fn} → ${ev.nm}`); renderMDwTab(m); }
+function addMemberToEvent() { const m = M.find(x => x.id === activeMid); if (!m) return; const up = upcoming(); if (!up.length) { toast(s('noEvents')); return; } const nm = prompt('Event name (blank for next):'); const ev = nm ? EV.find(e => e.nm.toLowerCase().includes(nm.toLowerCase())) : up[0]; if (!ev) { toast('Not found'); return; } if (!ev.attendees) ev.attendees = []; if (ev.attendees.includes(m.id)) { toast('Already in event'); return; } ev.attendees.push(m.id); if (!ev.rsvp) ev.rsvp = []; if (!ev.rsvp.find(r => r.mid === m.id)) ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); toast(`${m.fn} → ${ev.nm}`); renderMDwTab(m); }
 
 // ── ADD MEMBER ─────────────────────────────────────────────────────────
 function handleTagKey(e, pfx) { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); const v = e.target.value.trim().replace(/,$/, ''); if (v) addTagToField(v, pfx); e.target.value = ''; } }
@@ -1179,7 +1133,7 @@ function renderAmTags() {
 }
 function addMember() {
   const fn = document.getElementById('am-fn').value.trim(), ln = document.getElementById('am-ln').value.trim();
-  if (!fn || !ln) { toast(lang === 'pt' ? 'Nome obrigatório' : 'Name required'); return; }
+  if (!fn || !ln) { toast('Name required'); return; }
   M.push({ id: Date.now(), fn, ln, age: parseInt(document.getElementById('am-age').value) || null, tags: [...amTags], ph: document.getElementById('am-ph').value.trim(), em: document.getElementById('am-em').value.trim(), bairro: document.getElementById('am-bairro').value.trim(), notes: document.getElementById('am-notes').value.trim(), joined: today(), attendees: [] });
   save(); closeModal('addm'); amTags = [];
   ['am-fn','am-ln','am-age','am-ph','am-em','am-bairro','am-notes'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
@@ -1189,7 +1143,7 @@ function addMember() {
 // ── ADD EVENT ──────────────────────────────────────────────────────────
 function addEvent() {
   const nm = document.getElementById('ae-nm').value.trim(), dt = document.getElementById('ae-dt').value;
-  if (!nm || !dt) { toast(lang === 'pt' ? 'Nome e data obrigatórios' : 'Name and date required'); return; }
+  if (!nm || !dt) { toast('Name and date required'); return; }
   EV.push({ id: Date.now(), nm, dt, loc: document.getElementById('ae-loc').value.trim() || 'ADD Mitzvah House', desc: document.getElementById('ae-desc').value.trim(), attendees: [], rsvp: [], created: today() });
   save(); closeModal('addev'); toast(s('eventCreated'));
   ['ae-nm','ae-dt','ae-loc','ae-desc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
@@ -1218,14 +1172,14 @@ function renderAnalytics() {
   const overviewBody = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
     <div style="padding-right:18px;border-right:1px solid var(--f2)"><div class="an-hero-stat" style="color:var(--r)">${M.length}</div><div class="an-hero-label">${s('membersLabel').toUpperCase()}</div></div>
     <div style="padding:0 18px;border-right:1px solid var(--f2)"><div class="an-hero-stat" style="color:var(--k2)">${totalEvents}</div><div class="an-hero-label">${s('events').toUpperCase()}</div></div>
-    <div style="padding-left:18px"><div class="an-hero-stat" style="color:var(--k3)">${avgAttendance}</div><div class="an-hero-label">${lang==='pt'?'MÉDIA/EVENTO':'AVG/EVENT'}</div></div>
+    <div style="padding-left:18px"><div class="an-hero-stat" style="color:var(--k3)">${avgAttendance}</div><div class="an-hero-label">${'AVG/EVENT'}</div></div>
   </div>`;
   document.getElementById('an-grid').innerHTML =
-    card(lang==='pt'?'Visão geral':'Overview', lang==='pt'?'Comunidade':'Community', overviewBody) +
+    card('Overview', 'Community', overviewBody) +
     card('Tags', s('byTag'), topTags.length ? `<div class="an-bars">${topTags.map(([tag,n]) => bar(tag,n,maxT,tagColor(tag),`filterByTag('${tag.replace(/'/g,"\'")}',null);nav('members')`)).join('')}</div>` : nd) +
-    card(lang==='pt'?'Pessoas':'People', s('topAttendees'), topAtt.filter(x=>x.n>0).length ? `<div class="an-bars">${topAtt.filter(x=>x.n>0).map(({m,n}) => bar(m.fn+' '+m.ln.charAt(0)+'.',n,maxA,'#C9705A',`openMemberDrawer(${m.id})`)).join('')}</div>` : nd) +
-    card(lang==='pt'?'Localização':'Location', s('byNeighborhood'), bTop.length ? `<div class="an-bars">${bTop.map(([b,n]) => bar(b,n,maxB,'#2D4B73')).join('')}</div>` : nd) +
-    `<div class="an-card" style="grid-column:1/-1"><div class="an-card-head"><div class="an-card-eyebrow">${lang==='pt'?'Crescimento':'Growth'}</div><div class="an-card-title">${s('growthLabel')}</div></div><div class="an-card-body">${evMoSorted.length ? `<div class="an-bars">${evMoSorted.map(([k,n]) => bar(k.slice(5)+'/'+k.slice(2,4),n,maxM,'#2d7a4f')).join('')}</div>` : nd}</div></div>`;
+    card('People', s('topAttendees'), topAtt.filter(x=>x.n>0).length ? `<div class="an-bars">${topAtt.filter(x=>x.n>0).map(({m,n}) => bar(m.fn+' '+m.ln.charAt(0)+'.',n,maxA,'#C9705A',`openMemberDrawer(${m.id})`)).join('')}</div>` : nd) +
+    card('Location', s('byNeighborhood'), bTop.length ? `<div class="an-bars">${bTop.map(([b,n]) => bar(b,n,maxB,'#2D4B73')).join('')}</div>` : nd) +
+    `<div class="an-card" style="grid-column:1/-1"><div class="an-card-head"><div class="an-card-eyebrow">${'Growth'}</div><div class="an-card-title">${s('growthLabel')}</div></div><div class="an-card-body">${evMoSorted.length ? `<div class="an-bars">${evMoSorted.map(([k,n]) => bar(k.slice(5)+'/'+k.slice(2,4),n,maxM,'#2d7a4f')).join('')}</div>` : nd}</div></div>`;
 }
 
 
@@ -1244,7 +1198,7 @@ function mayCloseModal(id, e) { if (e.target.id === id) closeModal(id); }
 function emptyState(title, sub, action) {
   const id = 'es-' + Math.random().toString(36).slice(2);
   setTimeout(() => { const btn = document.getElementById(id); if (btn) btn.onclick = action; }, 10);
-  return `<div class="empty-state"><div class="es-icon">✦</div><div class="es-title">${title}</div><div class="es-sub">${sub}</div><button class="btn btn-r" id="${id}">${lang === 'pt' ? 'Importar dados' : 'Import data'}</button></div>`;
+  return `<div class="empty-state"><div class="es-icon">✦</div><div class="es-title">${title}</div><div class="es-sub">${sub}</div><button class="btn btn-r" id="${id}">${'Import data'}</button></div>`;
 }
 
 // ── TOAST ──────────────────────────────────────────────────────────────
