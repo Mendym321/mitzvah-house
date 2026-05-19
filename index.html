@@ -131,6 +131,11 @@ select.inp{cursor:pointer;}
 .act-text{flex:1;font-size:14px;color:var(--k2);line-height:1.5;}
 .act-time{font-size:12px;color:var(--k4);}
 
+/* ── EVENT CATEGORIES ── */
+.ev-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:2px;}
+.evrow-stripe{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0;}
+.evrow{position:relative;}
+
 /* ── EVENTS PAGE ── */
 .page-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:32px;}
 .page-title{font-family:var(--serif);font-size:38px;font-weight:400;color:var(--k);}
@@ -509,7 +514,13 @@ select.inp{cursor:pointer;}
     <button class="filtchip on" onclick="mfilt('all',this)" data-t="all"></button>
     <div id="tag-chips" style="display:contents"></div>
     <span class="m-count" id="m-ct"></span>
+    <button class="btn btn-o btn-sm" id="select-mode-btn" onclick="toggleSelectMode()" style="flex-shrink:0">Select</button>
     <button class="btn btn-o btn-sm" id="merge-mode-btn" onclick="toggleMergeMode()" style="flex-shrink:0">Merge</button>
+  </div>
+  <div class="merge-bar" id="select-bar" style="bottom:80px">
+    <span class="merge-bar-text" id="select-bar-text">0 selected</span>
+    <button class="merge-bar-btn" style="background:#dc2626" onclick="deleteSelected()">Delete</button>
+    <button class="merge-bar-cancel" onclick="toggleSelectMode()">Cancel</button>
   </div>
   <div class="merge-bar" id="merge-bar">
     <span class="merge-bar-text" id="merge-bar-text">Select 2 people to merge</span>
@@ -628,7 +639,22 @@ select.inp{cursor:pointer;}
         <div class="field"><div class="label" data-t="eventName"></div><input class="inp" id="ae-nm"></div>
         <div class="field"><div class="label" data-t="date"></div><input class="inp" id="ae-dt" type="date"></div>
       </div>
-      <div class="field"><div class="label" data-t="location"></div><input class="inp" id="ae-loc" placeholder="ADD Mitzvah House"></div>
+      <div class="row2">
+        <div class="field"><div class="label">Category</div>
+          <select class="inp" id="ae-cat">
+            <option value="">General</option>
+            <option value="shabbat">Shabbat</option>
+            <option value="teen">Teen</option>
+            <option value="family">Family</option>
+            <option value="minyan">Minyan</option>
+            <option value="holiday">Holiday</option>
+            <option value="outreach">Outreach</option>
+            <option value="class">Class / Study</option>
+            <option value="social">Social</option>
+          </select>
+        </div>
+        <div class="field"><div class="label" data-t="location"></div><input class="inp" id="ae-loc" placeholder="ADD Mitzvah House"></div>
+      </div>
       <div class="field"><div class="label" data-t="description"></div><textarea class="inp" id="ae-desc" style="min-height:48px"></textarea></div>
       <div class="modal-foot"><button class="btn btn-o" onclick="closeModal('addev')" data-t="cancel"></button><button class="btn btn-r" onclick="addEvent()" data-t="create"></button></div>
     </div>
@@ -746,6 +772,18 @@ function applyStrings() {
 
 // ── DATA ──────────────────────────────────────────────────────────────
 const PALETTES = ['#C9705A','#2D4B73','#2d7a4f','#c47f1a','#7b5ea7','#0891b2','#be185d','#1a7a6e','#855e3a','#3a6685'];
+const EV_CATS = {
+  '':        { label: 'General',      color: '#8C7B6E', bg: '#F5F0E8' },
+  shabbat:   { label: 'Shabbat',      color: '#2D4B73', bg: '#EEF2F7' },
+  teen:      { label: 'Teen',         color: '#C9705A', bg: '#FBF0EC' },
+  family:    { label: 'Family',       color: '#2d7a4f', bg: '#EDF7F1' },
+  minyan:    { label: 'Minyan',       color: '#7b5ea7', bg: '#F3F0FA' },
+  holiday:   { label: 'Holiday',      color: '#c47f1a', bg: '#FDF6E7' },
+  outreach:  { label: 'Outreach',     color: '#0891b2', bg: '#EDF8FC' },
+  class:     { label: 'Class/Study',  color: '#1a7a6e', bg: '#EDF7F5' },
+  social:    { label: 'Social',       color: '#be185d', bg: '#FCF0F5' },
+};
+function catInfo(ev) { return EV_CATS[ev?.cat || ''] || EV_CATS['']; }
 const MOS = {en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], pt:['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']};
 const DAYS = {en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], pt:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']};
 
@@ -1200,7 +1238,8 @@ function openEventDrawer(id) {
   activeEvId = id;
   const ev = EV.find(e => String(e.id) === id); if (!ev) return;
   document.getElementById('dw-ev-name').textContent = ev.nm;
-  document.getElementById('dw-ev-meta').textContent = fmtDate(ev.dt) + (ev.loc ? ' · ' + ev.loc : '');
+  const _cat = catInfo(ev);
+  document.getElementById('dw-ev-meta').innerHTML = `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:${_cat.color}18;color:${_cat.color};margin-right:6px">${_cat.label}</span>${fmtDate(ev.dt)}${ev.loc ? ' · ' + ev.loc : ''}`;
   renderEvBody(ev);
   openDrawer('ev-ov');
 }
@@ -1305,8 +1344,13 @@ function renderMembers() {
         const lastEv = lastAttended(m);
         const sinceStr = lastEv ? fmtShort(lastEv) : ('Never');
         const quietFlag = daysSince(lastEv || m.joined || '') >= 30;
-        const isSel = mergeSelected.includes(m.id);
-        return `<div class="mrow ${mergeMode?'selecting':''}" onclick="${mergeMode?`toggleMergeSelect('${m.id}')`:`openMemberDrawer('${m.id}')`}" style="${isSel?'background:var(--rl);border-left:3px solid var(--r);padding-left:17px':''}"><div style="display:${mergeMode?'flex':'none'};width:20px;height:20px;border-radius:50%;border:1.5px solid ${isSel?'var(--r)':'var(--f3)'};background:${isSel?'var(--r)':'var(--w)'};flex-shrink:0;align-items:center;justify-content:center;color:#fff;font-size:10px">${isSel?'✓':''}</div>
+        const isMergeSel = mergeSelected.includes(String(m.id));
+        const isDelSel = selectSelected.includes(String(m.id));
+        const isAnyMode = mergeMode || selectMode;
+        const isSel = isMergeSel || isDelSel;
+        const clickFn = mergeMode ? `window.toggleMergeSelect('${m.id}')` : selectMode ? `window.toggleSelectItem('${m.id}')` : `window.openMemberDrawer('${m.id}')`;
+        return `<div class="mrow ${isAnyMode?'selecting':''}" onclick="${clickFn}" style="${isSel?'background:var(--rl);':''}">
+        <div style="display:${isAnyMode?'flex':'none'};width:20px;height:20px;border-radius:50%;border:1.5px solid ${isSel?'var(--r)':'var(--f3)'};background:${isSel?'var(--r)':'var(--w)'};flex-shrink:0;align-items:center;justify-content:center;color:#fff;font-size:10px;flex-shrink:0">${isSel?'✓':''}</div>
           <div class="mav" style="width:44px;height:44px;font-size:16px;background:${avatarBg(m)}">${initials(m)}</div>
           <div class="mrow-info">
             <div class="mrow-name">${m.fn} ${m.ln}${m.age ? ` <span style="font-family:var(--sans);font-size:14px;font-weight:300;color:var(--k4)">${m.age}</span>` : ''}</div>
@@ -1525,6 +1569,57 @@ async function deleteMember() {
 }
 
 // ── MERGE MEMBERS ─────────────────────────────────────────────────────
+// ── MULTI-SELECT DELETE ──────────────────────────────────────────────
+let selectMode = false;
+let selectSelected = [];
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  selectSelected = [];
+  const btn = document.getElementById('select-mode-btn');
+  const bar = document.getElementById('select-bar');
+  if (btn) { btn.textContent = selectMode ? 'Cancel' : 'Select'; btn.style.color = selectMode ? 'var(--r)' : ''; }
+  if (bar) bar.classList.toggle('on', false);
+  if (selectMode && mergeMode) toggleMergeMode(); // cancel merge if active
+  renderMembers();
+}
+function toggleSelectItem(id) {
+  if (!selectMode) return;
+  const i = selectSelected.indexOf(String(id));
+  if (i > -1) selectSelected.splice(i, 1);
+  else selectSelected.push(String(id));
+  const bar = document.getElementById('select-bar');
+  const txt = document.getElementById('select-bar-text');
+  if (bar) bar.classList.toggle('on', selectSelected.length > 0);
+  if (txt) txt.textContent = `${selectSelected.length} selected`;
+  renderMembers();
+}
+async function deleteSelected() {
+  if (!selectSelected.length) return;
+  const names = selectSelected.map(id => { const m = M.find(x => String(x.id) === id); return m ? m.fn + ' ' + m.ln : id; }).join(', ');
+  if (!confirm(`Delete ${selectSelected.length} member${selectSelected.length > 1 ? 's' : ''}?
+
+${names}
+
+This cannot be undone.`)) return;
+  for (const id of selectSelected) {
+    M = M.filter(x => String(x.id) !== id);
+    EV.forEach(ev => {
+      ev.attendees = (ev.attendees || []).filter(a => String(a) !== id);
+      ev.rsvp = (ev.rsvp || []).filter(r => String(r.mid) !== id);
+    });
+    fbDeleteMember(id);
+  }
+  EV.forEach(ev => fbSaveEvent(ev));
+  save();
+  selectSelected = []; selectMode = false;
+  const btn = document.getElementById('select-mode-btn');
+  const bar = document.getElementById('select-bar');
+  if (btn) { btn.textContent = 'Select'; btn.style.color = ''; }
+  if (bar) bar.classList.remove('on');
+  toast(`${selectSelected.length === 0 ? 'Members' : selectSelected.length + ' members'} deleted`);
+  renderCurrent();
+}
+
 let mergeMode = false;
 let mergeSelected = [];
 function toggleMergeMode() {
@@ -1601,11 +1696,13 @@ setTimeout(() => { const sp = document.getElementById('splash'); sp.classList.ad
 // onclick attributes in HTML can't reach module-scoped functions without this
 Object.assign(window, {
   nav, setBN, openImport, openImportForEvent, openModal, closeModal, mayCloseModal,
+  toggleSelectMode, toggleSelectItem, deleteSelected,
   openDrawer, closeDrawer, mayCloseDrawer, openMemberDrawer, openEventDrawer,
   mDwTab, evDwTab, mfilt, filterByTag,
   addMember, addEvent, addMemberToEvent, addPersonToEvent,
   editMember, saveMemberEdit, deleteMember,
   toggleMergeMode, toggleMergeSelect, doMerge,
+  renderEvBody,
   handleTagKey, addTagToField, renderAmTags, renderEmTags,
   toggleAttendance, toggleSelectAll, cycleRSVP,
   saveNotes, saveImport, saveNotes,
