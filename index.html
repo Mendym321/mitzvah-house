@@ -1266,5 +1266,22 @@ renderHome();
 // Splash
 setTimeout(() => { const sp = document.getElementById('splash'); sp.classList.add('gone'); setTimeout(() => sp.remove(), 900); }, 1600);
 </script>
+  <script type="module">
+  import { listenMembers, listenEvents } from './firebase.js';
+
+  // Real-time listeners — replace localStorage
+  // Call this once the app loads
+  listenMembers(members => {
+    M = members;
+    renderCurrent();
+    upBadges();
+  });
+
+  listenEvents(events => {
+    EV = events;
+    renderCurrent();
+    upBadges();
+  });
+</script>
 </body>
 </html>
