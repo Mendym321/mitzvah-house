@@ -1181,16 +1181,6 @@ async function saveImport() {
   renderCurrent();
 }
 
-    const nm = { id: Date.now() + added, fn: p.fn, ln: p.ln, age: p.age, tags: p.tags || [], ph: p.ph, em: p.em, bairro: p.bairro, notes: '', joined: today(), attendees: [] };
-    M.push(nm);
-    if (ev) { if (!ev.rsvp) ev.rsvp = []; ev.rsvp.push({ mid: nm.id, status: 'confirmed' }); }
-    added++;
-  });
-  save(); closeModal('imp-modal'); importParsed = []; importForEvId = null;
-  toast(`${added} ${'new members added'}!`);
-  renderCurrent();
-}
-
 // ── EVENTS ───────────────────────────────────────────────────────────
 function renderEvents() {
   const up = upcoming(), pt = past();
@@ -1252,7 +1242,7 @@ function renderEvDwTab(ev) {
       if (!m) return '';
       const came = att.includes(mid);
       return `<div class="att-item" onclick="toggleAttendance('${ev.id}','${mid}')">
-        <div class="att-check ${came?'on'}">${came?'✓':''}</div>
+        <div class="att-check ${came?'on':''}">${came?'✓':''}</div>
         <div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div>
         <div style="flex:1">
           <div style="font-family:var(--serif);font-size:15px;color:var(--k)">${m.fn} ${m.ln}</div>
@@ -1289,7 +1279,6 @@ async function toggleSelectAll(evId) {
   save(); fbSaveEvent(ev); renderEvDwTab(ev);
 }
 
-}
 function cycleRSVP(evId, mid) { const ev = EV.find(e => e.id === evId); if (!ev) return; const r = ev.rsvp?.find(x => x.mid === mid); if (!r) return; r.status = r.status === 'confirmed' ? 'pending' : 'confirmed'; save(); renderEvDwTab(ev); }
 function addPersonToEvent() { const ev = EV.find(e => e.id === activeEvId); if (!ev || !M.length) { toast(s('noMembers')); return; } const nm = prompt('Member name:'); if (!nm) return; const m = M.find(x => (x.fn + ' ' + x.ln).toLowerCase().includes(nm.toLowerCase())); if (!m) { toast('Not found'); return; } if (!ev.rsvp) ev.rsvp = []; if (ev.rsvp.find(r => r.mid === m.id)) { toast('Already on list'); return; } ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); renderEvDwTab(ev); toast(`${m.fn} added`); }
 
