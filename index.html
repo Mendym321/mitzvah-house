@@ -833,7 +833,7 @@ function past() { return [...EV].filter(e => e.dt < today()).sort((a, b) => b.dt
 function allTags() { const s = new Set(); M.forEach(m => (m.tags || []).forEach(t => s.add(t))); return [...s].sort(); }
 function tagPill(tag, removable = false, idx = null) {
   const c = tagColor(tag);
-  const rm = removable ? `onclick="removeRTag(${idx},'${tag.replace(/'/g, "\\'")}');event.stopPropagation()"` : '';
+  const rm = removable ? `onclick="window.removeRTag(${idx},'${tag.replace(/'/g, "\\'")}');event.stopPropagation()"` : '';
   return `<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:${c}15;color:${c};border:1px solid ${c}28;${removable ? 'cursor:pointer' : ''}" ${rm}>${tag}${removable ? ' ×' : ''}</span>`;
 }
 
@@ -916,7 +916,7 @@ function renderHome() {
             const waHref = m.ph ? `https://wa.me/55${m.ph.replace(/\D/g,'')}` : null;
             return `<div class="ci-row">
               <div class="ci-av" style="background:${avatarBg(m)}">${initials(m)}</div>
-              <div class="ci-info" style="cursor:pointer" onclick="openMemberDrawer(${m.id})">
+              <div class="ci-info" style="cursor:pointer" onclick="window.openMemberDrawer(${m.id})">
                 <div class="ci-name">${m.fn} ${m.ln}</div>
                 <div class="ci-since">${'Last seen'}: ${lastStr} · ${sinceStr} ${'ago'}</div>
               </div>
@@ -942,13 +942,13 @@ function renderHome() {
     ? `<div class="ev-cards">${up.slice(0, 6).map(ev => {
         const d = new Date(ev.dt + 'T12:00:00');
         const conf = (ev.rsvp || []).filter(r => r.status === 'confirmed').length;
-        return `<div class="evc" onclick="openEventDrawer(${ev.id})">
+        return `<div class="evc" onclick="window.openEventDrawer(${ev.id})">
           <div class="evc-top"><div><div class="evc-date">${isNaN(d) ? '?' : d.getDate()}</div><div class="evc-mo">${isNaN(d) ? '' : mo()[d.getMonth()] + ' · ' + dy()[d.getDay()]}</div></div><div class="evc-dot"></div></div>
           <div class="evc-name">${ev.nm}</div>
           <div class="evc-cnt">${conf} ${s('confirmedLabel')}</div>
         </div>`;
       }).join('')}</div>`
-    : `<div style="font-size:14px;color:var(--k4);padding:8px 0">${s('noEvents')} — <span style="color:var(--r);cursor:pointer;font-weight:500" onclick="openModal('addev')">+ ${s('newEvent')}</span></div>`;
+    : `<div style="font-size:14px;color:var(--k4);padding:8px 0">${s('noEvents')} — <span style="color:var(--r);cursor:pointer;font-weight:500" onclick="window.openModal('addev')">+ ${s('newEvent')}</span></div>`;
 
   // ── RECENT ACTIVITY ──
   const acts = [];
@@ -961,30 +961,28 @@ function renderHome() {
 }
 
 function renderLaunch() {
-  const intro = '';
   document.getElementById('h-launch').innerHTML = `
-    <div style="margin-bottom:32px;">
-      <div style="font-size:14px;color:var(--k3);margin-bottom:20px;font-weight:300">${intro}</div>
+    <div style="padding:0 0 28px">
       <div class="import-grid">
-        <div class="icard primary" onclick="openImport('drop')">
+        <div class="icard primary" onclick="window.openImport('drop')">
           <span class="ic-icon">📂</span>
-          <div class="ic-title">${s('dropLabel')}</div>
-          <div class="ic-sub">${'Export from Google Sheets as CSV and drag it here.'}</div>
+          <div class="ic-title">Drop a CSV file</div>
+          <div class="ic-sub">Export from Google Sheets as CSV and drag it here.</div>
         </div>
-        <div class="icard" onclick="openImport('paste')">
+        <div class="icard" onclick="window.openImport('paste')">
           <span class="ic-icon">📋</span>
-          <div class="ic-title">${s('pasteLabel')}</div>
-          <div class="ic-sub">${'Copy from your linked spreadsheet.'}</div>
+          <div class="ic-title">Paste from Google Forms</div>
+          <div class="ic-sub">Copy from your linked spreadsheet and paste.</div>
         </div>
-        <div class="icard" onclick="openModal('addev')">
+        <div class="icard" onclick="window.openModal('addev')">
           <span class="ic-icon">📅</span>
-          <div class="ic-title">${'Create an event'}</div>
-          <div class="ic-sub">${'Add attendees as they come.'}</div>
+          <div class="ic-title">Create an event</div>
+          <div class="ic-sub">Add attendees as they come.</div>
         </div>
       </div>
-      <div class="home-or">${'or'}</div>
-      <div class="home-manual" onclick="openModal('addm')">
-        <div class="home-manual-text">${'Add someone manually →'}</div>
+      <div class="home-or">or</div>
+      <div class="home-manual" onclick="window.openModal('addm')">
+        <div class="home-manual-text">Add someone manually →</div>
       </div>
     </div>`;
 }
@@ -992,7 +990,7 @@ function renderLaunch() {
 // ── IMPORT ──────────────────────────────────────────────────────────────
 function openImport(mode = 'drop') {
   importForEvId = null;
-  document.getElementById('imp-modal-title').textContent = s('importTitle') || s('import');
+  document.getElementById('imp-modal-title').textContent = 'Import people';
   renderImpStep(mode);
   openModal('imp-modal');
 }
@@ -1016,8 +1014,8 @@ function renderImpStep(mode = 'drop') {
       </div>
       <div class="field"><div class="label">${s('forEventLabel')}</div><select class="inp" id="imp-ev-sel">${evSelectOpts()}</select></div>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-o" onclick="renderImpStep('drop')">${s('backBtn')}</button>
-        <button class="btn btn-k" style="flex:1" onclick="parseCSV(document.getElementById('imp-ta').value)">
+        <button class="btn btn-o" onclick="window.renderImpStep('drop')">${s('backBtn')}</button>
+        <button class="btn btn-k" style="flex:1" onclick="window.parseCSV(document.getElementById('imp-ta').value)">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
           ${s('analyzeBtn')}
         </button>
@@ -1031,7 +1029,7 @@ function renderImpStep(mode = 'drop') {
         <div class="dz-sub">${s('dropSub')}</div>
       </div>
       <div class="dz-or">${'or'}</div>
-      <button class="btn btn-o" style="width:100%;border-radius:12px;margin-bottom:14px" onclick="renderImpStep('paste')">📋 ${s('pasteLabel')}</button>
+      <button class="btn btn-o" style="width:100%;border-radius:12px;margin-bottom:14px" onclick="window.renderImpStep('paste')">📋 ${s('pasteLabel')}</button>
       <div class="field"><div class="label">${s('forEventLabel')}</div><select class="inp" id="imp-ev-sel">${evSelectOpts()}</select></div>`;
     setupDrop();
   }
@@ -1128,8 +1126,8 @@ function renderReview(map, headers) {
       <div style="font-size:12px;color:var(--k4);margin-top:6px">Everyone in the CSV will be marked as RSVP'd. You confirm attendance separately after the event.</div>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="btn btn-o" onclick="renderImpStep('drop')">${s('backBtn')}</button>
-      <button class="btn btn-r" style="flex:1" onclick="saveImport()">✓ ${s('saveAllBtn')} · ${newCount} ${'new'}</button>
+      <button class="btn btn-o" onclick="window.renderImpStep('drop')">${s('backBtn')}</button>
+      <button class="btn btn-r" style="flex:1" onclick="window.saveImport()">✓ ${s('saveAllBtn')} · ${newCount} ${'new'}</button>
     </div>`;
   if (importForEvId) { const sel = document.getElementById('imp-ev-sel2'); if (sel) sel.value = importForEvId; }
 }
@@ -1140,8 +1138,8 @@ function reviewRow(p, i) {
       <div class="rbadge ${p.is_new ? 'n' : 'e'}">${p.is_new ? s('newLabel') : s('existingLabel')}</div></td>
     <td><input class="rinput" value="${p.age || ''}" onblur="updF(${i},'age',this.value)" style="width:44px"></td>
     <td><input class="rinput" value="${p.bairro || ''}" onblur="updF(${i},'bairro',this.value)"></td>
-    <td><div class="rtags-cell" id="rtc-${i}">${tags}<span class="radd-tag" onclick="addRTag(${i})">+ tag</span></div></td>
-    <td><button class="rdel" onclick="delRow(${i})">×</button></td>
+    <td><div class="rtags-cell" id="rtc-${i}">${tags}<span class="radd-tag" onclick="window.addRTag(${i})">+ tag</span></div></td>
+    <td><button class="rdel" onclick="window.delRow(${i})">×</button></td>
   </tr>`;
 }
 function updName(i, v) { if (!importParsed[i]) return; const pts = v.trim().split(/\s+/); importParsed[i].fn = pts[0] || ''; importParsed[i].ln = pts.slice(1).join(' ') || ''; }
@@ -1149,7 +1147,7 @@ function updF(i, f, v) { if (!importParsed[i]) return; importParsed[i][f] = f ==
 function delRow(i) { importParsed.splice(i, 1); const tb = document.getElementById('rtbody'); if (tb) tb.innerHTML = importParsed.map((p, j) => reviewRow(p, j)).join(''); }
 function removeRTag(i, tag) { if (!importParsed[i]) return; importParsed[i].tags = (importParsed[i].tags || []).filter(t => t !== tag); rerenderRTags(i); }
 function addRTag(i) { const tag = prompt('Tag name:'); if (!tag?.trim()) return; if (!importParsed[i].tags) importParsed[i].tags = []; if (!importParsed[i].tags.includes(tag.trim())) importParsed[i].tags.push(tag.trim()); rerenderRTags(i); }
-function rerenderRTags(i) { const cell = document.getElementById(`rtc-${i}`); if (cell) cell.innerHTML = (importParsed[i].tags || []).map(tag => tagPill(tag, true, i)).join('') + `<span class="radd-tag" onclick="addRTag(${i})">+ tag</span>`; }
+function rerenderRTags(i) { const cell = document.getElementById(`rtc-${i}`); if (cell) cell.innerHTML = (importParsed[i].tags || []).map(tag => tagPill(tag, true, i)).join('') + `<span class="radd-tag" onclick="window.addRTag(${i})">+ tag</span>`; }
 
 async function saveImport() {
   let added = 0;
@@ -1193,7 +1191,7 @@ function renderEvents() {
 function evRow(ev) {
   const d = new Date(ev.dt + 'T12:00:00');
   const conf = (ev.rsvp || []).filter(r => r.status === 'confirmed').length;
-  return `<div class="evrow" onclick="openEventDrawer(${ev.id})">
+  return `<div class="evrow" onclick="window.openEventDrawer(${ev.id})">
     <div class="evrow-dt"><div class="evrow-day">${isNaN(d) ? '?' : d.getDate()}</div><div class="evrow-mo">${isNaN(d) ? '' : mo()[d.getMonth()]}</div></div>
     <div class="evrow-info"><div class="evrow-name">${ev.nm}</div><div class="evrow-meta">${ev.loc || 'ADD Mitzvah House'}${!isNaN(d) ? ' · ' + dy()[d.getDay()] : ''}</div></div>
     <div class="evrow-right"><div class="evrow-cnt">${conf}</div><div class="evrow-clabel">${s('confirmedLabel')}</div></div>
@@ -1241,7 +1239,7 @@ function renderEvDwTab(ev) {
       const m = M.find(x => x.id === mid);
       if (!m) return '';
       const came = att.includes(mid);
-      return `<div class="att-item" onclick="toggleAttendance('${ev.id}','${mid}')">
+      return `<div class="att-item" onclick="window.toggleAttendance('${ev.id}','${mid}')">
         <div class="att-check ${came?'on':''}">${came?'✓':''}</div>
         <div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div>
         <div style="flex:1">
@@ -1253,7 +1251,7 @@ function renderEvDwTab(ev) {
     document.getElementById('dw-ev-body').innerHTML =
       `<div class="att-toolbar">
         <div style="font-size:13px;color:var(--k3);flex:1">${att.length} of ${candidates.length} attended</div>
-        <button class="att-sel-btn ${allSel?'all-selected':''}" onclick="toggleSelectAll('${ev.id}')">
+        <button class="att-sel-btn ${allSel?'all-selected':''}" onclick="window.toggleSelectAll('${ev.id}')">
           ${allSel ? 'Deselect all' : 'Select all'}
         </button>
       </div>
@@ -1291,7 +1289,7 @@ function renderMembers() {
   document.getElementById('m-ct').textContent = list.length;
   // Tag filter chips
   const tags = allTags();
-  document.getElementById('tag-chips').innerHTML = tags.slice(0, 7).map(tag => `<button class="filtchip ${mFilterTag === tag ? 'on' : ''}" onclick="filterByTag('${tag.replace(/'/g, "\\'")}',this)" style="${mFilterTag === tag ? `background:${tagColor(tag)};border-color:${tagColor(tag)}` : ''}">${tag}</button>`).join('');
+  document.getElementById('tag-chips').innerHTML = tags.slice(0, 7).map(tag => `<button class="filtchip ${mFilterTag === tag ? 'on' : ''}" onclick="window.filterByTag('${tag.replace(/'/g, "\\'")}',this)" style="${mFilterTag === tag ? `background:${tagColor(tag)};border-color:${tagColor(tag)}` : ''}">${tag}</button>`).join('');
   // last5 dots removed — using last-seen date instead
   document.getElementById('m-list').innerHTML = list.length
     ? list.map(m => {
@@ -1383,7 +1381,7 @@ function renderAmTags() {
   // Show existing tags as suggestions
   const existing = allTags().filter(t => !amTags.includes(t)).slice(0, 6);
   const sug = document.getElementById('am-tagsug');
-  if (sug) sug.innerHTML = existing.map(t => `<span class="tsug" onclick="addTagToField('${t.replace(/'/g, "\\'")}','am')">${t}</span>`).join('');
+  if (sug) sug.innerHTML = existing.map(t => `<span class="tsug" onclick="window.addTagToField('${t.replace(/'/g, "\\'")}','am')">${t}</span>`).join('');
 }
 function addMember() {
   const fn = document.getElementById('am-fn').value.trim(), ln = document.getElementById('am-ln').value.trim();
