@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
@@ -297,6 +297,27 @@ select.inp{cursor:pointer;}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--k);color:var(--f);font-size:13.5px;font-weight:500;padding:11px 22px;border-radius:100px;z-index:999;opacity:0;transition:all .2s;pointer-events:none;white-space:nowrap;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 
+/* ── MERGE / SELECT UI ── */
+.merge-bar{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--k);color:var(--f);padding:12px 20px;border-radius:100px;display:none;align-items:center;gap:12px;z-index:500;box-shadow:0 8px 24px rgba(0,0,0,.2);white-space:nowrap;}
+.merge-bar.on{display:flex;}
+.merge-bar-text{font-size:13px;font-weight:500;}
+.merge-bar-btn{background:var(--r);color:#fff;border:none;border-radius:100px;padding:6px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+.merge-bar-cancel{background:rgba(255,255,255,.12);color:var(--f);border:none;border-radius:100px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:var(--sans);}
+.mrow-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--f3);background:var(--w);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .13s;cursor:pointer;}
+.mrow-check.on{background:var(--r);border-color:var(--r);color:#fff;}
+.mrow.selecting{cursor:default;}
+
+/* ── ATTENDANCE SELECT-ALL ── */
+.att-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--f2);}
+.att-sel-btn{padding:5px 13px;border-radius:100px;border:1.5px solid var(--f3);background:var(--w);font-size:12.5px;font-weight:600;color:var(--k3);cursor:pointer;font-family:var(--sans);transition:all .12s;}
+.att-sel-btn:hover{border-color:var(--r);color:var(--r);}
+.att-sel-btn.all-selected{background:var(--r);border-color:var(--r);color:#fff;}
+.att-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--f2);cursor:pointer;}
+.att-item:last-child{border-bottom:none;}
+.att-item:hover .att-check{border-color:var(--r);}
+.att-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--f3);background:var(--w);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .13s;}
+.att-check.on{background:#2d7a4f;border-color:#2d7a4f;color:#fff;}
+
 /* EMPTY STATE */
 .empty-state{padding:60px 0;text-align:center;}
 .es-icon{font-size:40px;margin-bottom:16px;opacity:.25;}
@@ -488,6 +509,12 @@ select.inp{cursor:pointer;}
     <button class="filtchip on" onclick="mfilt('all',this)" data-t="all"></button>
     <div id="tag-chips" style="display:contents"></div>
     <span class="m-count" id="m-ct"></span>
+    <button class="btn btn-o btn-sm" id="merge-mode-btn" onclick="toggleMergeMode()" style="flex-shrink:0">Merge</button>
+  </div>
+  <div class="merge-bar" id="merge-bar">
+    <span class="merge-bar-text" id="merge-bar-text">Select 2 people to merge</span>
+    <button class="merge-bar-btn" onclick="doMerge()">Merge</button>
+    <button class="merge-bar-cancel" onclick="toggleMergeMode()">Cancel</button>
   </div>
   <div class="mlist" id="m-list"></div>
 </div>
@@ -556,6 +583,40 @@ select.inp{cursor:pointer;}
   </div>
 </div>
 
+<!-- EDIT MEMBER MODAL -->
+<div class="modal-bg" id="editm" onclick="mayCloseModal('editm',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head"><div class="modal-title">Edit person</div><button class="modal-x" onclick="closeModal('editm')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="row2">
+        <div class="field"><div class="label">First name</div><input class="inp" id="em-fn"></div>
+        <div class="field"><div class="label">Last name</div><input class="inp" id="em-ln"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><div class="label">Age</div><input class="inp" id="em-age" type="number"></div>
+        <div class="field"><div class="label">Neighborhood</div><input class="inp" id="em-bairro"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><div class="label">WhatsApp</div><input class="inp" id="em-ph" type="tel"></div>
+        <div class="field"><div class="label">Email</div><input class="inp" id="em-em" type="email"></div>
+      </div>
+      <div class="field">
+        <div class="label">Tags</div>
+        <div class="tagfield" id="em-tagfield" onclick="document.getElementById('em-taginput').focus()">
+          <input class="taginput" id="em-taginput" placeholder="Type and press Enter…" onkeydown="handleTagKey(event,'em')">
+        </div>
+        <div class="tagsug" id="em-tagsug"></div>
+      </div>
+      <div class="field"><div class="label">Notes</div><textarea class="inp" id="em-notes" style="min-height:54px"></textarea></div>
+      <div class="modal-foot">
+        <button class="btn btn-o" onclick="closeModal('editm')">Cancel</button>
+        <button class="btn btn-r" onclick="saveMemberEdit()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ADD EVENT MODAL -->
 <div class="modal-bg" id="addev" onclick="mayCloseModal('addev',event)">
   <div class="modal">
@@ -595,8 +656,10 @@ select.inp{cursor:pointer;}
       </div>
     </div>
     <div class="dw-body" id="dw-m-body"></div>
-    <div class="dw-foot">
-      <button class="btn btn-r" style="flex:1" onclick="addMemberToEvent()" data-t="addToEvent"></button>
+    <div class="dw-foot" style="flex-wrap:wrap;gap:6px">
+      <button class="btn btn-o btn-sm" onclick="editMember()">Edit</button>
+      <button class="btn btn-o btn-sm" onclick="deleteMember()" style="color:var(--r);border-color:var(--rm)">Delete</button>
+      <button class="btn btn-r btn-sm" style="flex:1;min-width:120px" onclick="addMemberToEvent()">Add to event</button>
     </div>
   </div>
 </div>
@@ -627,7 +690,11 @@ select.inp{cursor:pointer;}
 </div>
 
 <div class="toast" id="toast"></div>
-<script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, collection, setDoc, doc, onSnapshot, deleteDoc }
+  from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
 // ── i18n ──────────────────────────────────────────────────────────────
 const STRINGS = {
   en: {
@@ -690,8 +757,69 @@ let mFilterTag = null;
 let importParsed = [], importForEvId = null;
 let amTags = [];
 
-function save() { localStorage.setItem('mhh5_m', JSON.stringify(M)); localStorage.setItem('mhh5_e', JSON.stringify(EV)); }
-function load() { M = JSON.parse(localStorage.getItem('mhh5_m') || '[]'); EV = JSON.parse(localStorage.getItem('mhh5_e') || '[]'); }
+// ── FIREBASE ──────────────────────────────────────────────────────────
+
+const _fbConfig = {
+  apiKey: "AIzaSyClGS4b5mf8HhYFGN8n3C_glnnGfLlMjAU",
+  authDomain: "mitzvah-house-hub.firebaseapp.com",
+  projectId: "mitzvah-house-hub",
+  storageBucket: "mitzvah-house-hub.firebasestorage.app",
+  messagingSenderId: "310571075031",
+  appId: "1:310571075031:web:6fdb8bc59c87e66522b792"
+};
+const _app = initializeApp(_fbConfig);
+const db = getFirestore(_app);
+
+
+async function save() {
+  // localStorage fallback always
+  localStorage.setItem('mhh5_m', JSON.stringify(M));
+  localStorage.setItem('mhh5_e', JSON.stringify(EV));
+}
+
+async function fbSaveMember(m) {
+  if (!m.id) return;
+  const { id, ...data } = m;
+  try {
+    await setDoc(doc(db, 'members', String(id)), data);
+  } catch(e) { console.warn('Firebase save member:', e); }
+}
+
+async function fbSaveEvent(ev) {
+  if (!ev.id) return;
+  const { id, ...data } = ev;
+  try {
+    await setDoc(doc(db, 'events', String(id)), data);
+  } catch(e) { console.warn('Firebase save event:', e); }
+}
+
+async function fbDeleteMember(id) {
+  if (!id) return;
+  try { await deleteDoc(doc(db, 'members', id)); } catch(e) { console.warn(e); }
+}
+
+async function fbDeleteEvent(id) {
+  if (!id) return;
+  try { await deleteDoc(doc(db, 'events', id)); } catch(e) { console.warn(e); }
+}
+
+function load() {
+  M = JSON.parse(localStorage.getItem('mhh5_m') || '[]');
+  EV = JSON.parse(localStorage.getItem('mhh5_e') || '[]');
+  // Start Firebase listeners
+  try {
+    onSnapshot(collection(db, 'members'), snap => {
+      M = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      localStorage.setItem('mhh5_m', JSON.stringify(M));
+      renderCurrent(); upBadges();
+    });
+    onSnapshot(collection(db, 'events'), snap => {
+      EV = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      localStorage.setItem('mhh5_e', JSON.stringify(EV));
+      renderCurrent(); upBadges();
+    });
+  } catch(e) { console.warn('Firebase listeners failed, using localStorage:', e); }
+}
 function today() { return new Date().toISOString().split('T')[0]; }
 function initials(m) { return ((m.fn?.[0] || '') + (m.ln?.[0] || '')).toUpperCase(); }
 function avatarBg(m) { return PALETTES[((m.fn?.charCodeAt(0) || 0) + (m.ln?.charCodeAt(0) || 0)) % PALETTES.length]; }
@@ -715,10 +843,11 @@ function nav(page) {
   curPage = page;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
   document.getElementById('p-' + page)?.classList.add('on');
-  document.querySelectorAll('.nt, #mob-menu .nt').forEach(b => b.classList.toggle('on', b.dataset.page === page));
+  document.querySelectorAll('.nt').forEach(b => b.classList.toggle('on', b.dataset.page === page));
   renderCurrent();
 }
 function setBN(p) { document.querySelectorAll('.bni').forEach(b => b.classList.remove('on')); document.getElementById('bn-' + p)?.classList.add('on'); }
+function upBadges() {}
 function renderCurrent() { ({ home: renderHome, events: renderEvents, members: renderMembers, analytics: renderAnalytics })[curPage]?.(); }
 function toggleMobMenu() { /* removed */ }
 
@@ -988,11 +1117,20 @@ function renderReview(map, headers) {
       <tbody id="rtbody">${importParsed.map((p, i) => reviewRow(p, i)).join('')}</tbody>
     </table>
     </div>
-    <div class="field"><div class="label">${s('forEventLabel')}</div><select class="inp" id="imp-ev-sel2">${evSelectOpts()}</select></div>
+    <div style="border:1.5px solid var(--f3);border-radius:12px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--k4);margin-bottom:10px">Link to event</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <input class="inp" id="imp-new-ev-nm" placeholder="Create new event: name…" style="flex:2">
+        <input class="inp" id="imp-new-ev-dt" type="date" style="flex:1">
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--k4);margin:4px 0">or link to existing</div>
+      <select class="inp" id="imp-ev-sel2">${evSelectOpts()}</select>
+      <div style="font-size:12px;color:var(--k4);margin-top:6px">Everyone in the CSV will be marked as RSVP'd. You confirm attendance separately after the event.</div>
+    </div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-o" onclick="renderImpStep('drop')">${s('backBtn')}</button>
       <button class="btn btn-r" style="flex:1" onclick="saveImport()">✓ ${s('saveAllBtn')} · ${newCount} ${'new'}</button>
-    </div>`;
+    </div>\`;
   if (importForEvId) { const sel = document.getElementById('imp-ev-sel2'); if (sel) sel.value = importForEvId; }
 }
 function reviewRow(p, i) {
@@ -1013,16 +1151,36 @@ function removeRTag(i, tag) { if (!importParsed[i]) return; importParsed[i].tags
 function addRTag(i) { const tag = prompt('Tag name:'); if (!tag?.trim()) return; if (!importParsed[i].tags) importParsed[i].tags = []; if (!importParsed[i].tags.includes(tag.trim())) importParsed[i].tags.push(tag.trim()); rerenderRTags(i); }
 function rerenderRTags(i) { const cell = document.getElementById(`rtc-${i}`); if (cell) cell.innerHTML = (importParsed[i].tags || []).map(tag => tagPill(tag, true, i)).join('') + `<span class="radd-tag" onclick="addRTag(${i})">+ tag</span>`; }
 
-function saveImport() {
+async function saveImport() {
   let added = 0;
-  const evId = parseInt(document.getElementById('imp-ev-sel2')?.value) || importForEvId || null;
-  const ev = evId ? EV.find(e => e.id === evId) : null;
-  importParsed.forEach(p => {
+  const evSel = document.getElementById('imp-ev-sel2');
+  const newEvNm = document.getElementById('imp-new-ev-nm')?.value?.trim();
+  const newEvDt = document.getElementById('imp-new-ev-dt')?.value;
+  let ev = null;
+  if (newEvNm && newEvDt) {
+    ev = { id: Date.now().toString(), nm: newEvNm, dt: newEvDt, loc: 'ADD Mitzvah House', desc: 'Imported from CSV', attendees: [], rsvp: [], created: today() };
+    EV.push(ev); fbSaveEvent(ev);
+  } else if (evSel?.value) {
+    ev = EV.find(e => e.id === evSel.value);
+  }
+  for (let i = 0; i < importParsed.length; i++) {
+    const p = importParsed[i];
     if (!p.is_new) {
       if (ev && !ev.rsvp?.find(r => r.mid === p.eid)) { if (!ev.rsvp) ev.rsvp = []; ev.rsvp.push({ mid: p.eid, status: 'confirmed' }); }
-      if (p.eid && p.tags?.length) { const em = M.find(x => x.id === p.eid); if (em) em.tags = [...new Set([...(em.tags || []), ...p.tags])]; }
-      return;
+      if (p.eid && p.tags?.length) { const em = M.find(x => x.id === p.eid); if (em) { em.tags = [...new Set([...(em.tags||[]),...p.tags])]; fbSaveMember(em); } }
+      continue;
     }
+    const nm = { id: (Date.now()+i).toString(), fn: p.fn, ln: p.ln, age: p.age, tags: p.tags||[], ph: p.ph, em: p.em, bairro: p.bairro, notes: '', joined: today(), attendees: [] };
+    M.push(nm); fbSaveMember(nm);
+    if (ev) { if (!ev.rsvp) ev.rsvp = []; ev.rsvp.push({ mid: nm.id, status: 'confirmed' }); }
+    added++;
+  }
+  if (ev) fbSaveEvent(ev);
+  save(); closeModal('imp-modal'); importParsed = []; importForEvId = null;
+  toast(`${added} new members added!`);
+  renderCurrent();
+}
+
     const nm = { id: Date.now() + added, fn: p.fn, ln: p.ln, age: p.age, tags: p.tags || [], ph: p.ph, em: p.em, bairro: p.bairro, notes: '', joined: today(), attendees: [] };
     M.push(nm);
     if (ev) { if (!ev.rsvp) ev.rsvp = []; ev.rsvp.push({ mid: nm.id, status: 'confirmed' }); }
@@ -1064,22 +1222,73 @@ function evDwTab(tab, el) { evDwTabActive = tab; document.querySelectorAll('#ev-
 function renderEvDwTab(ev) {
   const rsvp = ev.rsvp || [];
   if (evDwTabActive === 'rsvp') {
-    const conf = rsvp.filter(r => r.status === 'confirmed'), pend = rsvp.filter(r => r.status === 'pending');
-    document.getElementById('dw-ev-body').innerHTML = `
-      <div class="rsvp-count-row">
-        <div class="rsvp-box"><div class="rsvp-n" style="color:#2d7a4f">${conf.length}</div><div class="rsvp-l">${s('confirmed').toUpperCase()}</div></div>
-        <div class="rsvp-box"><div class="rsvp-n" style="color:#c47f1a">${pend.length}</div><div class="rsvp-l">${s('pendingLabel').toUpperCase()}</div></div>
-      </div>
-      ${[...conf, ...pend].map(r => { const m = M.find(x => x.id === r.mid); return m ? `<div class="rsvp-item">
+    const conf = rsvp.filter(r => r.status === 'confirmed');
+    const pend = rsvp.filter(r => r.status === 'pending');
+    let rows = [...conf,...pend].map(r => {
+      const m = M.find(x => x.id === r.mid);
+      if (!m) return '';
+      return `<div class="rsvp-item">
         <div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div>
-        <div style="flex:1"><div style="font-family:var(--serif);font-size:15px;font-weight:400;color:var(--k);margin-bottom:3px">${m.fn} ${m.ln}</div>
-          <div style="display:flex;gap:4px;flex-wrap:wrap">${(m.tags || []).map(tag => tagPill(tag)).join('')}</div></div>
-        <div class="rsvp-toggle ${r.status === 'confirmed' ? 'rsvp-conf' : 'rsvp-pend'}" onclick="cycleRSVP(${ev.id},${r.mid})">${r.status === 'confirmed' ? '✓' : '?'}</div>
-      </div>` : ''; }).join('') || `<div style="font-size:14px;color:var(--k4);padding:12px 0">${'No RSVPs yet.'}</div>`}`;
+        <div style="flex:1"><div style="font-family:var(--serif);font-size:15px;color:var(--k)">${m.fn} ${m.ln}</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px">${(m.tags||[]).map(t=>tagPill(t)).join('')}</div></div>
+        <div style="font-size:12px;color:${r.status==='confirmed'?'#2d7a4f':'#c47f1a'};font-weight:600">${r.status==='confirmed'?"RSVP'd":'Pending'}</div>
+      </div>`;
+    }).join('');
+    document.getElementById('dw-ev-body').innerHTML =
+      `<div class="rsvp-count-row">
+        <div class="rsvp-box"><div class="rsvp-n" style="color:#2d7a4f">${conf.length}</div><div class="rsvp-l">RSVP'D</div></div>
+        <div class="rsvp-box"><div class="rsvp-n" style="color:#c47f1a">${pend.length}</div><div class="rsvp-l">PENDING</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--k4);margin-bottom:12px;font-style:italic">Who said they're coming. Confirm who actually attended in the Attendance tab.</div>
+      ${rows || '<div style="font-size:14px;color:var(--k4);padding:12px 0">No RSVPs yet.</div>'}`;
   } else {
+    // ATTENDANCE TAB
     const att = ev.attendees || [];
-    document.getElementById('dw-ev-body').innerHTML = att.map(mid => { const m = M.find(x => x.id === mid); return m ? `<div class="rsvp-item"><div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div><div style="flex:1;font-family:var(--serif);font-size:15px;font-weight:400;color:var(--k)">${m.fn} ${m.ln}</div><div style="color:#2d7a4f;font-size:13px">✓</div></div>` : ''; }).join('') || `<div style="font-size:14px;color:var(--k4);padding:12px 0">${'No attendance marked.'}</div>`;
+    const rsvpIds = rsvp.map(r => r.mid);
+    const candidates = [...new Set([...rsvpIds, ...att])];
+    const allSel = candidates.length > 0 && candidates.every(id => att.includes(id));
+    let rows = candidates.map(mid => {
+      const m = M.find(x => x.id === mid);
+      if (!m) return '';
+      const came = att.includes(mid);
+      return `<div class="att-item" onclick="toggleAttendance('${ev.id}','${mid}')">
+        <div class="att-check ${came?'on'}">${came?'✓':''}</div>
+        <div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div>
+        <div style="flex:1">
+          <div style="font-family:var(--serif);font-size:15px;color:var(--k)">${m.fn} ${m.ln}</div>
+          ${m.bairro?`<div style="font-size:12px;color:var(--k4)">${m.bairro}</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('dw-ev-body').innerHTML =
+      `<div class="att-toolbar">
+        <div style="font-size:13px;color:var(--k3);flex:1">${att.length} of ${candidates.length} attended</div>
+        <button class="att-sel-btn ${allSel?'all-selected':''}" onclick="toggleSelectAll('${ev.id}')">
+          ${allSel ? 'Deselect all' : 'Select all'}
+        </button>
+      </div>
+      ${rows || '<div style="font-size:14px;color:var(--k4);padding:12px 0">Import RSVPs first, then confirm attendance here.</div>'}`;
   }
+}
+
+async function toggleAttendance(evId, mid) {
+  const ev = EV.find(e => e.id == evId); if (!ev) return;
+  if (!ev.attendees) ev.attendees = [];
+  const i = ev.attendees.indexOf(mid);
+  if (i > -1) ev.attendees.splice(i, 1);
+  else ev.attendees.push(mid);
+  save(); fbSaveEvent(ev); renderEvDwTab(ev);
+}
+
+async function toggleSelectAll(evId) {
+  const ev = EV.find(e => e.id == evId); if (!ev) return;
+  const rsvpIds = (ev.rsvp||[]).map(r=>r.mid);
+  const candidates = [...new Set([...rsvpIds,...(ev.attendees||[])])];
+  const allSel = candidates.every(id => (ev.attendees||[]).includes(id));
+  ev.attendees = allSel ? [] : [...candidates];
+  save(); fbSaveEvent(ev); renderEvDwTab(ev);
+}
+
 }
 function cycleRSVP(evId, mid) { const ev = EV.find(e => e.id === evId); if (!ev) return; const r = ev.rsvp?.find(x => x.mid === mid); if (!r) return; r.status = r.status === 'confirmed' ? 'pending' : 'confirmed'; save(); renderEvDwTab(ev); }
 function addPersonToEvent() { const ev = EV.find(e => e.id === activeEvId); if (!ev || !M.length) { toast(s('noMembers')); return; } const nm = prompt('Member name:'); if (!nm) return; const m = M.find(x => (x.fn + ' ' + x.ln).toLowerCase().includes(nm.toLowerCase())); if (!m) { toast('Not found'); return; } if (!ev.rsvp) ev.rsvp = []; if (ev.rsvp.find(r => r.mid === m.id)) { toast('Already on list'); return; } ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); renderEvDwTab(ev); toast(`${m.fn} added`); }
@@ -1103,7 +1312,8 @@ function renderMembers() {
         const lastEv = lastAttended(m);
         const sinceStr = lastEv ? fmtShort(lastEv) : ('Never');
         const quietFlag = daysSince(lastEv || m.joined || '') >= 30;
-        return `<div class="mrow" onclick="openMemberDrawer(${m.id})">
+        const isSel = mergeSelected.includes(m.id);
+        return `<div class="mrow ${mergeMode?'selecting':''}" onclick="${mergeMode?`toggleMergeSelect('${m.id}')`:`openMemberDrawer('${m.id}')`}" style="${isSel?'background:var(--rl);border-left:3px solid var(--r);padding-left:17px':''}"><div style="display:${mergeMode?'flex':'none'};width:20px;height:20px;border-radius:50%;border:1.5px solid ${isSel?'var(--r)':'var(--f3)'};background:${isSel?'var(--r)':'var(--w)'};flex-shrink:0;align-items:center;justify-content:center;color:#fff;font-size:10px">${isSel?'✓':''}</div>
           <div class="mav" style="width:44px;height:44px;font-size:16px;background:${avatarBg(m)}">${initials(m)}</div>
           <div class="mrow-info">
             <div class="mrow-name">${m.fn} ${m.ln}${m.age ? ` <span style="font-family:var(--sans);font-size:14px;font-weight:300;color:var(--k4)">${m.age}</span>` : ''}</div>
@@ -1161,11 +1371,11 @@ function renderMDwTab(m) {
     document.getElementById('dw-m-body').innerHTML = `<textarea style="width:100%;height:calc(100% - 8px);background:transparent;border:none;border-bottom:1px solid var(--f2);padding:4px 0;font-family:var(--sans);font-size:15px;color:var(--k);resize:none;outline:none;line-height:1.8;color:var(--k2)" placeholder="${'Notes about this person…'}" onfocus="this.style.borderBottomColor='var(--r)'" onblur="saveNotes(${m.id},this.value)">${m.notes || ''}</textarea>`;
   }
 }
-function saveNotes(id, val) { const m = M.find(x => x.id === id); if (m) { m.notes = val; save(); } }
+function saveNotes(id, val) { const m = M.find(x => x.id === id); if (m) { m.notes = val; save(); fbSaveMember(m); } }
 function addMemberToEvent() { const m = M.find(x => x.id === activeMid); if (!m) return; const up = upcoming(); if (!up.length) { toast(s('noEvents')); return; } const nm = prompt('Event name (blank for next):'); const ev = nm ? EV.find(e => e.nm.toLowerCase().includes(nm.toLowerCase())) : up[0]; if (!ev) { toast('Not found'); return; } if (!ev.attendees) ev.attendees = []; if (ev.attendees.includes(m.id)) { toast('Already in event'); return; } ev.attendees.push(m.id); if (!ev.rsvp) ev.rsvp = []; if (!ev.rsvp.find(r => r.mid === m.id)) ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); toast(`${m.fn} → ${ev.nm}`); renderMDwTab(m); }
 
 // ── ADD MEMBER ─────────────────────────────────────────────────────────
-function handleTagKey(e, pfx) { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); const v = e.target.value.trim().replace(/,$/, ''); if (v) addTagToField(v, pfx); e.target.value = ''; } }
+function handleTagKey(e, pfx) { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); const v = e.target.value.trim().replace(/,$/, ''); if (v) { if (pfx==='em'){if(!emTags.includes(v))emTags.push(v);renderEmTags();}else addTagToField(v, pfx);} e.target.value = ''; } }
 function addTagToField(tag, pfx = 'am') { if (pfx === 'am') { if (!amTags.includes(tag)) amTags.push(tag); renderAmTags(); } }
 function renderAmTags() {
   const field = document.getElementById('am-tagfield');
@@ -1259,6 +1469,134 @@ function emptyState(title, sub, action) {
 // ── TOAST ──────────────────────────────────────────────────────────────
 function toast(msg, dur = 2600) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), dur); }
 
+// ── EDIT MEMBER ──────────────────────────────────────────────────────
+let emTags = [];
+function editMember() {
+  const m = M.find(x => x.id === activeMid); if (!m) return;
+  emTags = [...(m.tags||[])];
+  document.getElementById('em-fn').value = m.fn||'';
+  document.getElementById('em-ln').value = m.ln||'';
+  document.getElementById('em-age').value = m.age||'';
+  document.getElementById('em-bairro').value = m.bairro||'';
+  document.getElementById('em-ph').value = m.ph||'';
+  document.getElementById('em-em').value = m.em||'';
+  document.getElementById('em-notes').value = m.notes||'';
+  renderEmTags();
+  openModal('editm');
+}
+function renderEmTags() {
+  const field = document.getElementById('em-tagfield');
+  const inp = document.getElementById('em-taginput');
+  if (!field||!inp) return;
+  field.querySelectorAll('.tagpill').forEach(p=>p.remove());
+  emTags.forEach(tag => {
+    const span = document.createElement('span');
+    const c = tagColor(tag);
+    span.className = 'tagpill rm';
+    span.style.cssText = `background:${c}15;color:${c};border:1px solid ${c}28;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:3px;`;
+    span.innerHTML = `${tag} <span style="opacity:.6">×</span>`;
+    span.onclick = () => { emTags = emTags.filter(x=>x!==tag); renderEmTags(); };
+    field.insertBefore(span, inp);
+  });
+  const sug = document.getElementById('em-tagsug');
+  if (sug) sug.innerHTML = allTags().filter(t=>!emTags.includes(t)).slice(0,6).map(t=>`<span class="tsug" onclick="emTags.push('${t.replace(/'/g,"\'")}');renderEmTags()">${t}</span>`).join('');
+}
+async function saveMemberEdit() {
+  const m = M.find(x => x.id === activeMid); if (!m) return;
+  m.fn = document.getElementById('em-fn').value.trim()||m.fn;
+  m.ln = document.getElementById('em-ln').value.trim()||m.ln;
+  m.age = parseInt(document.getElementById('em-age').value)||null;
+  m.bairro = document.getElementById('em-bairro').value.trim();
+  m.ph = document.getElementById('em-ph').value.trim();
+  m.em = document.getElementById('em-em').value.trim();
+  m.notes = document.getElementById('em-notes').value.trim();
+  m.tags = [...emTags];
+  save(); fbSaveMember(m);
+  closeModal('editm'); closeDrawer('m-ov');
+  toast('Changes saved'); renderCurrent();
+}
+
+// ── DELETE MEMBER ─────────────────────────────────────────────────────
+async function deleteMember() {
+  const m = M.find(x => x.id === activeMid); if (!m) return;
+  if (!confirm(`Delete ${m.fn} ${m.ln}? This cannot be undone.`)) return;
+  M = M.filter(x => x.id !== activeMid);
+  EV.forEach(ev => {
+    ev.attendees = (ev.attendees||[]).filter(id=>id!==activeMid);
+    ev.rsvp = (ev.rsvp||[]).filter(r=>r.mid!==activeMid);
+  });
+  save();
+  fbDeleteMember(activeMid);
+  EV.forEach(ev=>fbSaveEvent(ev));
+  closeDrawer('m-ov'); toast('Member deleted'); renderCurrent();
+}
+
+// ── MERGE MEMBERS ─────────────────────────────────────────────────────
+let mergeMode = false;
+let mergeSelected = [];
+function toggleMergeMode() {
+  mergeMode = !mergeMode;
+  mergeSelected = [];
+  document.getElementById('merge-mode-btn').textContent = mergeMode ? 'Cancel merge' : 'Merge';
+  document.getElementById('merge-mode-btn').style.color = mergeMode ? 'var(--r)' : '';
+  document.getElementById('merge-bar').classList.toggle('on', false);
+  renderMembers();
+}
+function toggleMergeSelect(id) {
+  if (!mergeMode) return;
+  const i = mergeSelected.indexOf(id);
+  if (i > -1) mergeSelected.splice(i,1);
+  else if (mergeSelected.length < 2) mergeSelected.push(id);
+  const bar = document.getElementById('merge-bar');
+  const txt = document.getElementById('merge-bar-text');
+  if (mergeSelected.length === 0) { bar.classList.remove('on'); txt.textContent = 'Select 2 people to merge'; }
+  else if (mergeSelected.length === 1) { bar.classList.add('on'); txt.textContent = '1 selected — pick one more'; }
+  else { bar.classList.add('on'); txt.textContent = 'Ready to merge'; }
+  renderMembers();
+}
+async function doMerge() {
+  if (mergeSelected.length !== 2) return;
+  const [a, b] = mergeSelected.map(id => M.find(x=>x.id===id));
+  if (!a||!b) return;
+  // Keep a, merge b into a
+  const keepNames = confirm(`Keep "${a.fn} ${a.ln}" as the main profile? (Cancel to keep "${b.fn} ${b.ln}" instead)`);
+  const keep = keepNames ? a : b;
+  const drop = keepNames ? b : a;
+  // Merge tags, notes, contact info (prefer keep, fall back to drop)
+  keep.tags = [...new Set([...(keep.tags||[]),...(drop.tags||[])])];
+  keep.ph = keep.ph || drop.ph;
+  keep.em = keep.em || drop.em;
+  keep.bairro = keep.bairro || drop.bairro;
+  keep.age = keep.age || drop.age;
+  keep.notes = [keep.notes, drop.notes].filter(Boolean).join(' | ').trim();
+  // Move all events from drop → keep
+  EV.forEach(ev => {
+    const hadRSVP = (ev.rsvp||[]).find(r=>r.mid===drop.id);
+    const hadAtt = (ev.attendees||[]).includes(drop.id);
+    if (hadRSVP && !(ev.rsvp||[]).find(r=>r.mid===keep.id)) {
+      if (!ev.rsvp) ev.rsvp=[];
+      ev.rsvp.push({mid:keep.id,status:hadRSVP.status});
+    }
+    if (hadAtt && !(ev.attendees||[]).includes(keep.id)) {
+      if (!ev.attendees) ev.attendees=[];
+      ev.attendees.push(keep.id);
+    }
+    ev.rsvp = (ev.rsvp||[]).filter(r=>r.mid!==drop.id);
+    ev.attendees = (ev.attendees||[]).filter(id=>id!==drop.id);
+    fbSaveEvent(ev);
+  });
+  M = M.filter(x=>x.id!==drop.id);
+  fbSaveMember(keep);
+  fbDeleteMember(drop.id);
+  save();
+  mergeMode = false; mergeSelected = [];
+  document.getElementById('merge-mode-btn').textContent = 'Merge';
+  document.getElementById('merge-mode-btn').style.color = '';
+  document.getElementById('merge-bar').classList.remove('on');
+  toast(`${drop.fn} ${drop.ln} merged into ${keep.fn} ${keep.ln}`);
+  renderCurrent();
+}
+
 // ── INIT ───────────────────────────────────────────────────────────────
 load();
 applyStrings();
@@ -1266,22 +1604,6 @@ renderHome();
 // Splash
 setTimeout(() => { const sp = document.getElementById('splash'); sp.classList.add('gone'); setTimeout(() => sp.remove(), 900); }, 1600);
 </script>
-  <script type="module">
-  import { listenMembers, listenEvents } from './firebase.js';
 
-  // Real-time listeners — replace localStorage
-  // Call this once the app loads
-  listenMembers(members => {
-    M = members;
-    renderCurrent();
-    upBadges();
-  });
-
-  listenEvents(events => {
-    EV = events;
-    renderCurrent();
-    upBadges();
-  });
-</script>
 </body>
 </html>
