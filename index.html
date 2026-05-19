@@ -516,6 +516,7 @@ select.inp{cursor:pointer;}
     <button class="merge-bar-btn" onclick="doMerge()">Merge</button>
     <button class="merge-bar-cancel" onclick="toggleMergeMode()">Cancel</button>
   </div>
+  <div id="m-quiet"></div>
   <div class="mlist" id="m-list"></div>
 </div>
 
@@ -1164,7 +1165,7 @@ async function saveImport() {
   for (let i = 0; i < importParsed.length; i++) {
     const p = importParsed[i];
     if (!p.is_new) {
-      if (ev && !ev.rsvp?.find(r => r.mid === p.eid)) { if (!ev.rsvp) ev.rsvp = []; ev.rsvp.push({ mid: p.eid, status: 'confirmed' }); }
+      if (ev && !ev.rsvp?.find(r => String(r.mid) === String(p.eid))) { if (!ev.rsvp) ev.rsvp = []; ev.rsvp.push({ mid: p.eid, status: 'confirmed' }); }
       if (p.eid && p.tags?.length) { const em = M.find(x => x.id === p.eid); if (em) { em.tags = [...new Set([...(em.tags||[]),...p.tags])]; fbSaveMember(em); } }
       continue;
     }
@@ -1198,15 +1199,23 @@ function evRow(ev) {
   </div>`;
 }
 function openEventDrawer(id) {
+  // Coerce to string since IDs may be stored as either type
+  id = String(id);
   activeEvId = id; evDwTabActive = 'rsvp';
-  const ev = EV.find(e => e.id === id); if (!ev) return;
+  const ev = EV.find(e => String(e.id) === id); if (!ev) return;
   document.getElementById('dw-ev-name').textContent = ev.nm;
   document.getElementById('dw-ev-meta').textContent = fmtDate(ev.dt) + (ev.loc ? ' · ' + ev.loc : '');
   document.querySelectorAll('#ev-ov .dwt').forEach((t, i) => t.classList.toggle('on', i === 0));
   renderEvDwTab(ev);
   openDrawer('ev-ov');
 }
-function evDwTab(tab, el) { evDwTabActive = tab; document.querySelectorAll('#ev-ov .dwt').forEach(x => x.classList.remove('on')); el?.classList.add('on'); const ev = EV.find(e => e.id === activeEvId); if (ev) renderEvDwTab(ev); }
+function evDwTab(tab, el) {
+  evDwTabActive = tab;
+  document.querySelectorAll('#ev-ov .dwt').forEach(x => x.classList.remove('on'));
+  el?.classList.add('on');
+  const ev = EV.find(e => String(e.id) === String(activeEvId));
+  if (ev) renderEvDwTab(ev);
+}
 function renderEvDwTab(ev) {
   const rsvp = ev.rsvp || [];
   if (evDwTabActive === 'rsvp') {
@@ -1238,7 +1247,7 @@ function renderEvDwTab(ev) {
     let rows = candidates.map(mid => {
       const m = M.find(x => x.id === mid);
       if (!m) return '';
-      const came = att.includes(mid);
+      const came = (att||[]).map(String).includes(String(mid));
       return `<div class="att-item" onclick="window.toggleAttendance('${ev.id}','${mid}')">
         <div class="att-check ${came?'on':''}">${came?'✓':''}</div>
         <div class="mav" style="width:34px;height:34px;font-size:13px;background:${avatarBg(m)}">${initials(m)}</div>
@@ -1260,7 +1269,7 @@ function renderEvDwTab(ev) {
 }
 
 async function toggleAttendance(evId, mid) {
-  const ev = EV.find(e => e.id == evId); if (!ev) return;
+  const ev = EV.find(e => String(e.id) === String(evId)); if (!ev) return;
   if (!ev.attendees) ev.attendees = [];
   const i = ev.attendees.indexOf(mid);
   if (i > -1) ev.attendees.splice(i, 1);
@@ -1269,7 +1278,7 @@ async function toggleAttendance(evId, mid) {
 }
 
 async function toggleSelectAll(evId) {
-  const ev = EV.find(e => e.id == evId); if (!ev) return;
+  const ev = EV.find(e => String(e.id) === String(evId)); if (!ev) return;
   const rsvpIds = (ev.rsvp||[]).map(r=>r.mid);
   const candidates = [...new Set([...rsvpIds,...(ev.attendees||[])])];
   const allSel = candidates.every(id => (ev.attendees||[]).includes(id));
@@ -1277,8 +1286,8 @@ async function toggleSelectAll(evId) {
   save(); fbSaveEvent(ev); renderEvDwTab(ev);
 }
 
-function cycleRSVP(evId, mid) { const ev = EV.find(e => e.id === evId); if (!ev) return; const r = ev.rsvp?.find(x => x.mid === mid); if (!r) return; r.status = r.status === 'confirmed' ? 'pending' : 'confirmed'; save(); renderEvDwTab(ev); }
-function addPersonToEvent() { const ev = EV.find(e => e.id === activeEvId); if (!ev || !M.length) { toast(s('noMembers')); return; } const nm = prompt('Member name:'); if (!nm) return; const m = M.find(x => (x.fn + ' ' + x.ln).toLowerCase().includes(nm.toLowerCase())); if (!m) { toast('Not found'); return; } if (!ev.rsvp) ev.rsvp = []; if (ev.rsvp.find(r => r.mid === m.id)) { toast('Already on list'); return; } ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); renderEvDwTab(ev); toast(`${m.fn} added`); }
+function cycleRSVP(evId, mid) { const ev = EV.find(e => String(e.id) === String(evId)); if (!ev) return; const r = ev.rsvp?.find(x => x.mid === mid); if (!r) return; r.status = r.status === 'confirmed' ? 'pending' : 'confirmed'; save(); renderEvDwTab(ev); }
+function addPersonToEvent() { const ev = EV.find(e => String(e.id) === String(activeEvId)); if (!ev || !M.length) { toast(s('noMembers')); return; } const nm = prompt('Member name:'); if (!nm) return; const m = M.find(x => (x.fn + ' ' + x.ln).toLowerCase().includes(nm.toLowerCase())); if (!m) { toast('Not found'); return; } if (!ev.rsvp) ev.rsvp = []; if (ev.rsvp.find(r => String(r.mid) === String(m.id))) { toast('Already on list'); return; } ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); renderEvDwTab(ev); toast(`${m.fn} added`); }
 
 // ── MEMBERS ───────────────────────────────────────────────────────────
 function renderMembers() {
@@ -1290,11 +1299,36 @@ function renderMembers() {
   // Tag filter chips
   const tags = allTags();
   document.getElementById('tag-chips').innerHTML = tags.slice(0, 7).map(tag => `<button class="filtchip ${mFilterTag === tag ? 'on' : ''}" onclick="window.filterByTag('${tag.replace(/'/g, "\\'")}',this)" style="${mFilterTag === tag ? `background:${tagColor(tag)};border-color:${tagColor(tag)}` : ''}">${tag}</button>`).join('');
-  // last5 dots removed — using last-seen date instead
+
+  // Quiet members strip — show when no search/filter active
+  const quietEl = document.getElementById('m-quiet');
+  if (quietEl && !q && !mFilterTag && M.length > 0) {
+    const quiet = M.map(m => {
+      const last = lastAttended(m);
+      return { m, since: daysSince(last || m.joined || ''), last };
+    }).filter(x => x.since >= 30).sort((a, b) => b.since - a.since).slice(0, 5);
+    if (quiet.length) {
+      quietEl.innerHTML = `<div class="checkin-strip" style="margin-bottom:0;border-radius:0;border-left:none;border-right:none;border-top:none;">
+        <div class="checkin-head"><div class="checkin-title" style="font-size:15px">Haven't seen in 30+ days</div></div>
+        <div class="checkin-list">${quiet.map(({ m, since, last }) => {
+          const sinceStr = since >= 60 ? Math.floor(since/30) + ' months' : since + ' days';
+          const waHref = m.ph ? `https://wa.me/55${m.ph.replace(/\\D/g,'')}` : null;
+          return `<div class="ci-row">
+            <div class="ci-av" style="background:${avatarBg(m)};cursor:pointer" onclick="window.openMemberDrawer('${m.id}')">${initials(m)}</div>
+            <div class="ci-info" onclick="window.openMemberDrawer('${m.id}')">
+              <div class="ci-name">${m.fn} ${m.ln}</div>
+              <div class="ci-since">Last seen: ${last ? fmtShort(last) : 'Never'} · ${sinceStr} ago</div>
+            </div>
+            ${waHref ? `<a class="ci-wa" href="${waHref}" target="_blank">💬</a>` : `<div class="ci-wa" style="opacity:.2;cursor:default">💬</div>`}
+          </div>`;
+        }).join('')}</div>
+      </div>`;
+    } else { quietEl.innerHTML = ''; }
+  } else if (quietEl) { quietEl.innerHTML = ''; }
   document.getElementById('m-list').innerHTML = list.length
     ? list.map(m => {
       
-        const cnt = EV.filter(e => e.attendees?.includes(m.id)).length;
+        const cnt = EV.filter(e => (e.attendees||[]).map(String).includes(String(m.id))).length;
         const tags = (m.tags || []).map(tag => `<span class="mrow-tag" style="background:${tagColor(tag)}15;color:${tagColor(tag)};border:1px solid ${tagColor(tag)}28;">${tag}</span>`).join('');
         const lastEv = lastAttended(m);
         const sinceStr = lastEv ? fmtShort(lastEv) : ('Never');
@@ -1320,19 +1354,19 @@ function filterByTag(tag, el) { mFilterTag = mFilterTag === tag ? null : tag; re
 // ── MEMBER DRAWER ──────────────────────────────────────────────────────
 function openMemberDrawer(id) {
   activeMid = id; mDwTabActive = 'info';
-  const m = M.find(x => x.id === id); if (!m) return;
+  const m = M.find(x => String(x.id) === String(id)); if (!m) return;
   document.getElementById('dw-m-name').innerHTML = `<em>${m.fn}</em> ${m.ln}`;
   document.getElementById('dw-m-tags').innerHTML = (m.tags || []).map(tag => tagPill(tag)).join('');
-  const cnt = EV.filter(e => e.attendees?.includes(m.id)).length;
+  const cnt = EV.filter(e => (e.attendees||[]).map(String).includes(String(m.id))).length;
   document.getElementById('dw-m-meta').textContent = [m.age ? m.age + (' yrs') : '', m.bairro, cnt + ' ' + s('eventsLabel')].filter(Boolean).join(' · ');
   document.querySelectorAll('#m-ov .dwt').forEach((t, i) => t.classList.toggle('on', i === 0));
   // WhatsApp handled via dw-m-actions buttons
   renderMDwTab(m);
   openDrawer('m-ov');
 }
-function mDwTab(tab, el) { mDwTabActive = tab; document.querySelectorAll('#m-ov .dwt').forEach(x => x.classList.remove('on')); el?.classList.add('on'); const m = M.find(x => x.id === activeMid); if (m) renderMDwTab(m); }
+function mDwTab(tab, el) { mDwTabActive = tab; document.querySelectorAll('#m-ov .dwt').forEach(x => x.classList.remove('on')); el?.classList.add('on'); const m = M.find(x => String(x.id) === String(activeMid)); if (m) renderMDwTab(m); }
 function renderMDwTab(m) {
-  const evs = EV.filter(e => e.attendees?.includes(m.id)).sort((a, b) => b.dt.localeCompare(a.dt));
+  const evs = EV.filter(e => (e.attendees||[]).map(String).includes(String(m.id))).sort((a, b) => b.dt.localeCompare(a.dt));
   const ir = (l, v) => `<div class="dw-ir"><div class="dw-irl">${l}</div><div class="dw-irv">${v || '—'}</div></div>`;
   if (mDwTabActive === 'info') {
     const lastEvt = evs[0];
@@ -1358,8 +1392,8 @@ function renderMDwTab(m) {
     document.getElementById('dw-m-body').innerHTML = `<textarea style="width:100%;height:calc(100% - 8px);background:transparent;border:none;border-bottom:1px solid var(--f2);padding:4px 0;font-family:var(--sans);font-size:15px;color:var(--k);resize:none;outline:none;line-height:1.8;color:var(--k2)" placeholder="${'Notes about this person…'}" onfocus="this.style.borderBottomColor='var(--r)'" onblur="saveNotes(${m.id},this.value)">${m.notes || ''}</textarea>`;
   }
 }
-function saveNotes(id, val) { const m = M.find(x => x.id === id); if (m) { m.notes = val; save(); fbSaveMember(m); } }
-function addMemberToEvent() { const m = M.find(x => x.id === activeMid); if (!m) return; const up = upcoming(); if (!up.length) { toast(s('noEvents')); return; } const nm = prompt('Event name (blank for next):'); const ev = nm ? EV.find(e => e.nm.toLowerCase().includes(nm.toLowerCase())) : up[0]; if (!ev) { toast('Not found'); return; } if (!ev.attendees) ev.attendees = []; if (ev.attendees.includes(m.id)) { toast('Already in event'); return; } ev.attendees.push(m.id); if (!ev.rsvp) ev.rsvp = []; if (!ev.rsvp.find(r => r.mid === m.id)) ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); toast(`${m.fn} → ${ev.nm}`); renderMDwTab(m); }
+function saveNotes(id, val) { const m = M.find(x => String(x.id) === String(id)); if (m) { m.notes = val; save(); fbSaveMember(m); } }
+function addMemberToEvent() { const m = M.find(x => String(x.id) === String(activeMid)); if (!m) return; const up = upcoming(); if (!up.length) { toast(s('noEvents')); return; } const nm = prompt('Event name (blank for next):'); const ev = nm ? EV.find(e => e.nm.toLowerCase().includes(nm.toLowerCase())) : up[0]; if (!ev) { toast('Not found'); return; } if (!ev.attendees) ev.attendees = []; if (ev.attendees.includes(m.id)) { toast('Already in event'); return; } ev.attendees.push(m.id); if (!ev.rsvp) ev.rsvp = []; if (!ev.rsvp.find(r => String(r.mid) === String(m.id))) ev.rsvp.push({ mid: m.id, status: 'confirmed' }); save(); toast(`${m.fn} → ${ev.nm}`); renderMDwTab(m); }
 
 // ── ADD MEMBER ─────────────────────────────────────────────────────────
 function handleTagKey(e, pfx) { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); const v = e.target.value.trim().replace(/,$/, ''); if (v) { if (pfx==='em'){if(!emTags.includes(v))emTags.push(v);renderEmTags();}else addTagToField(v, pfx);} e.target.value = ''; } }
@@ -1408,7 +1442,7 @@ function renderAnalytics() {
   const tagC = {}; tags.forEach(tag => { tagC[tag] = M.filter(m => (m.tags || []).includes(tag)).length; });
   const topTags = Object.entries(tagC).sort((a, b) => b[1] - a[1]).slice(0, 8);
   const maxT = topTags[0]?.[1] || 1;
-  const topAtt = M.map(m => ({ m, n: EV.filter(e => e.attendees?.includes(m.id)).length })).sort((a, b) => b.n - a.n).slice(0, 6);
+  const topAtt = M.map(m => ({ m, n: EV.filter(e => (e.attendees||[]).map(String).includes(String(m.id))).length })).sort((a, b) => b.n - a.n).slice(0, 6);
   const maxA = topAtt[0]?.n || 1;
   const bairros = {}; M.forEach(m => { if (m.bairro) bairros[m.bairro] = (bairros[m.bairro] || 0) + 1; });
   const bTop = Object.entries(bairros).sort((a, b) => b[1] - a[1]).slice(0, 6); const maxB = bTop[0]?.[1] || 1;
@@ -1459,7 +1493,7 @@ function toast(msg, dur = 2600) { const t = document.getElementById('toast'); t.
 // ── EDIT MEMBER ──────────────────────────────────────────────────────
 let emTags = [];
 function editMember() {
-  const m = M.find(x => x.id === activeMid); if (!m) return;
+  const m = M.find(x => String(x.id) === String(activeMid)); if (!m) return;
   emTags = [...(m.tags||[])];
   document.getElementById('em-fn').value = m.fn||'';
   document.getElementById('em-ln').value = m.ln||'';
@@ -1489,7 +1523,7 @@ function renderEmTags() {
   if (sug) sug.innerHTML = allTags().filter(t=>!emTags.includes(t)).slice(0,6).map(t=>`<span class="tsug" onclick="emTags.push('${t.replace(/'/g,"\'")}');renderEmTags()">${t}</span>`).join('');
 }
 async function saveMemberEdit() {
-  const m = M.find(x => x.id === activeMid); if (!m) return;
+  const m = M.find(x => String(x.id) === String(activeMid)); if (!m) return;
   m.fn = document.getElementById('em-fn').value.trim()||m.fn;
   m.ln = document.getElementById('em-ln').value.trim()||m.ln;
   m.age = parseInt(document.getElementById('em-age').value)||null;
@@ -1505,7 +1539,7 @@ async function saveMemberEdit() {
 
 // ── DELETE MEMBER ─────────────────────────────────────────────────────
 async function deleteMember() {
-  const m = M.find(x => x.id === activeMid); if (!m) return;
+  const m = M.find(x => String(x.id) === String(activeMid)); if (!m) return;
   if (!confirm(`Delete ${m.fn} ${m.ln}? This cannot be undone.`)) return;
   M = M.filter(x => x.id !== activeMid);
   EV.forEach(ev => {
@@ -1558,13 +1592,13 @@ async function doMerge() {
   keep.notes = [keep.notes, drop.notes].filter(Boolean).join(' | ').trim();
   // Move all events from drop → keep
   EV.forEach(ev => {
-    const hadRSVP = (ev.rsvp||[]).find(r=>r.mid===drop.id);
+    const hadRSVP = (ev.rsvp||[]).find(r=>String(r.mid)===String(drop.id));
     const hadAtt = (ev.attendees||[]).includes(drop.id);
-    if (hadRSVP && !(ev.rsvp||[]).find(r=>r.mid===keep.id)) {
+    if (hadRSVP && !(ev.rsvp||[]).find(r=>String(r.mid)===String(keep.id))) {
       if (!ev.rsvp) ev.rsvp=[];
       ev.rsvp.push({mid:keep.id,status:hadRSVP.status});
     }
-    if (hadAtt && !(ev.attendees||[]).includes(keep.id)) {
+    if (hadAtt && !(ev.attendees||[]).map(String).includes(String(keep.id))) {
       if (!ev.attendees) ev.attendees=[];
       ev.attendees.push(keep.id);
     }
