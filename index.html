@@ -1592,6 +1592,29 @@ applyStrings();
 renderHome();
 // Splash
 setTimeout(() => { const sp = document.getElementById('splash'); sp.classList.add('gone'); setTimeout(() => sp.remove(), 900); }, 1600);
+
+// ── EXPOSE TO WINDOW (required because this is a module script) ──────
+// onclick attributes in HTML can't reach module-scoped functions without this
+Object.assign(window, {
+  nav, setBN, openImport, openImportForEvent, openModal, closeModal, mayCloseModal,
+  openDrawer, closeDrawer, mayCloseDrawer, openMemberDrawer, openEventDrawer,
+  mDwTab, evDwTab, mfilt, filterByTag,
+  addMember, addEvent, addMemberToEvent, addPersonToEvent,
+  editMember, saveMemberEdit, deleteMember,
+  toggleMergeMode, toggleMergeSelect, doMerge,
+  handleTagKey, addTagToField, renderAmTags, renderEmTags,
+  toggleAttendance, toggleSelectAll, cycleRSVP,
+  saveNotes, saveImport, saveNotes,
+  renderImpStep, parseCSV, handleFile, setupDrop,
+  reviewRow, updName, updF, delRow, removeRTag, addRTag, rerenderRTags,
+  copyCode: (btn) => {
+    const pre = btn.nextElementSibling;
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+      btn.textContent = '✓ Copied';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+  }
+});
 </script>
 
 </body>
