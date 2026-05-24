@@ -1341,6 +1341,33 @@ function renderEvList() {
   return html + '</div>';
 }
 
+// Jewish holidays cache from HebCal
+let _hebcalCache = {};
+async function fetchHolidays(year, month) {
+  const key = `${year}-${month}`;
+  if (_hebcalCache[key]) return _hebcalCache[key];
+  try {
+    const res = await fetch(
+      `https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&min=on&mod=on&nx=on&year=${year}&month=${month+1}&ss=on&mf=on&c=off&geo=none&s=on`
+    );
+    const data = await res.json();
+    const byDate = {};
+    (data.items || []).forEach(item => {
+      const d = item.date?.slice(0, 10);
+      if (!d) return;
+      if (!byDate[d]) byDate[d] = [];
+      // Only keep holidays/fast days/special shabbatot — skip parasha/omer
+      if (!['holiday','fast','special shabbat','rosh chodesh','modern'].includes(item.category)) return;
+      byDate[d].push({ name: item.title, category: item.category, yomtov: item.yomtov });
+    });
+    _hebcalCache[key] = byDate;
+    return byDate;
+  } catch(e) {
+    _hebcalCache[key] = {};
+    return {};
+  }
+}
+
 function renderCalendar() {
   const DAYS_S = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const MONTHS_F = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -1350,26 +1377,74 @@ function renderCalendar() {
   const tod = today();
   const evByDate = {};
   EV.forEach(ev => { if (!ev.dt) return; if (!evByDate[ev.dt]) evByDate[ev.dt] = []; evByDate[ev.dt].push(ev); });
+
+  const holidays = _hebcalCache[`${calYear}-${calMonth}`] || {};
+
   let cells = '';
-  for (let i = firstDay - 1; i >= 0; i--) cells += `<div class="cal-cell other-month"><div class="cal-day-num">${daysInPrev - i}</div></div>`;
+  // Prev month padding
+  for (let i = firstDay - 1; i >= 0; i--)
+    cells += `<div class="cal-cell other-month"><div class="cal-day-num">${daysInPrev - i}</div></div>`;
+
+  // This month days
   for (let d = 1; d <= daysInMonth; d++) {
     const dt = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isToday = dt === tod;
     const dayEvs = evByDate[dt] || [];
-    const pips = dayEvs.slice(0,3).map(ev => { const ci = catInfo(ev); return `<span class="cal-ev-pip" style="background:${ci.color}18;color:${ci.color}" onclick="event.stopPropagation();window.openEventDrawer('${ev.id}')">${ev.nm}</span>`; }).join('');
+    const dayHols = holidays[dt] || [];
+
+    // Holiday pills
+    const holPips = dayHols.map(h => {
+      const isYomTov = h.yomtov;
+      const col = isYomTov ? '#2D4B73' : '#7b5ea7';
+      return `<span class="cal-ev-pip" style="background:${col}18;color:${col};font-style:italic" title="${h.name}">${h.name}</span>`;
+    }).join('');
+
+    // Event pills — clicking stops propagation so cell click doesn't fire too
+    const evPips = dayEvs.slice(0, 3).map(ev => {
+      const ci = catInfo(ev);
+      return `<span class="cal-ev-pip" style="background:${ci.color}18;color:${ci.color}" onclick="event.stopPropagation();window.openEventDrawer('${ev.id}')" title="${ev.nm}">${ev.nm}</span>`;
+    }).join('');
     const more = dayEvs.length > 3 ? `<span style="font-size:10px;color:var(--k4)">+${dayEvs.length-3}</span>` : '';
-    cells += `<div class="cal-cell${isToday?' today':''}"><div class="cal-day-num">${d}</div>${pips}${more}</div>`;
+
+    // Whole cell is clickable — opens new event modal with date pre-filled
+    cells += `<div class="cal-cell${isToday?' today':''}" onclick="window.calCellClick('${dt}')" style="cursor:pointer">
+      <div class="cal-day-num">${d}</div>
+      ${holPips}${evPips}${more}
+    </div>`;
   }
+
+  // Next month padding
   const remaining = (firstDay + daysInMonth) % 7;
-  if (remaining) for (let d = 1; d <= 7 - remaining; d++) cells += `<div class="cal-cell other-month"><div class="cal-day-num">${d}</div></div>`;
+  if (remaining) for (let d = 1; d <= 7 - remaining; d++)
+    cells += `<div class="cal-cell other-month"><div class="cal-day-num">${d}</div></div>`;
+
+  // Fetch holidays async and re-render if not cached yet
+  if (!_hebcalCache[`${calYear}-${calMonth}`]) {
+    fetchHolidays(calYear, calMonth).then(() => renderEvents());
+  }
+
   return `<div style="padding:16px 24px">
     <div class="cal-nav">
       <button class="cal-nav-btn" onclick="window.calNav(-1)">&#8249;</button>
       <div class="cal-month">${MONTHS_F[calMonth]} ${calYear}</div>
       <button class="cal-nav-btn" onclick="window.calNav(1)">&#8250;</button>
     </div>
+    <div style="font-size:11px;color:var(--k4);margin-bottom:8px;display:flex;gap:14px;align-items:center">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#2D4B73;display:inline-block"></span>Yom Tov</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#7b5ea7;display:inline-block"></span>Jewish holiday</span>
+      <span style="font-size:10.5px;color:var(--k4)">Click any day to create an event</span>
+    </div>
     <div class="cal-grid">${DAYS_S.map(d=>`<div class="cal-head-cell">${d}</div>`).join('')}${cells}</div>
   </div>`;
+}
+
+function calCellClick(dt) {
+  // Pre-fill the date in the new event modal and open it
+  openModal('addev');
+  setTimeout(() => {
+    const dtEl = document.getElementById('ae-dt');
+    if (dtEl) dtEl.value = dt;
+  }, 50);
 }
 
 function calNav(dir) {
@@ -2055,7 +2130,7 @@ setTimeout(() => { const sp = document.getElementById('splash'); sp.classList.ad
 // ── EXPOSE TO WINDOW (required because this is a module script) ──────
 // onclick attributes in HTML can't reach module-scoped functions without this
 Object.assign(window, {
-  nav, setBN, setEvView, calNav, openImport, openImportForEvent, openModal, closeModal, mayCloseModal,
+  nav, setBN, setEvView, calNav, calCellClick, openImport, openImportForEvent, openModal, closeModal, mayCloseModal,
   toggleSelectMode, toggleSelectItem, deleteSelected, selectAll,
   openDrawer, closeDrawer, mayCloseDrawer, openMemberDrawer, openEventDrawer,
   mDwTab, evDwTab,
