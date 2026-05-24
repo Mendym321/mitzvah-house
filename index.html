@@ -511,8 +511,6 @@ select.inp{cursor:pointer;}
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
       <input class="searchinp" id="srch" oninput="renderMembers()">
     </div>
-    <button class="filtchip on" onclick="mfilt('all',this)" data-t="all"></button>
-    <div id="tag-chips" style="display:contents"></div>
     <span class="m-count" id="m-ct"></span>
     <button class="btn btn-o btn-sm" id="select-mode-btn" onclick="toggleSelectMode()" style="flex-shrink:0">Select</button>
     <button class="btn btn-o btn-sm" id="select-all-btn" onclick="selectAll()" style="flex-shrink:0;display:none">Select all</button>
@@ -929,22 +927,16 @@ function today() { return new Date().toISOString().split('T')[0]; }
 function initials(m) { return ((m.fn?.[0] || '') + (m.ln?.[0] || '')).toUpperCase(); }
 function avatarBg(m) { return PALETTES[((m.fn?.charCodeAt(0) || 0) + (m.ln?.charCodeAt(0) || 0)) % PALETTES.length]; }
 
-// Generate an SVG avatar based on gender and name color
 function avatarSVG(m, size=44) {
   const color = avatarBg(m);
   const ini = initials(m);
   const g = m.gender || detectGender(m.fn);
-  // Subtle shape behind initials based on gender
-  const shape = g === 'f'
-    ? `<circle cx="${size/2}" cy="${size*0.38}" r="${size*0.28}" fill="white" opacity="0.15"/>`
+  const dot = g === 'f'
+    ? `<div style="position:absolute;top:0;right:0;width:${Math.round(size*0.28)}px;height:${Math.round(size*0.28)}px;border-radius:50%;background:#be185d;border:2px solid white"></div>`
     : g === 'm'
-    ? `<rect x="${size*0.22}" y="${size*0.12}" width="${size*0.56}" height="${size*0.56}" rx="${size*0.08}" fill="white" opacity="0.12"/>`
-    : `<polygon points="${size/2},${size*0.1} ${size*0.85},${size*0.75} ${size*0.15},${size*0.75}" fill="white" opacity="0.1"/>`;
-  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="border-radius:50%;display:block;flex-shrink:0">
-    <circle cx="${size/2}" cy="${size/2}" r="${size/2}" fill="${color}"/>
-    ${shape}
-    <text x="${size/2}" y="${size/2}" dy=".35em" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-size="${size*0.38}" fill="white" font-weight="600">${ini}</text>
-  </svg>`;
+    ? `<div style="position:absolute;top:0;right:0;width:${Math.round(size*0.28)}px;height:${Math.round(size*0.28)}px;border-radius:50%;background:#2D4B73;border:2px solid white"></div>`
+    : '';
+  return `<div style="position:relative;width:${size}px;height:${size}px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:${color};font-family:Fraunces,Georgia,serif;font-size:${Math.round(size*0.38)}px;font-weight:600;color:white">${ini}${dot}</div>`;
 }
 function tagColor(tag) { return PALETTES[Math.abs([...tag].reduce((a, c) => a + c.charCodeAt(0), 0)) % PALETTES.length]; }
 function mo() { return MOS[lang]; }
@@ -1475,15 +1467,58 @@ function filterByTag(tag, el) { mFilterTag = mFilterTag === tag ? null : tag; re
 function openMemberDrawer(id) {
   activeMid = id; mDwTabActive = 'info';
   const m = M.find(x => String(x.id) === String(id)); if (!m) return;
-  document.getElementById('dw-m-name').innerHTML = `<em>${m.fn}</em> ${m.ln}`;
-  document.getElementById('dw-m-tags').innerHTML = (m.tags || []).map(tag => tagPill(tag)).join('');
+
+  // Avatar
+  const avEl = document.getElementById('dw-m-av');
+  if (avEl) {
+    const g2 = m.gender || detectGender(m.fn);
+    avEl.style.background = avatarBg(m);
+    avEl.textContent = initials(m);
+    // gender dot
+    const oldDot = avEl.querySelector('.av-dot');
+    if (oldDot) oldDot.remove();
+    if (g2) {
+      const dot = document.createElement('div');
+      dot.className = 'av-dot';
+      dot.style.cssText = `position:absolute;top:0;right:0;width:14px;height:14px;border-radius:50%;background:${g2==='f'?'#be185d':'#2D4B73'};border:2px solid white`;
+      avEl.style.position = 'relative';
+      avEl.appendChild(dot);
+    }
+  }
+
+  // Name
+  document.getElementById('dw-m-name').textContent = m.fn + ' ' + m.ln;
+
+  // Gender + age + neighborhood pills
+  const g = m.gender || detectGender(m.fn);
+  const gLabel = g === 'f' ? '♀ Female' : g === 'm' ? '♂ Male' : '';
+  const gColor = g === 'f' ? '#be185d' : '#2D4B73';
+  const pills = [];
+  if (gLabel) pills.push(`<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:${gColor}15;color:${gColor};border:1px solid ${gColor}25">${gLabel}</span>`);
+  if (m.age) pills.push(`<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--f2);color:var(--k3)">${m.age} yrs</span>`);
+  if (m.bairro) pills.push(`<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--f2);color:var(--k3)">📍 ${m.bairro}</span>`);
+  document.getElementById('dw-m-tags').innerHTML = pills.join('');
+
+  // Meta line
   const cnt = EV.filter(e => (e.attendees||[]).map(String).includes(String(m.id))).length;
-  document.getElementById('dw-m-meta').textContent = [m.age ? m.age + (' yrs') : '', m.bairro, cnt + ' ' + s('eventsLabel')].filter(Boolean).join(' · ');
+  const lastEv = lastAttended(m);
+  const since = lastEv ? daysSince(lastEv) : null;
+  const sinceStr = since === null ? 'Never attended' : since < 7 ? 'This week' : since < 30 ? Math.round(since/7)+'w ago' : since < 365 ? Math.floor(since/30)+'mo ago' : Math.floor(since/365)+'yr ago';
+  document.getElementById('dw-m-meta').textContent = cnt + ' events · ' + sinceStr;
+
+  // Action buttons
+  const actions = [];
+  if (m.ph) actions.push(`<a href="https://wa.me/55${m.ph.replace(/[^0-9]/g,'')}" target="_blank" class="btn btn-r btn-sm" style="text-decoration:none">💬 WhatsApp</a>`);
+  if (m.em) actions.push(`<a href="mailto:${m.em}" class="btn btn-o btn-sm" style="text-decoration:none">✉ Email</a>`);
+  if (!m.ph && !m.em) actions.push(`<span style="font-size:13px;color:var(--k4);font-style:italic">No contact info</span>`);
+  const actEl = document.getElementById('dw-m-actions');
+  if (actEl) actEl.innerHTML = actions.join('');
+
   document.querySelectorAll('#m-ov .dwt').forEach((t, i) => t.classList.toggle('on', i === 0));
-  // WhatsApp handled via dw-m-actions buttons
   renderMDwTab(m);
   openDrawer('m-ov');
 }
+
 function mDwTab(tab, el) { mDwTabActive = tab; document.querySelectorAll('#m-ov .dwt').forEach(x => x.classList.remove('on')); el?.classList.add('on'); const m = M.find(x => String(x.id) === String(activeMid)); if (m) renderMDwTab(m); }
 function renderMDwTab(m) {
   const evs = EV.filter(e => (e.attendees||[]).map(String).includes(String(m.id))).sort((a, b) => b.dt.localeCompare(a.dt));
