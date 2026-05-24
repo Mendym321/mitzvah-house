@@ -2067,19 +2067,10 @@ Object.assign(window, {
   addMember, addEvent, addMemberToEvent, addPersonToEvent,
   editMember, saveMemberEdit, deleteMember,
   toggleMergeMode, toggleMergeSelect, doMerge, deleteEvent,
-  renderEvBody,
-  handleTagKey, addTagToField, renderAmTags, renderEmTags,
-  toggleAttendance, toggleSelectAll, cycleRSVP,
-  saveNotes, saveImport, saveNotes,
+  renderEvBody, toggleAttendance, toggleSelectAll,
+  saveNotes, saveImport,
   renderImpStep, parseCSV, handleFile, setupDrop,
   reviewRow, updName, updF, delRow, removeRTag, addRTag, rerenderRTags,
-  copyCode: (btn) => {
-    const pre = btn.nextElementSibling;
-    navigator.clipboard.writeText(pre.textContent).then(() => {
-      btn.textContent = '✓ Copied';
-      setTimeout(() => btn.textContent = 'Copy', 2000);
-    });
-  }
 });
 </script>
 
