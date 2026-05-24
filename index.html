@@ -515,11 +515,11 @@ select.inp{cursor:pointer;}
     <div id="tag-chips" style="display:contents"></div>
     <span class="m-count" id="m-ct"></span>
     <button class="btn btn-o btn-sm" id="select-mode-btn" onclick="toggleSelectMode()" style="flex-shrink:0">Select</button>
+    <button class="btn btn-o btn-sm" id="select-all-btn" onclick="selectAll()" style="flex-shrink:0;display:none">Select all</button>
     <button class="btn btn-o btn-sm" id="merge-mode-btn" onclick="toggleMergeMode()" style="flex-shrink:0">Merge</button>
   </div>
-  <div class="merge-bar" id="select-bar" style="bottom:80px;gap:8px">
+  <div class="merge-bar" id="select-bar" style="bottom:80px">
     <span class="merge-bar-text" id="select-bar-text">0 selected</span>
-    <button class="merge-bar-cancel" onclick="selectAll()" id="select-all-btn">Select all</button>
     <button class="merge-bar-btn" style="background:#dc2626" onclick="deleteSelected()">Delete</button>
     <button class="merge-bar-cancel" onclick="toggleSelectMode()">Cancel</button>
   </div>
@@ -1161,12 +1161,25 @@ function renderReview(map, headers) {
     <div style="border:1.5px solid var(--f3);border-radius:12px;padding:14px;margin-bottom:14px;">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--k4);margin-bottom:10px">Link to event</div>
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-        <input class="inp" id="imp-new-ev-nm" placeholder="Create new event: name…" style="flex:2">
+        <input class="inp" id="imp-new-ev-nm" placeholder="Event name…" style="flex:2">
         <input class="inp" id="imp-new-ev-dt" type="date" style="flex:1">
       </div>
-      <div style="text-align:center;font-size:12px;color:var(--k4);margin:4px 0">or link to existing</div>
+      <div style="margin-bottom:8px;">
+        <select class="inp" id="imp-new-ev-cat">
+          <option value="community">Community</option>
+          <option value="shabbat">Shabbat</option>
+          <option value="teen">Teen</option>
+          <option value="youngfam">Young Families</option>
+          <option value="adults">Adults</option>
+          <option value="women">Women</option>
+          <option value="minyan">Minyan</option>
+          <option value="holiday">Holiday</option>
+          <option value="outreach">Outreach</option>
+        </select>
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--k4);margin:4px 0">or link to existing event</div>
       <select class="inp" id="imp-ev-sel2">${evSelectOpts()}</select>
-      <div style="font-size:12px;color:var(--k4);margin-top:6px">Everyone in the CSV will be marked as RSVP'd. You confirm attendance separately after the event.</div>
+      <div style="font-size:12px;color:var(--k4);margin-top:6px">Everyone in the CSV will be marked as RSVP'd. Confirm attendance after the event.</div>
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-o" onclick="window.renderImpStep('drop')">${s('backBtn')}</button>
@@ -1198,8 +1211,9 @@ async function saveImport() {
   const newEvNm = document.getElementById('imp-new-ev-nm')?.value?.trim();
   const newEvDt = document.getElementById('imp-new-ev-dt')?.value;
   let ev = null;
+  const newEvCat = document.getElementById('imp-new-ev-cat')?.value || 'community';
   if (newEvNm && newEvDt) {
-    ev = { id: Date.now().toString(), nm: newEvNm, dt: newEvDt, loc: 'ADD Mitzvah House', desc: 'Imported from CSV', attendees: [], rsvp: [], created: today() };
+    ev = { id: Date.now().toString(), nm: newEvNm, dt: newEvDt, cat: newEvCat, loc: 'ADD Mitzvah House', desc: 'Imported from CSV', attendees: [], rsvp: [], created: today() };
     EV.push(ev); fbSaveEvent(ev);
   } else if (evSel?.value) {
     ev = EV.find(e => e.id === evSel.value);
@@ -1719,17 +1733,21 @@ function selectAll() {
   const txt = document.getElementById('select-bar-text');
   const allBtn = document.getElementById('select-all-btn');
   if (txt) txt.textContent = selectSelected.length + ' selected';
-  if (allBtn) allBtn.textContent = selectSelected.length === M.length ? 'Deselect all' : 'Select all';
+  if (allBtn) allBtn.textContent = allSelected ? 'Select all' : 'Deselect all';
+  const bar = document.getElementById('select-bar');
+  if (bar) bar.classList.toggle('on', selectSelected.length > 0);
   renderMembers();
 }
 function toggleSelectMode() {
   selectMode = !selectMode;
   selectSelected = [];
   const btn = document.getElementById('select-mode-btn');
+  const allBtn = document.getElementById('select-all-btn');
   const bar = document.getElementById('select-bar');
   if (btn) { btn.textContent = selectMode ? 'Cancel' : 'Select'; btn.style.color = selectMode ? 'var(--r)' : ''; }
+  if (allBtn) { allBtn.style.display = selectMode ? 'inline-flex' : 'none'; allBtn.textContent = 'Select all'; }
   if (bar) bar.classList.toggle('on', false);
-  if (selectMode && mergeMode) toggleMergeMode(); // cancel merge if active
+  if (selectMode && mergeMode) toggleMergeMode();
   renderMembers();
 }
 function toggleSelectItem(id) {
