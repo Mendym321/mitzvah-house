@@ -615,11 +615,12 @@ select.inp{cursor:pointer;}
         <div class="field"><div class="label">Email</div><input class="inp" id="em-em" type="email"></div>
       </div>
       <div class="field">
-        <div class="label">Tags</div>
-        <div class="tagfield" id="em-tagfield" onclick="document.getElementById('em-taginput').focus()">
-          <input class="taginput" id="em-taginput" placeholder="Type and press Enter…" onkeydown="handleTagKey(event,'em')">
-        </div>
-        <div class="tagsug" id="em-tagsug"></div>
+        <div class="label">Gender</div>
+        <select class="inp" id="em-gender">
+          <option value="">Unknown</option>
+          <option value="m">Male</option>
+          <option value="f">Female</option>
+        </select>
       </div>
       <div class="field"><div class="label">Notes</div><textarea class="inp" id="em-notes" style="min-height:54px"></textarea></div>
       <div class="modal-foot">
@@ -786,7 +787,72 @@ const EV_CATS = {
   holiday:     { label: 'Holiday',       color: '#c47f1a', bg: '#FDF6E7' },
   outreach:    { label: 'Outreach',      color: '#0891b2', bg: '#EDF8FC' },
 };
-function catInfo(ev) { return EV_CATS[ev?.cat || ''] || EV_CATS['']; }
+function catInfo(ev) { return EV_CATS[ev?.cat || ''] || EV_CATS['community']; }
+
+// ── GENDER DETECTION ─────────────────────────────────────────────────
+const FEMALE_NAMES = new Set([
+  // Hebrew / Israeli
+  'miriam','rivka','leah','tamar','rachel','sarah','devorah','chana','tzipora','noa',
+  'maya','dina','yael','avigail','naomi','ruth','esther','judith','adina','batya',
+  'talia','orly','shira','ayelet','michal','ronit','gila','dafna','einat','nurit',
+  'rina','hadas','limor','nirit','orit','sigalit','ilanit','osnat','tzippi','bracha',
+  'rivky','raizy','chanie','gitty','malky','sury','etty','faigy','leahy','perel',
+  // Brazilian Portuguese
+  'ana','maria','julia','isabela','beatriz','camila','fernanda','gabriela','leticia',
+  'mariana','patricia','renata','roberta','sandra','tatiana','vanessa','viviane',
+  'amanda','bruna','caroline','daniela','debora','elaine','fabiana','giovanna',
+  'helena','ingrid','jessica','karen','larissa','luciana','luiza','manuela',
+  'natalia','priscila','rafaela','sabrina','simone','thais','valeria','veronica',
+  'claudia','cristina','adriana','alice','aline','andrea','carla','cintia',
+  // English / Ashkenazi
+  'rachel','rebecca','leah','sarah','emma','olivia','sophia','isabella','mia',
+  'charlotte','amelia','harper','evelyn','abigail','emily','elizabeth','mila',
+  'ella','avery','sofia','camila','aria','scarlett','victoria','madison','luna',
+  'grace','chloe','penelope','layla','riley','zoey','nora','lily','eleanor',
+  'hannah','lillian','addison','aubrey','ellie','stella','natalie','zoe','leah',
+  'hazel','violet','aurora','savannah','audrey','brooklyn','bella','claire',
+  'skylar','lucy','paisley','everly','anna','caroline','nova','genesis','emilia',
+  'kennedy','samantha','maya','willow','kinsley','naomi','aaliyah','elena','sarah',
+]);
+const MALE_NAMES = new Set([
+  // Hebrew / Israeli
+  'moshe','yosef','avi','eli','david','shlomo','menachem','mordechai','yitzchak',
+  'avraham','yaakov','aharon','shimon','levi','yehuda','binyamin','naftali','asher',
+  'dan','gad','zevulun','yissachar','reuven','ephraim','menashe','pinchas','calev',
+  'noam','itai','omer','erez','nimrod','ran','ron','tal','bar','eitan','gal',
+  'ido','niv','ofir','roi','shay','tomer','yam','yonatan','amir','ariel',
+  'benny','dani','doron','gadi','kobi','motti','nachman','ori','rafi','sagi',
+  // Brazilian Portuguese
+  'joao','jose','antonio','francisco','carlos','paulo','pedro','lucas','marcos',
+  'luis','gabriel','rafael','daniel','marcelo','roberto','rodrigo','felipe','andre',
+  'leonardo','guilherme','mateus','thiago','vinicius','diego','eduardo','henrique',
+  'alexandre','anderson','bruno','caio','claudio','cristiano','fábio','flavio',
+  'igor','junior','kevin','leandro','mario','nelson','oscar','renato','sergio',
+  'vagner','wagner','wellington','willian','alex','alan','cesar','davi','enzo',
+  // English / Ashkenazi
+  'james','john','robert','michael','william','david','richard','joseph','thomas',
+  'charles','christopher','daniel','matthew','anthony','mark','donald','steven',
+  'paul','andrew','joshua','kenneth','kevin','brian','george','timothy','ronald',
+  'edward','jason','jeffrey','ryan','jacob','gary','nicholas','eric','jonathan',
+  'stephen','larry','justin','scott','brandon','benjamin','samuel','raymond',
+  'frank','gregory','frank','alexander','patrick','jack','dennis','jerry',
+  'tyler','aaron','jose','henry','adam','douglas','nathan','peter','zachary',
+  'kyle','noah','ethan','jeremy','christian','walter','keith','austin','roger',
+  'liam','mason','elijah','oliver','james','aiden','logan','lucas','jackson',
+]);
+
+function detectGender(firstName) {
+  if (!firstName) return '';
+  const n = firstName.toLowerCase().trim();
+  if (FEMALE_NAMES.has(n)) return 'f';
+  if (MALE_NAMES.has(n)) return 'm';
+  // Heuristic fallbacks for Hebrew/Brazilian patterns
+  if (n.endsWith('a') && !['joshua','luca','noah','elisha'].includes(n)) return 'f';
+  if (n.endsWith('ah') && !['judah','isaiah','jeremiah','nehemiah','zechariah'].includes(n)) return 'f';
+  if (n.endsWith('it') || n.endsWith('el') || n.endsWith('on')) return 'm';
+  return ''; // unknown
+}
+
 const MOS = {en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], pt:['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']};
 const DAYS = {en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], pt:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']};
 
@@ -862,6 +928,24 @@ function load() {
 function today() { return new Date().toISOString().split('T')[0]; }
 function initials(m) { return ((m.fn?.[0] || '') + (m.ln?.[0] || '')).toUpperCase(); }
 function avatarBg(m) { return PALETTES[((m.fn?.charCodeAt(0) || 0) + (m.ln?.charCodeAt(0) || 0)) % PALETTES.length]; }
+
+// Generate an SVG avatar based on gender and name color
+function avatarSVG(m, size=44) {
+  const color = avatarBg(m);
+  const ini = initials(m);
+  const g = m.gender || detectGender(m.fn);
+  // Subtle shape behind initials based on gender
+  const shape = g === 'f'
+    ? `<circle cx="${size/2}" cy="${size*0.38}" r="${size*0.28}" fill="white" opacity="0.15"/>`
+    : g === 'm'
+    ? `<rect x="${size*0.22}" y="${size*0.12}" width="${size*0.56}" height="${size*0.56}" rx="${size*0.08}" fill="white" opacity="0.12"/>`
+    : `<polygon points="${size/2},${size*0.1} ${size*0.85},${size*0.75} ${size*0.15},${size*0.75}" fill="white" opacity="0.1"/>`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="border-radius:50%;display:block;flex-shrink:0">
+    <circle cx="${size/2}" cy="${size/2}" r="${size/2}" fill="${color}"/>
+    ${shape}
+    <text x="${size/2}" y="${size/2}" dy=".35em" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-size="${size*0.38}" fill="white" font-weight="600">${ini}</text>
+  </svg>`;
+}
 function tagColor(tag) { return PALETTES[Math.abs([...tag].reduce((a, c) => a + c.charCodeAt(0), 0)) % PALETTES.length]; }
 function mo() { return MOS[lang]; }
 function dy() { return DAYS[lang]; }
@@ -1115,8 +1199,7 @@ function parseCSV(raw) {
     if (map.lname != null) ln = (row[map.lname] || '').trim() || ln;
     if (!fn && !ln) return null;
     const existing = M.find(m => m.fn.toLowerCase() === fn.toLowerCase() && m.ln.toLowerCase() === ln.toLowerCase());
-    return { fn, ln, age: parseInt(row[map.age]) || null, ph: (row[map.phone] || '').trim(), em: (row[map.email] || '').trim(), bairro: (row[map.hood] || '').trim(), tags: [], // NO auto-tags — only user assigns
-      is_new: !existing, eid: existing?.id };
+    return { fn, ln, age: parseInt(row[map.age]) || null, gender: detectGender(fn), ph: (row[map.phone] || '').trim(), em: (row[map.email] || '').trim(), bairro: (row[map.hood] || '').trim(), is_new: !existing, eid: existing?.id };
   }).filter(Boolean);
   if (!people.length) { toast('No people found'); return; }
   importParsed = people;
@@ -1489,6 +1572,11 @@ function renderAnalytics() {
   const newLast30 = M.filter(m => m.joined && daysSince(m.joined) <= 30).length;
   const newLast90 = M.filter(m => m.joined && daysSince(m.joined) <= 90).length;
 
+  // ── Gender breakdown ──
+  const females = M.filter(m => (m.gender || detectGender(m.fn)) === 'f');
+  const males = M.filter(m => (m.gender || detectGender(m.fn)) === 'm');
+  const unknown = M.filter(m => !(m.gender || detectGender(m.fn)));
+
   // ── Regulars: attended 3+ events ──
   const regulars = M.filter(m => EV.filter(e => (e.attendees||[]).map(String).includes(String(m.id))).length >= 3);
 
@@ -1558,7 +1646,7 @@ function renderAnalytics() {
       ${[
         [M.length,'Members','var(--r)'],
         [EV.length,'Events','var(--k2)'],
-        [avgAtt,'Avg / event','#2d7a4f'],
+        [avgAtt,'Avg/event','#2d7a4f'],
         [showRate+'%','Show rate','#7b5ea7'],
       ].map(([n,l,c],i) => `
         <div style="${i>0?'border-left:1px solid var(--f2)':''}">
@@ -1576,6 +1664,16 @@ function renderAnalytics() {
           <div style="font-family:var(--serif);font-size:26px;font-weight:400;color:${c};line-height:1">${n}</div>
           <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--k4);margin-top:4px">${l}</div>
         </div>`).join('')}
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;padding:10px 0;border-top:1px solid var(--f2)">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--k4);margin-right:4px">Gender</div>
+      ${females.length ? `<div style="display:flex;align-items:center;gap:4px;margin-right:10px"><span style="width:8px;height:8px;border-radius:50%;background:#be185d;display:inline-block"></span><span style="font-size:13px;color:var(--k2)">${females.length} F</span></div>` : ''}
+      ${males.length ? `<div style="display:flex;align-items:center;gap:4px;margin-right:10px"><span style="width:8px;height:8px;border-radius:50%;background:#2D4B73;display:inline-block"></span><span style="font-size:13px;color:var(--k2)">${males.length} M</span></div>` : ''}
+      ${unknown.length ? `<div style="font-size:12px;color:var(--k4)">${unknown.length} unknown</div>` : ''}
+      <div style="flex:1;height:6px;background:var(--f2);border-radius:3px;overflow:hidden;margin-left:8px;display:flex">
+        ${females.length ? `<div style="height:100%;background:#be185d;width:${Math.round(females.length/M.length*100)}%"></div>` : ''}
+        ${males.length ? `<div style="height:100%;background:#2D4B73;width:${Math.round(males.length/M.length*100)}%"></div>` : ''}
+      </div>
     </div>`;
 
   // ── Lapsed card ──
@@ -1701,7 +1799,7 @@ async function saveMemberEdit() {
   m.ph = document.getElementById('em-ph').value.trim();
   m.em = document.getElementById('em-em').value.trim();
   m.notes = document.getElementById('em-notes').value.trim();
-  m.tags = [...emTags];
+  m.gender = document.getElementById('em-gender')?.value || m.gender || '';
   save(); fbSaveMember(m);
   closeModal('editm'); closeDrawer('m-ov');
   toast('Changes saved'); renderCurrent();
