@@ -937,6 +937,7 @@ function tagPill(tag, removable = false, idx = null) {
 
 // ── NAV ──────────────────────────────────────────────────────────────
 let curPage = 'home';
+let mFilterTag = null;
 function nav(page) {
   curPage = page;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
@@ -1464,7 +1465,7 @@ function addPersonToEvent() { const ev = EV.find(e => String(e.id) === String(ac
 function renderMembers() {
   const q = (document.getElementById('srch')?.value || '').toLowerCase();
   let list = [...M];
-  if (mFilterTag) list = list.filter(m => (m.tags || []).includes(mFilterTag));
+
   if (q) list = list.filter(m => (m.fn + ' ' + m.ln + (m.bairro || '')).toLowerCase().includes(q));
   document.getElementById('m-ct').textContent = list.length;
   // Tag filter chips
